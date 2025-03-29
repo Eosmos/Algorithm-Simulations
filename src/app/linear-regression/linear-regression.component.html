@@ -1,0 +1,179 @@
+<div class="lr-container">
+    <div class="lr-header">
+      <h1 class="lr-title">Linear Regression Simulation</h1>
+      <p class="lr-subtitle">Interactive visualization of gradient descent optimization</p>
+    </div>
+    
+    <div class="lr-main-content">
+      <div class="lr-visualizations">
+        <!-- Left panel: Data and regression line -->
+        <div class="lr-card lr-scatter-container">
+          <div class="lr-card-header">
+            <h2>Data & Regression Line</h2>
+            <div class="lr-equation">
+              <span>y = </span>
+              <span class="lr-beta0">{{ beta0.toFixed(2) }}</span>
+              <span> + </span>
+              <span class="lr-beta1">{{ beta1.toFixed(2) }}</span>
+              <span>x</span>
+            </div>
+          </div>
+          <div #scatterPlot class="lr-plot"></div>
+          <div class="lr-explanation">
+            <p>The scatter plot shows data points and the current regression line.</p>
+            <p>As the algorithm learns, the line adjusts to minimize prediction error.</p>
+          </div>
+        </div>
+        
+        <!-- Right panel: 3D Cost function visualization -->
+        <div class="lr-card lr-cost-container">
+          <div class="lr-card-header">
+            <h2>Cost Function (MSE)</h2>
+            <div class="lr-cost-value">
+              <span>Current Cost: </span>
+              <span class="lr-cost-number">{{ currentCost.toFixed(4) }}</span>
+            </div>
+          </div>
+          <div #costFunction class="lr-plot"></div>
+          <div class="lr-explanation">
+            <p>The 3D surface represents the cost function J(β₀, β₁).</p>
+            <p>Gradient descent follows the steepest path downhill toward the minimum.</p>
+            <p><strong>Tip:</strong> Drag to rotate, scroll to zoom, and right-click to pan.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bottom panel: Controls and parameters -->
+      <div class="lr-controls-container">
+        <div class="lr-card">
+          <div class="lr-card-header">
+            <h2>Simulation Controls</h2>
+          </div>
+          
+          <div class="lr-control-panels">
+            <!-- Parameters panel -->
+            <div class="lr-parameters">
+              <h3>Parameters</h3>
+              
+              <div class="lr-parameter-group">
+                <label for="learning-rate">Learning Rate (α): {{ learningRate.toFixed(3) }}</label>
+                <input 
+                  type="range" 
+                  id="learning-rate" 
+                  min="0.001" 
+                  max="0.05" 
+                  step="0.001" 
+                  [value]="learningRate"
+                  (input)="learningRate = $any($event.target).value">
+              </div>
+              
+              <div class="lr-parameter-group">
+                <label for="animation-speed">Animation Speed: {{ (100 - animationSpeed).toFixed(0) }}%</label>
+                <input 
+                  type="range" 
+                  id="animation-speed" 
+                  min="5" 
+                  max="150" 
+                  step="1" 
+                  [value]="100 - animationSpeed" 
+                  (input)="animationSpeed = 100 - +$any($event.target).value">
+              </div>
+              
+              <div class="lr-parameter-group">
+                <label for="iterations">Iterations: {{ iterations }} / {{ maxIterations }}</label>
+                <div class="lr-progress-bar">
+                  <div class="lr-progress" [style.width.%]="(iterations / maxIterations) * 100"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Buttons panel -->
+            <div class="lr-buttons">
+              <button class="lr-button lr-button-primary" (click)="playFullSimulation()">
+                <span class="material-icons">play_circle</span>
+                <span>Play Full Simulation</span>
+              </button>
+              
+              <div class="lr-button-group">
+                <button class="lr-button" (click)="reset()">
+                  <span class="material-icons">restart_alt</span>
+                  <span>Reset</span>
+                </button>
+                
+                <button class="lr-button" [class.active]="isPlaying" (click)="playPause()">
+                  <span class="material-icons">{{ isPlaying ? 'pause' : 'play_arrow' }}</span>
+                  <span>{{ isPlaying ? 'Pause' : 'Play' }}</span>
+                </button>
+                
+                <button class="lr-button" [disabled]="isPlaying || iterations >= maxIterations" (click)="stepForward()">
+                  <span class="material-icons">skip_next</span>
+                  <span>Step</span>
+                </button>
+              </div>
+              
+              <div class="lr-toggle-group">
+                <label class="lr-toggle">
+                  <input type="checkbox" [checked]="showGradientPath" (change)="showGradientPath = !showGradientPath; toggleGradientPath()">
+                  <span class="lr-toggle-slider"></span>
+                  <span class="lr-toggle-label">Show Gradient Path</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Educational content section -->
+    <div class="lr-educational-content">
+      <div class="lr-card">
+        <div class="lr-card-header">
+          <h2>Understanding Linear Regression & Gradient Descent</h2>
+        </div>
+        
+        <div class="lr-education-grid">
+          <!-- First column: Linear Regression basics -->
+          <div class="lr-education-section">
+            <h3>The Linear Model</h3>
+            <p>Linear regression models the relationship between inputs (X) and outputs (y) using a linear equation:</p>
+            <div class="lr-formula">y = β₀ + β₁x + ε</div>
+            <p>Where:</p>
+            <ul>
+              <li><strong>β₀</strong>: y-intercept (value of y when x = 0)</li>
+              <li><strong>β₁</strong>: slope (change in y for a unit change in x)</li>
+              <li><strong>ε</strong>: error term</li>
+            </ul>
+            <p>The goal is to find the optimal values for β₀ and β₁ that create the best-fitting line through the data points.</p>
+          </div>
+          
+          <!-- Second column: Cost Function -->
+          <div class="lr-education-section">
+            <h3>Cost Function</h3>
+            <p>The mean squared error (MSE) measures how well the model fits the data:</p>
+            <div class="lr-formula">J(β₀, β₁) = (1/2m) ∑(hᵢ - yᵢ)²</div>
+            <p>Where:</p>
+            <ul>
+              <li><strong>m</strong> is the number of training examples</li>
+              <li><strong>hᵢ</strong> is the prediction (β₀ + β₁xᵢ) for the i-th example</li>
+              <li><strong>yᵢ</strong> is the actual target value for the i-th example</li>
+            </ul>
+            <p>The 3D visualization shows this cost function with β₀ and β₁ as the x and z axes, and the cost value as the y axis.</p>
+          </div>
+          
+          <!-- Third column: Gradient Descent -->
+          <div class="lr-education-section">
+            <h3>Gradient Descent</h3>
+            <p>Gradient descent is an optimization algorithm that iteratively adjusts parameters to minimize the cost function:</p>
+            <div class="lr-formula">β₀ := β₀ - α ∂J/∂β₀</div>
+            <div class="lr-formula">β₁ := β₁ - α ∂J/∂β₁</div>
+            <p>Where:</p>
+            <ul>
+              <li><strong>α</strong> is the learning rate that controls step size</li>
+              <li><strong>∂J/∂β₀</strong> and <strong>∂J/∂β₁</strong> are the partial derivatives of the cost function</li>
+            </ul>
+            <p>The algorithm follows the gradient (steepest downhill direction) until it reaches a minimum where the cost is lowest.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
