@@ -1,0 +1,481 @@
+// Color Palette from Design System
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-bg: #2a4980;
+
+$light-gray: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+// Main Styles
+.naive-bayes-container {
+  background-color: $darkest-blue;
+  color: $light-gray;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+// Header Section
+.header-section {
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  color: $white;
+  background: linear-gradient(135deg, $primary-blue, $purple);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: rgba($primary-blue, 0.2);
+  color: $primary-blue;
+  border: 1px solid $primary-blue;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 8px 0;
+}
+
+.description {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 16px 0 0;
+  max-width: 800px;
+}
+
+// Tabs Container
+.tabs-container {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 1px solid $medium-blue;
+  
+  button {
+    background: none;
+    border: none;
+    color: $muted-blue;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 16px 24px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: rgba($light-blue-bg, 0.4);
+      color: $light-gray;
+    }
+    
+    &.active {
+      background-color: $light-blue-bg;
+      color: $white;
+      border-bottom: 3px solid $primary-blue;
+    }
+  }
+}
+
+.tab-content {
+  padding: 24px;
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+.panel-header {
+  margin-bottom: 24px;
+  
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: $white;
+  }
+  
+  p {
+    margin: 0;
+    color: $muted-blue;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
+// Visualization Container
+.visualization-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  
+  .chart {
+    background-color: $medium-blue;
+    border-radius: 8px;
+    padding: 16px;
+    width: 100%;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Step Explanation
+.step-explanation {
+  background-color: rgba($medium-blue, 0.5);
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 200px;
+  
+  h3 {
+    color: $white;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+  
+  p {
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+  
+  ul {
+    margin: 8px 0;
+    padding-left: 24px;
+    
+    li {
+      margin-bottom: 8px;
+    }
+  }
+}
+
+// Email Example (Text Classification)
+.email-example {
+  background-color: rgba($medium-blue, 0.5);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  
+  h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: $white;
+  }
+  
+  .email-content {
+    background-color: $medium-blue;
+    border-radius: 4px;
+    padding: 16px;
+    font-family: monospace;
+    font-size: 16px;
+  }
+  
+  .email-word {
+    display: inline-block;
+    margin-right: 12px;
+    padding: 4px 8px;
+    background-color: $dark-purple;
+    border-radius: 4px;
+    color: $white;
+  }
+}
+
+// Text Classification Container
+.text-classification-container {
+  width: 100%;
+  
+  .word-probability-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid $medium-blue;
+    }
+    
+    th {
+      background-color: $light-blue-bg;
+      color: $white;
+      font-weight: 600;
+    }
+    
+    td {
+      &.word-cell {
+        font-weight: 600;
+      }
+      
+      &.probability-cell {
+        font-family: monospace;
+        transition: opacity 0.3s ease;
+      }
+    }
+  }
+  
+  .probability-calculation {
+    background-color: rgba($medium-blue, 0.5);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+    
+    h4 {
+      margin: 0 0 16px;
+      color: $white;
+    }
+    
+    .calc-row {
+      margin-bottom: 12px;
+      font-family: monospace;
+      
+      .calc-label {
+        color: $muted-blue;
+      }
+      
+      .calc-value {
+        font-weight: 600;
+        color: $cyan;
+      }
+    }
+    
+    .classification-result {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid $medium-blue;
+      
+      h4 {
+        color: $white;
+      }
+      
+      .result-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        
+        th, td {
+          padding: 8px 16px;
+          text-align: left;
+          border-bottom: 1px solid $medium-blue;
+        }
+        
+        th {
+          color: $white;
+          background-color: $light-blue-bg;
+        }
+      }
+      
+      .prediction {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 600;
+        margin-top: 16px;
+        
+        &.spam {
+          background-color: rgba($orange, 0.2);
+          color: $orange;
+          border: 1px solid $orange;
+        }
+        
+        &.not-spam {
+          background-color: rgba($green, 0.2);
+          color: $green;
+          border: 1px solid $green;
+        }
+      }
+    }
+  }
+}
+
+// Controls Container
+.controls-container {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  
+  h3 {
+    margin: 0 0 16px;
+    color: $white;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  .controls {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .control-btn {
+    background-color: $medium-blue;
+    border: none;
+    border-radius: 8px;
+    color: $light-gray;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    &:hover:not(:disabled) {
+      background-color: $light-blue-bg;
+      color: $white;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .icon {
+      font-size: 18px;
+    }
+    
+    &.play-btn {
+      background-color: $primary-blue;
+      color: $white;
+      
+      &:hover:not(:disabled) {
+        background-color: $dark-blue;
+      }
+    }
+  }
+}
+
+// Info Container
+.info-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.info-section {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  
+  h3 {
+    color: $white;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    border-bottom: 2px solid $medium-blue;
+    padding-bottom: 8px;
+  }
+  
+  p {
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+  
+  ul {
+    margin: 8px 0;
+    padding-left: 24px;
+    
+    li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      
+      strong {
+        color: $white;
+      }
+    }
+  }
+  
+  .formula {
+    background-color: $medium-blue;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    font-family: 'Times New Roman', serif;
+    font-size: 20px;
+    text-align: center;
+    color: $white;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .naive-bayes-container {
+    padding: 16px;
+  }
+  
+  .tabs-container {
+    overflow: visible;
+  }
+  
+  .tab-buttons {
+    flex-direction: column;
+    border-bottom: none;
+    
+    button {
+      text-align: left;
+      border-bottom: 1px solid $medium-blue;
+      
+      &.active {
+        border-bottom: 1px solid $primary-blue;
+      }
+    }
+  }
+  
+  .info-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .controls {
+    flex-direction: column;
+    
+    .control-btn {
+      width: 100%;
+    }
+  }
+}

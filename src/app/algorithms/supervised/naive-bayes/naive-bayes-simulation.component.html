@@ -1,0 +1,299 @@
+<div class="naive-bayes-container">
+    <div class="header-section">
+      <h1 class="title">Naive Bayes Algorithm Simulation</h1>
+      <div class="category-badge">Supervised Learning</div>
+      <p class="description">
+        Naive Bayes is a probabilistic classifier that applies Bayes' theorem with the "naive" assumption of conditional independence between features.
+      </p>
+    </div>
+  
+    <div class="tabs-container">
+      <div class="tab-buttons">
+        <button 
+          [class.active]="activeTab === 'gaussian'" 
+          (click)="setActiveTab('gaussian')">
+          Gaussian Naive Bayes
+        </button>
+        <button 
+          [class.active]="activeTab === 'text'" 
+          (click)="setActiveTab('text')">
+          Text Classification
+        </button>
+        <button 
+          [class.active]="activeTab === 'decision'" 
+          (click)="setActiveTab('decision')">
+          Decision Boundary
+        </button>
+      </div>
+  
+      <div class="tab-content">
+        <!-- Gaussian Naive Bayes -->
+        <div *ngIf="activeTab === 'gaussian'" class="tab-panel">
+          <div class="panel-header">
+            <h2>Gaussian Naive Bayes</h2>
+            <p>
+              Visualizing how Naive Bayes classifies continuous data using Gaussian (normal) probability distributions.
+            </p>
+          </div>
+  
+          <div class="visualization-container">
+            <svg #distributionChart width="800" height="400" class="chart"></svg>
+            
+            <div class="step-explanation">
+              <div *ngIf="currentStep === 0">
+                <h3>Step 1: Understanding the Distributions</h3>
+                <p>
+                  This chart shows the height distributions for males (blue) and females (purple). 
+                  The x-axis represents height in cm, and the y-axis represents probability density.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 1">
+                <h3>Step 2: New Data Point</h3>
+                <p>
+                  We have a new person with a height of 170 cm (shown as a cyan dot).
+                  We want to classify this person as male or female based on their height.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 2">
+                <h3>Step 3: Calculate Male Likelihood</h3>
+                <p>
+                  We calculate P(height = 170 | male) = {{ this.classProbabilities.male.toFixed(4) }}
+                </p>
+                <p>
+                  This is the probability of observing a height of 170 cm given that the person is male.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 3">
+                <h3>Step 4: Calculate Female Likelihood</h3>
+                <p>
+                  We calculate P(height = 170 | female) = {{ this.classProbabilities.female.toFixed(4) }}
+                </p>
+                <p>
+                  This is the probability of observing a height of 170 cm given that the person is female.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 4">
+                <h3>Step 5: Apply Prior Probabilities</h3>
+                <p>
+                  We multiply each likelihood by the prior probability of each class:
+                </p>
+                <ul>
+                  <li>P(male) × P(height = 170 | male) = {{ this.priorProbabilities.male }} × {{ (this.classProbabilities.male / this.priorProbabilities.male).toFixed(4) }} = {{ this.classProbabilities.male.toFixed(4) }}</li>
+                  <li>P(female) × P(height = 170 | female) = {{ this.priorProbabilities.female }} × {{ (this.classProbabilities.female / this.priorProbabilities.female).toFixed(4) }} = {{ this.classProbabilities.female.toFixed(4) }}</li>
+                </ul>
+              </div>
+              
+              <div *ngIf="currentStep === 5">
+                <h3>Step 6: Normalize to Get Posterior Probabilities</h3>
+                <p>
+                  We divide each result by their sum to get the final probabilities:
+                </p>
+                <ul>
+                  <li>P(male | height = 170) = {{ this.classProbabilities.male.toFixed(4) }}</li>
+                  <li>P(female | height = 170) = {{ this.classProbabilities.female.toFixed(4) }}</li>
+                </ul>
+                <p>
+                  <strong>Classification:</strong> {{ this.classProbabilities.male > this.classProbabilities.female ? 'Male' : 'Female' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Text Classification -->
+        <div *ngIf="activeTab === 'text'" class="tab-panel">
+          <div class="panel-header">
+            <h2>Text Classification with Naive Bayes</h2>
+            <p>
+              Demonstrating how Naive Bayes works for document classification like spam detection.
+            </p>
+          </div>
+  
+          <div class="visualization-container">
+            <div class="email-example">
+              <h3>Test Email:</h3>
+              <div class="email-content">
+                <span *ngFor="let word of testEmail" class="email-word">{{ word }}</span>
+              </div>
+            </div>
+            
+            <div #textClassification class="text-classification-container"></div>
+            
+            <div class="step-explanation">
+              <div *ngIf="currentStep === 0">
+                <h3>Step 1: Email Data</h3>
+                <p>
+                  We have a training set of 6 emails (3 spam, 3 not spam) and their words.
+                  We need to classify a new email with words: "free", "win", "hello".
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 1">
+                <h3>Step 2: Word Probabilities</h3>
+                <p>
+                  For each word, we've calculated the probability of it appearing in spam or non-spam emails.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 2">
+                <h3>Step 3: Prior Probabilities</h3>
+                <p>
+                  We start with the prior probabilities of each class:
+                </p>
+                <ul>
+                  <li>P(spam) = 0.5 (50% of emails are spam)</li>
+                  <li>P(not spam) = 0.5 (50% of emails are not spam)</li>
+                </ul>
+              </div>
+              
+              <div *ngIf="currentStep === 3">
+                <h3>Step 4: Calculating Likelihoods</h3>
+                <p>
+                  For each word in our email, we multiply the appropriate probabilities.
+                  We use log probabilities to avoid numerical underflow with many multiplications.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 4">
+                <h3>Step 5: Final Classification</h3>
+                <p>
+                  We compare the final probabilities and classify the email accordingly.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Decision Boundary -->
+        <div *ngIf="activeTab === 'decision'" class="tab-panel">
+          <div class="panel-header">
+            <h2>Decision Boundary Visualization</h2>
+            <p>
+              Seeing how Naive Bayes creates decision boundaries between classes in feature space.
+            </p>
+          </div>
+  
+          <div class="visualization-container">
+            <svg #decisionBoundary width="800" height="400" class="chart"></svg>
+            
+            <div class="step-explanation">
+              <div *ngIf="currentStep === 0">
+                <h3>Step 1: Understanding the Feature Space</h3>
+                <p>
+                  We have a 2D feature space (Feature 1 and Feature 2) where we'll classify points as either Class A or Class B.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 1">
+                <h3>Step 2: Decision Boundary</h3>
+                <p>
+                  The color map shows the probability of Class A across the feature space. 
+                  Darker blue regions have higher probability of being Class A.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 2">
+                <h3>Step 3: Decision Boundary Contour</h3>
+                <p>
+                  The cyan line shows the decision boundary where P(Class A) = P(Class B) = 0.5.
+                  Points on one side are classified as Class A, and points on the other side as Class B.
+                </p>
+              </div>
+              
+              <div *ngIf="currentStep === 3">
+                <h3>Step 4: Training Data</h3>
+                <p>
+                  The blue points are Class A training data, and the purple points are Class B training data.
+                  The decision boundary separates them based on the Gaussian distributions of their features.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="controls-container">
+      <h3>Simulation Controls</h3>
+      <div class="controls">
+        <button 
+          class="control-btn" 
+          (click)="resetSimulation()" 
+          [disabled]="currentStep === 0">
+          <span class="icon">↺</span> Reset
+        </button>
+        
+        <button 
+          class="control-btn" 
+          (click)="previousStep()" 
+          [disabled]="currentStep === 0">
+          <span class="icon">←</span> Previous
+        </button>
+        
+        <button 
+          class="control-btn" 
+          (click)="nextStep()" 
+          [disabled]="(activeTab === 'gaussian' && currentStep === 5) || 
+                     (activeTab === 'text' && currentStep === 4) || 
+                     (activeTab === 'decision' && currentStep === 3)">
+          <span class="icon">→</span> Next
+        </button>
+        
+        <button 
+          class="control-btn play-btn" 
+          (click)="isPlaying ? pauseSimulation() : playSimulation()">
+          <span class="icon">{{ isPlaying ? '⏸' : '▶' }}</span> {{ isPlaying ? 'Pause' : 'Play' }}
+        </button>
+      </div>
+    </div>
+  
+    <div class="info-container">
+      <div class="info-section">
+        <h3>How Naive Bayes Works</h3>
+        <p>
+          Naive Bayes is a probabilistic algorithm that applies Bayes' theorem with a "naive" independence assumption between features. 
+          The core formula is:
+        </p>
+        <div class="formula">
+          P(C<sub>k</sub> | x) = P(C<sub>k</sub>) × P(x | C<sub>k</sub>) / P(x)
+        </div>
+        <p>Where:</p>
+        <ul>
+          <li><strong>P(C<sub>k</sub> | x)</strong>: Probability of class C<sub>k</sub> given features x</li>
+          <li><strong>P(C<sub>k</sub>)</strong>: Prior probability of class C<sub>k</sub></li>
+          <li><strong>P(x | C<sub>k</sub>)</strong>: Likelihood - probability of features x given class C<sub>k</sub></li>
+          <li><strong>P(x)</strong>: Evidence - probability of features x</li>
+        </ul>
+      </div>
+  
+      <div class="info-section">
+        <h3>Types of Naive Bayes</h3>
+        <ul>
+          <li>
+            <strong>Gaussian Naive Bayes</strong>: Used for continuous data, assumes features follow a normal distribution.
+          </li>
+          <li>
+            <strong>Multinomial Naive Bayes</strong>: Used for discrete data like text, handles word counts.
+          </li>
+          <li>
+            <strong>Bernoulli Naive Bayes</strong>: Used for binary/boolean features (presence/absence).
+          </li>
+        </ul>
+      </div>
+  
+      <div class="info-section">
+        <h3>Common Applications</h3>
+        <ul>
+          <li>Spam email filtering</li>
+          <li>Document classification</li>
+          <li>Sentiment analysis</li>
+          <li>Medical diagnosis</li>
+          <li>Recommendation systems</li>
+        </ul>
+      </div>
+    </div>
+  </div>

@@ -34,11 +34,11 @@ export const routes: Routes = [
       loadComponent: () => import('./algorithms/supervised/svm-visualization/svm-visualization.component')
         .then(c => c.SvmVisualizationComponent)
     },
-    // { 
-    //   path: 'naive-bayes',
-    //   loadComponent: () => import('./algorithms/supervised/naive-bayes/naive-bayes.component')
-    //     .then(c => c.NaiveBayesComponent)
-    // },
+    { 
+      path: 'naive-bayes',
+      loadComponent: () => import('./algorithms/supervised/naive-bayes/naive-bayes-simulation.component')
+        .then(c => c.NaiveBayesSimulationComponent)
+    },
     
     // // Unsupervised Learning algorithms
     // { 
