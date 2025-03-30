@@ -26,8 +26,8 @@ export const routes: Routes = [
     },
     { 
       path: 'random-forests',
-      loadComponent: () => import('./algorithms/supervised/random-forest-simulation/random-forest-simulation.component')
-        .then(c => c.RandomForestSimulationComponent)
+      loadComponent: () => import('./algorithms/supervised/random-forest-simulation/random-forest-visualization.component')
+        .then(c => c.RandomForestVisualizationComponent)
     },
     { 
       path: 'svm',

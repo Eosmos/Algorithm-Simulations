@@ -1,0 +1,449 @@
+// Design System Variables
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-hover: #2a4980;
+$light-gray: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+// Variables for spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// Border radius
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Shadow
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+// Apply global styles
+.random-forest-container {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: $light-gray;
+  background-color: $darkest-blue;
+  padding: $spacing-xl;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+// Header styles
+.header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: $spacing-md;
+    background: linear-gradient(135deg, $primary-blue, $purple);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+
+  .description {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    color: $muted-blue;
+  }
+}
+
+// Controls container
+.controls-container {
+  display: flex;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: 1200px) {
+    flex-direction: column;
+  }
+}
+
+// Control panel
+.control-panel {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  flex: 1;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: $spacing-md;
+    color: $white;
+    font-size: 1.3rem;
+  }
+}
+
+// Simulation controls
+.simulation-controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  .control-btn {
+    background-color: $medium-blue;
+    color: $light-gray;
+    border: none;
+    border-radius: $radius-sm;
+    padding: $spacing-sm $spacing-md;
+    cursor: pointer;
+    transition: all $transition-fast;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      background-color: $light-blue-hover;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+
+  .speed-control {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    margin-top: $spacing-sm;
+
+    label {
+      min-width: 120px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      appearance: none;
+      background: $medium-blue;
+      border-radius: 3px;
+      outline: none;
+
+      &::-webkit-slider-thumb {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: $cyan;
+        cursor: pointer;
+      }
+    }
+
+    span {
+      min-width: 30px;
+      text-align: right;
+    }
+  }
+}
+
+// Parameter controls
+.parameter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  .parameter-group {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    label {
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      appearance: none;
+      background: $medium-blue;
+      border-radius: 3px;
+      outline: none;
+
+      &::-webkit-slider-thumb {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: $primary-blue;
+        cursor: pointer;
+      }
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: $primary-blue;
+    }
+
+    span {
+      min-width: 30px;
+      text-align: right;
+    }
+  }
+}
+
+// Explanation panel
+.explanation-panel {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+  flex: 1;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: $spacing-md;
+    color: $white;
+    font-size: 1.3rem;
+  }
+
+  .explanation-content {
+    line-height: 1.6;
+    font-size: 1.1rem;
+    color: $light-gray;
+  }
+}
+
+// Visualization container
+.visualization-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.visualization-row {
+  display: flex;
+  gap: $spacing-xl;
+
+  @media (max-width: 1200px) {
+    flex-direction: column;
+  }
+}
+
+.visualization-card {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: $spacing-md;
+    color: $white;
+    font-size: 1.3rem;
+    text-align: center;
+  }
+
+  .visualization-content {
+    flex: 1;
+    min-height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+}
+
+// 3D Visualization
+.visualization-3d-container {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+  margin-top: $spacing-xl;
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: $spacing-lg;
+    color: $white;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .canvas-3d {
+    width: 100%;
+    height: 400px;
+    border-radius: $radius-sm;
+    background-color: $darkest-blue;
+  }
+}
+
+// Info section
+.info-section {
+  display: flex;
+  gap: $spacing-xl;
+  margin-top: $spacing-xl;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+
+  .info-card {
+    background-color: $dark-blue-bg;
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+    box-shadow: $shadow-md;
+    flex: 1;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: $spacing-md;
+      color: $white;
+      font-size: 1.3rem;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, $primary-blue, $purple);
+        border-radius: 3px;
+      }
+    }
+
+    p {
+      line-height: 1.6;
+      color: $light-gray;
+    }
+
+    ul {
+      padding-left: $spacing-lg;
+      margin: $spacing-md 0;
+      
+      li {
+        margin-bottom: $spacing-sm;
+        color: $light-gray;
+        line-height: 1.6;
+        
+        strong {
+          color: $white;
+        }
+      }
+    }
+  }
+}
+
+// Specific visualization styles
+.dataset-viz {
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.tree-viz {
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.forest-viz {
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.prediction-viz {
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// Animation classes
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+// Add responsive adjustments
+@media (max-width: 768px) {
+  .random-forest-container {
+    padding: $spacing-md;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .visualization-content {
+    min-height: 200px;
+  }
+
+  .canvas-3d {
+    height: 300px;
+  }
+}
