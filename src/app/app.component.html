@@ -1,11 +1,27 @@
+<div class="app-container">
+  <!-- Neural Network Background -->
+  <div class="neural-net-bg"></div>
 
+  <header class="app-header">
+    <div class="logo" [routerLink]="['/dashboard']">
+      <i class="fa-solid fa-brain"></i>
+      <span>AI Algorithm Explorer</span>
+    </div>
+    <nav class="main-nav">
+      <a [routerLink]="['/dashboard']" routerLinkActive="active">Dashboard</a>
+      <a href="https://github.com/your-repo/ai-algorithm-explorer" target="_blank">
+        <i class="fa-brands fa-github"></i> GitHub
+      </a>
+    </nav>
+  </header>
 
-<main class="main">
- <!-- <app-linear-regression></app-linear-regression> -->
-  <!-- <app-decision-tree></app-decision-tree> -->
-   <!-- <app-logistic-regression-simulation></app-logistic-regression-simulation> -->
-    <!-- <app-random-forest-simulation></app-random-forest-simulation> -->
-     <app-svm-visualization></app-svm-visualization>
-</main>
+  <main class="app-content">
+    <router-outlet></router-outlet>
+  </main>
 
-<router-outlet />
+  <footer class="app-footer">
+    <div class="footer-content">
+      <p>&copy; 2025 AI Algorithm Explorer. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

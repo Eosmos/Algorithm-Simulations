@@ -1,0 +1,96 @@
+<div class="dashboard-container">
+    <!-- Neural Network Background -->
+    <div class="neural-net-bg"></div>
+    
+    <div class="dashboard-header">
+      <h1>AI Algorithm Explorer <span class="version-tag">v2.0</span></h1>
+      <p>Interactive guide to machine learning and deep learning algorithms</p>
+      
+      <div class="search-container">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" placeholder="Search algorithms..." class="search-input" (input)="onSearch($event)">
+      </div>
+    </div>
+    
+    <div class="statistics-bar">
+      <div class="stat-item">
+        <div class="stat-count">{{ getTotalAlgorithmsCount() }}</div>
+        <div class="stat-label">Algorithms</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-count">{{ getTotalSubCategoriesCount() }}</div>
+        <div class="stat-label">Categories</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-count">{{ allCategories.length }}</div>
+        <div class="stat-label">Learning Types</div>
+      </div>
+    </div>
+    
+    <div class="categories-container">
+      <div *ngFor="let category of categories; let i = index" class="category-card" [ngClass]="'category-' + i">
+        <div class="category-header" (click)="toggleCategory(category.id, $event)">
+          <div class="category-icon">
+            <i class="fa-solid" [ngClass]="category.id === 'machine-learning' ? 'fa-robot' : 'fa-brain'"></i>
+          </div>
+          <div class="header-content">
+            <h2>{{ category.name }}</h2>
+            <span class="header-tag">{{ category.subCategories.length }} sub-categories</span>
+          </div>
+          <div class="toggle-icon" [class.rotate]="isCategoryExpanded(category.id)">
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+        </div>
+        
+        <div [class.expanded]="isCategoryExpanded(category.id)" class="subcategories-container">
+          <div *ngFor="let subCategory of category.subCategories; let j = index" class="subcategory-section" [ngClass]="'subcategory-' + j">
+            <div class="subcategory-header" (click)="toggleSubCategory(subCategory.id, $event)">
+              <div class="subcategory-icon" [ngClass]="'subcategory-icon-' + j">
+                <i class="fa-solid" 
+                  [ngClass]="{
+                    'fa-graduation-cap': subCategory.id === 'supervised-learning',
+                    'fa-diagram-project': subCategory.id === 'unsupervised-learning',
+                    'fa-trophy': subCategory.id === 'reinforcement-learning',
+                    'fa-network-wired': subCategory.id === 'neural-networks'
+                  }"></i>
+              </div>
+              <div class="header-content">
+                <h3>{{ subCategory.name }}</h3>
+                <span class="header-tag">{{ subCategory.algorithms.length }} algorithms</span>
+              </div>
+              <div class="toggle-icon" [class.rotate]="isSubCategoryExpanded(subCategory.id)">
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+            </div>
+            
+            <div [class.expanded]="isSubCategoryExpanded(subCategory.id)" class="algorithms-grid">
+              <div *ngFor="let algorithm of subCategory.algorithms" 
+                   class="algorithm-card" 
+                   [class.hovered]="hoveredCard === algorithm.id"
+                   (mouseenter)="setHoveredCard(algorithm.id)" 
+                   (mouseleave)="setHoveredCard(null)"
+                   (click)="navigateTo(algorithm.routePath)">
+                <div class="algorithm-icon" [ngClass]="'algorithm-icon-' + algorithm.id">
+                  <i class="fa-solid fa-{{ algorithm.icon }}"></i>
+                </div>
+                <div class="algorithm-content">
+                  <h4>{{ algorithm.name }}</h4>
+                  <div class="algorithm-pill-container">
+                    <span class="algorithm-pill">{{ getComplexityLevel(algorithm.id) }}</span>
+                    <span class="algorithm-pill" *ngIf="isPopular(algorithm.id)">Popular</span>
+                  </div>
+                  <p>{{ algorithm.description }}</p>
+                </div>
+                <div class="card-footer">
+                  <div class="view-details">
+                    <span>Explore</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
