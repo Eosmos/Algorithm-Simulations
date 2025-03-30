@@ -1,0 +1,112 @@
+<div class="simulation-container">
+    <div class="header">
+      <h1>Random Forest Algorithm Simulation</h1>
+      <p>An interactive visualization of how Random Forests work in machine learning</p>
+    </div>
+  
+    <div class="controls">
+      <div class="step-indicator">
+        <span class="step-label">Step {{ currentStep + 1 }}/8: {{ currentStepLabel }}</span>
+      </div>
+      <div class="step-buttons">
+        <button class="btn btn-prev" (click)="previousStep()">
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <button class="btn btn-play" [class.active]="isAutoPlayEnabled" (click)="toggleAutoPlay()">
+          <i class="fas" [class.fa-play]="!isAutoPlayEnabled" [class.fa-pause]="isAutoPlayEnabled"></i>
+          {{ isAutoPlayEnabled ? 'Pause' : 'Auto Play' }}
+        </button>
+        <button class="btn btn-next" (click)="nextStep()">
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+        <button class="btn btn-reset" (click)="resetSimulation()">
+          <i class="fas fa-redo"></i> Reset
+        </button>
+      </div>
+    </div>
+  
+    <div class="step-description">
+      <p>{{ currentStepDescription }}</p>
+    </div>
+  
+    <div class="visualization-container">
+      <!-- 3D Forest Visualization -->
+      <div class="visualization-panel main-panel" #simulationContainer>
+        <!-- Three.js will render here -->
+      </div>
+  
+      <div class="visualization-right">
+        <!-- Decision Tree Visualization -->
+        <div class="visualization-panel" #treeContainer>
+          <!-- D3 Tree will render here -->
+        </div>
+  
+        <!-- Feature Importance Visualization -->
+        <div class="visualization-panel" #featureImportanceContainer>
+          <!-- Feature Importance chart will render here -->
+        </div>
+  
+        <!-- Decision Boundary Visualization -->
+        <div class="visualization-panel" #decisionBoundaryContainer>
+          <!-- Decision boundary plot will render here -->
+        </div>
+      </div>
+    </div>
+  
+    <div class="info-container">
+      <div class="info-accordion">
+        <details>
+          <summary>What are Random Forests?</summary>
+          <div class="info-content">
+            <p>Random Forests are an ensemble learning algorithm that combine multiple decision trees to improve prediction accuracy for both classification and regression tasks. The "forest" refers to a collection of decision trees, each trained on a random subset of the data and features.</p>
+            <p>By aggregating the predictions of all trees—through majority voting for classification or averaging for regression—Random Forests produce more accurate and stable results compared to a single decision tree.</p>
+          </div>
+        </details>
+  
+        <details>
+          <summary>How do Random Forests work?</summary>
+          <div class="info-content">
+            <ol>
+              <li><strong>Bootstrapping:</strong> Multiple subsets of the training data are created by sampling with replacement (a technique called bagging).</li>
+              <li><strong>Feature Randomness:</strong> At each split in a decision tree, only a random subset of features is considered.</li>
+              <li><strong>Tree Construction:</strong> Each tree is built independently using its bootstrapped dataset.</li>
+              <li><strong>Aggregation:</strong> For classification, each tree "votes" for a class, and the class with the most votes wins. For regression, the predictions are averaged.</li>
+            </ol>
+          </div>
+        </details>
+  
+        <details>
+          <summary>Strengths and Applications</summary>
+          <div class="info-content">
+            <h4>Strengths:</h4>
+            <ul>
+              <li>Robustness: Handles high-dimensional and large datasets well</li>
+              <li>Reduced Overfitting: Ensemble averaging reduces variance</li>
+              <li>Feature Importance: Offers insights into key variables</li>
+              <li>Versatility: Works with both categorical and numerical data</li>
+            </ul>
+  
+            <h4>Applications:</h4>
+            <ul>
+              <li>Ecology: Predicting species distribution</li>
+              <li>Finance: Credit scoring and fraud detection</li>
+              <li>Bioinformatics: Classifying genes or proteins</li>
+              <li>Remote Sensing: Identifying land cover types from satellite imagery</li>
+            </ul>
+          </div>
+        </details>
+  
+        <details>
+          <summary>Research Background</summary>
+          <div class="info-content">
+            <p><strong>Key Paper:</strong> "Random Forests" by Leo Breiman (2001), published in Machine Learning (Vol. 45, Issue 1).</p>
+            <p><strong>Significance:</strong> This paper introduced Random Forests, building on bagging and decision trees, and demonstrated their effectiveness across datasets.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  
+    <div class="footer">
+      <p>Interactive Random Forest Simulation | Created with Angular, Three.js, and D3.js</p>
+    </div>
+  </div>
