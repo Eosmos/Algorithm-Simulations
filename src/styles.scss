@@ -1,1 +1,47 @@
 /* You can add global styles to this file, and also import other style files */
+// Add this to your global styles.scss or app.component.scss
+
+// Fix for white space around the edges
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    background-color: #0c1428; // Match your dark blue background
+  }
+  
+  // Fix for the app container
+  .app-container {
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    
+    // Ensure content fills available space
+    display: flex;
+    flex-direction: column;
+  }
+  
+  // Make sure footer extends full width
+  .app-footer {
+    width: 100%;
+    margin: 0;
+    padding: 1.2rem 2rem;
+    box-sizing: border-box;
+  }
+  
+  // Make sure main content area fills available height
+  .app-content {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    
+    // This is important - forces content to take all available height
+    > * {
+      flex: 1 0 auto;
+    }
+  }

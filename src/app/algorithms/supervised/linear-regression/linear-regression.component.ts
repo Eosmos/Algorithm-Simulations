@@ -1335,28 +1335,6 @@ export class LinearRegressionComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
-  // Tutorial methods
-  public toggleTutorial(): void {
-    this.tutorialMode = !this.tutorialMode;
-    this.tutorialStep = 0;
-    this.currentTutorialContent = this.tutorialSteps[0];
-  }
-
-  public nextTutorial(): void {
-    if (this.tutorialStep < this.tutorialSteps.length - 1) {
-      this.tutorialStep++;
-      this.currentTutorialContent = this.tutorialSteps[this.tutorialStep];
-    } else {
-      this.tutorialMode = false;
-    }
-  }
-
-  public prevTutorial(): void {
-    if (this.tutorialStep > 0) {
-      this.tutorialStep--;
-      this.currentTutorialContent = this.tutorialSteps[this.tutorialStep];
-    }
-  }
 
   // User interaction methods
   public toggleGradientPath(): void {
@@ -1467,4 +1445,56 @@ export class LinearRegressionComponent implements OnInit, AfterViewInit, OnDestr
       }
     });
   }
+
+  // Add this to your component.ts file
+
+/**
+ * Toggle tutorial mode and reset to first step
+ */
+public toggleTutorial(): void {
+  this.tutorialMode = !this.tutorialMode;
+  
+  if (this.tutorialMode) {
+    // Reset to first step when entering tutorial mode
+    this.tutorialStep = 0;
+    this.currentTutorialContent = this.tutorialSteps[0];
+    
+    // Make sure tutorial content is visible
+    setTimeout(() => {
+      // Force update to ensure content is displayed
+      this.currentTutorialContent = this.tutorialSteps[0];
+    }, 100);
+  }
+  
+  // Log for debugging
+  console.log('Tutorial mode:', this.tutorialMode);
+  console.log('Current tutorial step:', this.tutorialStep);
+  console.log('Current tutorial content:', this.currentTutorialContent);
+}
+
+/**
+ * Navigate to the next tutorial step
+ */
+public nextTutorial(): void {
+  if (this.tutorialStep < this.tutorialSteps.length - 1) {
+    this.tutorialStep++;
+    this.currentTutorialContent = this.tutorialSteps[this.tutorialStep];
+    console.log('Next tutorial step:', this.tutorialStep);
+    console.log('Current tutorial content:', this.currentTutorialContent);
+  } else {
+    this.tutorialMode = false;
+  }
+}
+
+/**
+ * Navigate to the previous tutorial step
+ */
+public prevTutorial(): void {
+  if (this.tutorialStep > 0) {
+    this.tutorialStep--;
+    this.currentTutorialContent = this.tutorialSteps[this.tutorialStep];
+    console.log('Previous tutorial step:', this.tutorialStep);
+    console.log('Current tutorial content:', this.currentTutorialContent);
+  }
+}
 }

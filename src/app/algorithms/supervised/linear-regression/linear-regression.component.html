@@ -1,4 +1,5 @@
-<div class="lr-container">
+<div class="lr-component-card">
+  <div class="lr-container" style="color: #2b2d42;">
     <div class="lr-header">
       <h1 class="lr-title">Linear Regression Explorer</h1>
       <p class="lr-subtitle">Interactive visualization of gradient descent optimization in machine learning</p>
@@ -9,25 +10,27 @@
       </div>
     </div>
     
+    <!-- Fixed Tutorial Panel -->
     <div class="lr-tutorial-panel" *ngIf="tutorialMode">
       <div class="lr-tutorial-content">
-        <h3>Interactive Tutorial</h3>
-        <p>{{ currentTutorialContent }}</p>
+        <h3 style="color: white !important;">Interactive Tutorial</h3>
+        <p style="color: white !important; display: block; margin-bottom: 20px;">{{ currentTutorialContent }}</p>
         <div class="lr-tutorial-progress">
           <div class="lr-progress-indicator" [style.width.%]="(tutorialStep / (tutorialSteps.length-1)) * 100"></div>
         </div>
         <div class="lr-tutorial-controls">
           <button class="lr-button" [disabled]="tutorialStep === 0" (click)="prevTutorial()">
-            <span class="lr-icon">←</span> Previous
+            <span class="lr-icon" style="color: white !important;">←</span> <span style="color: white !important;">Previous</span>
           </button>
           <button class="lr-button lr-button-primary" [disabled]="tutorialStep === tutorialSteps.length-1" (click)="nextTutorial()">
-            Next <span class="lr-icon">→</span>
+            <span style="color: white !important;">Next</span> <span class="lr-icon" style="color: white !important;">→</span>
           </button>
         </div>
       </div>
     </div>
     
     <div class="lr-main-content">
+      <!-- Rest of content remains the same -->
       <!-- Top visualization panels -->
       <div class="lr-viz-container">
         <!-- Data and regression line -->
@@ -303,3 +306,4 @@
       </div>
     </div>
   </div>
+</div>
