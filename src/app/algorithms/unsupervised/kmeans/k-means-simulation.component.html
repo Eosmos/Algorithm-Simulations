@@ -1,0 +1,215 @@
+<div class="main-container">
+    <div class="header">
+      <h1>K-means Clustering Simulation</h1>
+      <p class="description">An interactive visualization of the K-means algorithm and its iterative process</p>
+    </div>
+  
+    <div class="content-container">
+      <!-- Main visualization area -->
+      <div class="visualization-panel" [class.show-3d]="show3D">
+        <div class="visualization-container" #visualizationContainer [style.display]="show3D ? 'none' : 'block'"></div>
+        <canvas class="canvas-3d" #canvas3d [style.display]="show3D ? 'block' : 'none'"></canvas>
+        
+        <!-- Overlay for 3D view instructions -->
+        <div class="view-instructions" *ngIf="show3D">
+          <p>Click and drag to rotate | Scroll to zoom | Shift+drag to pan</p>
+        </div>
+      </div>
+  
+      <!-- Controls panel -->
+      <div class="controls-panel">
+        <div class="control-section">
+          <div class="control-header">
+            <h2>Algorithm Controls</h2>
+          </div>
+  
+          <div class="step-controls">
+            <div class="animation-controls">
+              <button class="btn" (click)="resetSimulation()" [disabled]="animationInProgress">
+                <span class="material-icons">restart_alt</span> Reset
+              </button>
+              <button class="btn" (click)="togglePlayPause()" [disabled]="animationInProgress">
+                <span class="material-icons">{{ isPlaying ? 'pause' : 'play_arrow' }}</span>
+                {{ isPlaying ? 'Pause' : 'Play' }}
+              </button>
+              <button class="btn" (click)="nextStep()" [disabled]="isPlaying || animationInProgress">
+                <span class="material-icons">skip_next</span> Step
+              </button>
+            </div>
+  
+            <div class="animation-speed">
+              <label>Animation Speed:</label>
+              <div class="speed-selector">
+                <span>Slow</span>
+                <input type="range" min="100" max="2000" step="100" 
+                       [value]="2100 - animationSpeed" 
+                       (input)="changeAnimationSpeed(2100 - $any($event.target).value)">
+                <span>Fast</span>
+              </div>
+            </div>
+          </div>
+  
+          <div class="parameter-controls">
+            <div class="parameter">
+              <label for="k-value">Number of Clusters (k):</label>
+              <div class="parameter-input">
+                <input type="range" id="k-value" min="2" [max]="maxK" [value]="k" (change)="changeK($any($event.target).value)">
+                <span class="parameter-value">{{ k }}</span>
+              </div>
+            </div>
+  
+            <div class="parameter">
+              <label>Initialization Method:</label>
+              <div class="init-method-selector">
+                <button class="btn-toggle" [class.active]="initMethod === 'kmeansplusplus'" 
+                        (click)="changeInitMethod('kmeansplusplus')">K-means++</button>
+                <button class="btn-toggle" [class.active]="initMethod === 'random'" 
+                        (click)="changeInitMethod('random')">Random</button>
+              </div>
+            </div>
+  
+            <div class="parameter">
+              <label>Dataset:</label>
+              <div class="dataset-selector">
+                <select (change)="changeDataset($any($event.target).value)">
+                  <option *ngFor="let dataset of datasets; let i = index" [value]="i" [selected]="i === selectedDatasetIndex">
+                    {{ dataset.name }}
+                  </option>
+                </select>
+                <div class="dataset-description">
+                  {{ datasets[selectedDatasetIndex]?.description }}
+                </div>
+              </div>
+            </div>
+  
+            <div class="parameter">
+              <label>Visualization:</label>
+              <div class="view-selector">
+                <button class="btn-toggle" [class.active]="!show3D" 
+                        (click)="show3D = false">2D View</button>
+                <button class="btn-toggle" [class.active]="show3D" 
+                        (click)="toggle3DView()">3D View</button>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="current-status">
+          <div class="status-item">
+            <span class="status-label">Current Step:</span>
+            <span class="status-value">{{ STEP_EXPLANATIONS[currentStep] }}</span>
+          </div>
+          <div class="status-metrics">
+            <div class="metric">
+              <span class="metric-label">Iterations:</span>
+              <span class="metric-value">{{ iterations }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">WCSS:</span>
+              <span class="metric-value">{{ wcss.toFixed(2) }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Status:</span>
+              <span class="metric-value" [class.converged]="converged && currentStep === 'complete'">
+                {{ converged && currentStep === 'complete' ? 'Converged' : 
+                   iterations >= maxIterations && currentStep === 'complete' ? 'Max Iterations' : 'Running' }}
+              </span>
+            </div>
+          </div>
+        </div>
+  
+        <div class="elbow-toggle">
+          <button class="btn" (click)="toggleElbowMethod()">
+            {{ showElbowMethod ? 'Hide' : 'Show' }} Elbow Method
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Elbow method visualization -->
+    <div class="elbow-method-container" *ngIf="showElbowMethod">
+      <div class="elbow-chart" #elbowChart></div>
+      <div class="elbow-explanation">
+        <h3>The Elbow Method</h3>
+        <p>The Elbow Method helps determine the optimal number of clusters (k) by plotting the Within-Cluster Sum of Squares (WCSS) against different values of k. The "elbow point" where the rate of decrease sharply changes suggests a good value for k.</p>
+      </div>
+    </div>
+  
+    <!-- Algorithm explanation section -->
+    <div class="explanation-section">
+      <div class="explanation-header">
+        <h2>K-means Clustering Algorithm</h2>
+        <button class="toggle-help-btn" (click)="toggleHelpSection()">
+          {{ helpSectionOpen ? 'Hide Details' : 'Show Details' }}
+        </button>
+      </div>
+  
+      <div class="explanation-content" *ngIf="helpSectionOpen">
+        <div class="explanation-block">
+          <h3>Purpose</h3>
+          <p>K-means is an <strong>unsupervised learning</strong> algorithm used for <strong>partitioning</strong> a dataset into a pre-determined number (k) of distinct, non-overlapping clusters. It groups similar data points together based on their features, minimizing the variation <em>within</em> each cluster.</p>
+        </div>
+  
+        <div class="explanation-block">
+          <h3>Core Concept</h3>
+          <p>K-means works by identifying k centroids (center points) and iteratively refining their positions to minimize the <strong>Within-Cluster Sum of Squares (WCSS)</strong>, also called <strong>inertia</strong>:</p>
+          <div class="formula">
+            WCSS = Σ<sub>i=1</sub><sup>k</sup> Σ<sub>x∈C<sub>i</sub></sub> ||x - μ<sub>i</sub>||<sup>2</sup>
+          </div>
+          <p>where k is the number of clusters, C<sub>i</sub> is the set of points in the i-th cluster, x is a data point in C<sub>i</sub>, and μ<sub>i</sub> is the centroid of the i-th cluster.</p>
+        </div>
+  
+        <div class="explanation-block">
+          <h3>Algorithm Steps</h3>
+          <ol>
+            <li>
+              <strong>Choose k and Initialize Centroids:</strong>
+              <ul>
+                <li>Specify the number of clusters, k.</li>
+                <li>Initialize the positions of the k centroids (random or k-means++ initialization).</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Assignment Step:</strong>
+              <ul>
+                <li>For each data point, calculate its distance to each centroid.</li>
+                <li>Assign the point to the cluster with the nearest centroid.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Update Step:</strong>
+              <ul>
+                <li>Recalculate the position of each centroid as the mean of all points assigned to its cluster.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Iteration and Convergence:</strong>
+              <ul>
+                <li>Repeat the Assignment and Update steps until centroids stabilize or maximum iterations are reached.</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+  
+        <div class="explanation-block">
+          <h3>Limitations</h3>
+          <ul>
+            <li>Requires specifying k beforehand (can use Elbow Method to help determine).</li>
+            <li>Sensitive to initial centroid placement (k-means++ initialization helps).</li>
+            <li>Assumes clusters are spherical, equally sized, and have similar densities.</li>
+            <li>Sensitive to outliers, which can pull centroids away from true cluster centers.</li>
+          </ul>
+        </div>
+  
+        <div class="explanation-block">
+          <h3>Applications</h3>
+          <p>K-means is widely used for customer segmentation, anomaly detection, image compression, feature engineering, document clustering, and pattern recognition in various fields.</p>
+        </div>
+  
+        <div class="explanation-block">
+          <h3>Research</h3>
+          <p>The k-means algorithm was first proposed by Stuart Lloyd in 1957 as a technique for pulse-code modulation, though it wasn't published until 1982. The term "k-means" was first used in MacQueen's 1967 paper "Some Methods for Classification and Analysis of Multivariate Observations".</p>
+        </div>
+      </div>
+    </div>
+  </div>

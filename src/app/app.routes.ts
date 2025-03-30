@@ -40,12 +40,12 @@ export const routes: Routes = [
         .then(c => c.NaiveBayesSimulationComponent)
     },
     
-    // // Unsupervised Learning algorithms
-    // { 
-    //   path: 'kmeans',
-    //   loadComponent: () => import('./algorithms/unsupervised/kmeans/kmeans.component')
-    //     .then(c => c.KmeansComponent)
-    // },
+    // Unsupervised Learning algorithms
+    { 
+      path: 'kmeans',
+      loadComponent: () => import('./algorithms/unsupervised/kmeans/k-means-simulation.component')
+        .then(c => c.KMeansSimulationComponent)
+    },
     // { 
     //   path: 'pca',
     //   loadComponent: () => import('./algorithms/unsupervised/pca/pca.component')
