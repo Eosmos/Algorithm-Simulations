@@ -1,13 +1,37 @@
 <div class="lr-container">
     <div class="lr-header">
-      <h1 class="lr-title">Linear Regression Simulation</h1>
-      <p class="lr-subtitle">Interactive visualization of gradient descent optimization</p>
+      <h1 class="lr-title">Linear Regression Explorer</h1>
+      <p class="lr-subtitle">Interactive visualization of gradient descent optimization in machine learning</p>
+      
+      <div class="lr-nav-tabs">
+        <button class="lr-tab" [class.active]="!tutorialMode" (click)="tutorialMode = false">Simulation</button>
+        <button class="lr-tab" [class.active]="tutorialMode" (click)="toggleTutorial()">Tutorial Mode</button>
+      </div>
+    </div>
+    
+    <div class="lr-tutorial-panel" *ngIf="tutorialMode">
+      <div class="lr-tutorial-content">
+        <h3>Interactive Tutorial</h3>
+        <p>{{ currentTutorialContent }}</p>
+        <div class="lr-tutorial-progress">
+          <div class="lr-progress-indicator" [style.width.%]="(tutorialStep / (tutorialSteps.length-1)) * 100"></div>
+        </div>
+        <div class="lr-tutorial-controls">
+          <button class="lr-button" [disabled]="tutorialStep === 0" (click)="prevTutorial()">
+            <span class="lr-icon">←</span> Previous
+          </button>
+          <button class="lr-button lr-button-primary" [disabled]="tutorialStep === tutorialSteps.length-1" (click)="nextTutorial()">
+            Next <span class="lr-icon">→</span>
+          </button>
+        </div>
+      </div>
     </div>
     
     <div class="lr-main-content">
-      <div class="lr-visualizations">
-        <!-- Left panel: Data and regression line -->
-        <div class="lr-card lr-scatter-container">
+      <!-- Top visualization panels -->
+      <div class="lr-viz-container">
+        <!-- Data and regression line -->
+        <div class="lr-card lr-scatter-panel">
           <div class="lr-card-header">
             <h2>Data & Regression Line</h2>
             <div class="lr-equation">
@@ -19,14 +43,24 @@
             </div>
           </div>
           <div #scatterPlot class="lr-plot"></div>
-          <div class="lr-explanation">
-            <p>The scatter plot shows data points and the current regression line.</p>
-            <p>As the algorithm learns, the line adjusts to minimize prediction error.</p>
+          <div class="lr-metrics" *ngIf="iterations > 0">
+            <div class="lr-metric">
+              <span class="lr-metric-label">R²:</span>
+              <span class="lr-metric-value">{{ r2Score.toFixed(4) }}</span>
+            </div>
+            <div class="lr-metric">
+              <span class="lr-metric-label">MAE:</span>
+              <span class="lr-metric-value">{{ meanAbsoluteError.toFixed(4) }}</span>
+            </div>
+            <div class="lr-metric">
+              <span class="lr-metric-label">RMSE:</span>
+              <span class="lr-metric-value">{{ rootMeanSquaredError.toFixed(4) }}</span>
+            </div>
           </div>
         </div>
         
-        <!-- Right panel: 3D Cost function visualization -->
-        <div class="lr-card lr-cost-container">
+        <!-- Cost function visualization -->
+        <div class="lr-card lr-cost-panel">
           <div class="lr-card-header">
             <h2>Cost Function (MSE)</h2>
             <div class="lr-cost-value">
@@ -35,19 +69,24 @@
             </div>
           </div>
           <div #costFunction class="lr-plot"></div>
-          <div class="lr-explanation">
-            <p>The 3D surface represents the cost function J(β₀, β₁).</p>
-            <p>Gradient descent follows the steepest path downhill toward the minimum.</p>
-            <p><strong>Tip:</strong> Drag to rotate, scroll to zoom, and right-click to pan.</p>
+          <div class="lr-drag-hint">
+            <div class="lr-hint-icon">🔄</div>
+            <span>Drag to rotate | Scroll to zoom | Right-click to pan</span>
           </div>
         </div>
       </div>
       
-      <!-- Bottom panel: Controls and parameters -->
+      <!-- Controls section -->
       <div class="lr-controls-container">
         <div class="lr-card">
           <div class="lr-card-header">
             <h2>Simulation Controls</h2>
+            <div class="lr-dataset-selector">
+              <label for="dataset-select">Dataset:</label>
+              <select id="dataset-select" [(ngModel)]="selectedDataset" (change)="changeDataset(selectedDataset)">
+                <option *ngFor="let option of datasetOptions" [value]="option">{{ option }}</option>
+              </select>
+            </div>
           </div>
           
           <div class="lr-control-panels">
@@ -61,10 +100,13 @@
                   type="range" 
                   id="learning-rate" 
                   min="0.001" 
-                  max="0.05" 
+                  max="0.1" 
                   step="0.001" 
-                  [value]="learningRate"
-                  (input)="learningRate = $any($event.target).value">
+                  [(ngModel)]="learningRate">
+                <div class="lr-parameter-description">
+                  <span>Smaller steps</span>
+                  <span>Larger steps</span>
+                </div>
               </div>
               
               <div class="lr-parameter-group">
@@ -73,10 +115,14 @@
                   type="range" 
                   id="animation-speed" 
                   min="5" 
-                  max="150" 
-                  step="1" 
-                  [value]="100 - animationSpeed" 
-                  (input)="animationSpeed = 100 - +$any($event.target).value">
+                  max="95" 
+                  step="5" 
+                  [(ngModel)]="animationSpeed"
+                  [ngModelOptions]="{standalone: true}">
+                <div class="lr-parameter-description">
+                  <span>Faster</span>
+                  <span>Slower</span>
+                </div>
               </div>
               
               <div class="lr-parameter-group">
@@ -85,93 +131,173 @@
                   <div class="lr-progress" [style.width.%]="(iterations / maxIterations) * 100"></div>
                 </div>
               </div>
+              
+              <div class="lr-toggle-group">
+                <label class="lr-toggle">
+                  <input type="checkbox" [(ngModel)]="showGradientPath" (change)="toggleGradientPath()">
+                  <span class="lr-toggle-slider"></span>
+                  <span class="lr-toggle-label">Show Gradient Path</span>
+                </label>
+              </div>
+              
+              <div class="lr-toggle-group">
+                <label class="lr-toggle">
+                  <input type="checkbox" [(ngModel)]="showErrorLines" (change)="toggleErrorLines()">
+                  <span class="lr-toggle-slider"></span>
+                  <span class="lr-toggle-label">Show Error Lines</span>
+                </label>
+              </div>
             </div>
             
             <!-- Buttons panel -->
             <div class="lr-buttons">
               <button class="lr-button lr-button-primary" (click)="playFullSimulation()">
-                <span class="material-icons">play_circle</span>
-                <span>Play Full Simulation</span>
+                <span class="lr-icon">▶</span>
+                <span>Run Full Simulation</span>
+              </button>
+              
+              <button class="lr-button lr-button-secondary" (click)="startStoryMode()">
+                <span class="lr-icon">📖</span>
+                <span>Story Mode</span>
               </button>
               
               <div class="lr-button-group">
                 <button class="lr-button" (click)="reset()">
-                  <span class="material-icons">restart_alt</span>
+                  <span class="lr-icon">↺</span>
                   <span>Reset</span>
                 </button>
                 
                 <button class="lr-button" [class.active]="isPlaying" (click)="playPause()">
-                  <span class="material-icons">{{ isPlaying ? 'pause' : 'play_arrow' }}</span>
+                  <span class="lr-icon">{{ isPlaying ? '⏸' : '▶' }}</span>
                   <span>{{ isPlaying ? 'Pause' : 'Play' }}</span>
                 </button>
                 
                 <button class="lr-button" [disabled]="isPlaying || iterations >= maxIterations" (click)="stepForward()">
-                  <span class="material-icons">skip_next</span>
+                  <span class="lr-icon">⏩</span>
                   <span>Step</span>
                 </button>
               </div>
               
-              <div class="lr-toggle-group">
-                <label class="lr-toggle">
-                  <input type="checkbox" [checked]="showGradientPath" (change)="showGradientPath = !showGradientPath; toggleGradientPath()">
-                  <span class="lr-toggle-slider"></span>
-                  <span class="lr-toggle-label">Show Gradient Path</span>
-                </label>
+              <div class="lr-animation-state">
+                <div class="lr-state-indicator" [class]="animationState.state"></div>
+                <span>{{ animationState.state | titlecase }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <!-- Educational content section -->
-    <div class="lr-educational-content">
-      <div class="lr-card">
-        <div class="lr-card-header">
-          <h2>Understanding Linear Regression & Gradient Descent</h2>
+      
+      <!-- Bottom visualization panels -->
+      <div class="lr-viz-container lr-small-viz">
+        <!-- Data distribution -->
+        <div class="lr-card lr-viz-small">
+          <div class="lr-card-header">
+            <h2>Data Distribution</h2>
+          </div>
+          <div #dataDistribution class="lr-plot-small"></div>
         </div>
         
-        <div class="lr-education-grid">
-          <!-- First column: Linear Regression basics -->
-          <div class="lr-education-section">
-            <h3>The Linear Model</h3>
-            <p>Linear regression models the relationship between inputs (X) and outputs (y) using a linear equation:</p>
-            <div class="lr-formula">y = β₀ + β₁x + ε</div>
-            <p>Where:</p>
-            <ul>
-              <li><strong>β₀</strong>: y-intercept (value of y when x = 0)</li>
-              <li><strong>β₁</strong>: slope (change in y for a unit change in x)</li>
-              <li><strong>ε</strong>: error term</li>
-            </ul>
-            <p>The goal is to find the optimal values for β₀ and β₁ that create the best-fitting line through the data points.</p>
+        <!-- Residuals plot -->
+        <div class="lr-card lr-viz-small">
+          <div class="lr-card-header">
+            <h2>Residuals</h2>
+          </div>
+          <div #residualsPlot class="lr-plot-small"></div>
+        </div>
+      </div>
+      
+      <!-- Educational content section -->
+      <div class="lr-educational-content">
+        <div class="lr-card">
+          <div class="lr-card-header">
+            <h2>Understanding Linear Regression & Gradient Descent</h2>
+            <button class="lr-toggle-button" (click)="toggleExplanation()">
+              {{ explanationVisible ? 'Hide Details' : 'Show Details' }}
+            </button>
           </div>
           
-          <!-- Second column: Cost Function -->
-          <div class="lr-education-section">
-            <h3>Cost Function</h3>
-            <p>The mean squared error (MSE) measures how well the model fits the data:</p>
-            <div class="lr-formula">J(β₀, β₁) = (1/2m) ∑(hᵢ - yᵢ)²</div>
-            <p>Where:</p>
-            <ul>
-              <li><strong>m</strong> is the number of training examples</li>
-              <li><strong>hᵢ</strong> is the prediction (β₀ + β₁xᵢ) for the i-th example</li>
-              <li><strong>yᵢ</strong> is the actual target value for the i-th example</li>
-            </ul>
-            <p>The 3D visualization shows this cost function with β₀ and β₁ as the x and z axes, and the cost value as the y axis.</p>
-          </div>
-          
-          <!-- Third column: Gradient Descent -->
-          <div class="lr-education-section">
-            <h3>Gradient Descent</h3>
-            <p>Gradient descent is an optimization algorithm that iteratively adjusts parameters to minimize the cost function:</p>
-            <div class="lr-formula">β₀ := β₀ - α ∂J/∂β₀</div>
-            <div class="lr-formula">β₁ := β₁ - α ∂J/∂β₁</div>
-            <p>Where:</p>
-            <ul>
-              <li><strong>α</strong> is the learning rate that controls step size</li>
-              <li><strong>∂J/∂β₀</strong> and <strong>∂J/∂β₁</strong> are the partial derivatives of the cost function</li>
-            </ul>
-            <p>The algorithm follows the gradient (steepest downhill direction) until it reaches a minimum where the cost is lowest.</p>
+          <div class="lr-education-grid" *ngIf="explanationVisible">
+            <!-- Linear Regression section -->
+            <div class="lr-education-section">
+              <h3>The Linear Model</h3>
+              <p>Linear regression models the relationship between a dependent variable (y) and one or more independent variables (x) using a linear equation:</p>
+              <div class="lr-formula">y = β₀ + β₁x + ε</div>
+              <p>Where:</p>
+              <ul>
+                <li><strong>β₀</strong> (intercept): The value of y when x = 0</li>
+                <li><strong>β₁</strong> (slope): The change in y for a unit change in x</li>
+                <li><strong>ε</strong>: Error term (the difference between predicted and actual values)</li>
+              </ul>
+              <p>The goal is to find the optimal values for β₀ and β₁ that create the best-fitting line through the data points.</p>
+            </div>
+            
+            <!-- Cost Function section -->
+            <div class="lr-education-section">
+              <h3>Cost Function</h3>
+              <p>The mean squared error (MSE) measures how well the model fits the data:</p>
+              <div class="lr-formula">J(β₀, β₁) = (1/2m) ∑(hᵢ - yᵢ)²</div>
+              <p>Where:</p>
+              <ul>
+                <li><strong>m</strong> is the number of training examples</li>
+                <li><strong>hᵢ</strong> is the prediction (β₀ + β₁xᵢ) for the i-th example</li>
+                <li><strong>yᵢ</strong> is the actual target value for the i-th example</li>
+              </ul>
+              <p>The 3D visualization shows this cost function with β₀ and β₁ as the x and z axes, and the cost value as the y axis. The "bowl" shape is characteristic of linear regression's convex cost function.</p>
+            </div>
+            
+            <!-- Gradient Descent section -->
+            <div class="lr-education-section">
+              <h3>Gradient Descent</h3>
+              <p>Gradient descent is an optimization algorithm that iteratively adjusts parameters to minimize the cost function:</p>
+              <div class="lr-formula">β₀ := β₀ - α · ∂J/∂β₀</div>
+              <div class="lr-formula">β₁ := β₁ - α · ∂J/∂β₁</div>
+              <p>Where:</p>
+              <ul>
+                <li><strong>α</strong> is the learning rate that controls step size</li>
+                <li><strong>∂J/∂β₀</strong> and <strong>∂J/∂β₁</strong> are the partial derivatives of the cost function</li>
+              </ul>
+              <p>The algorithm follows the gradient (steepest downhill direction) until it reaches a minimum where the cost is lowest. This process is visualized by the moving red sphere in the 3D cost surface.</p>
+            </div>
+            
+            <!-- Evaluation Metrics section -->
+            <div class="lr-education-section">
+              <h3>Evaluation Metrics</h3>
+              <p>Several metrics help us assess how well our regression model performs:</p>
+              <ul>
+                <li><strong>R² (Coefficient of Determination)</strong>: Measures the proportion of variance in the dependent variable that the model explains. Ranges from 0 to 1, with 1 indicating perfect prediction.</li>
+                <li><strong>MAE (Mean Absolute Error)</strong>: The average of absolute differences between predictions and actual values. Lower is better.</li>
+                <li><strong>RMSE (Root Mean Square Error)</strong>: The square root of the average of squared differences between predictions and actual values. More sensitive to outliers than MAE.</li>
+              </ul>
+              <p>The residuals plot shows the difference between predicted and actual values across the x-axis. Ideally, residuals should be randomly distributed around zero with no discernible pattern.</p>
+            </div>
+            
+            <!-- Applications section -->
+            <div class="lr-education-section">
+              <h3>Real-World Applications</h3>
+              <p>Linear regression is widely used in many fields:</p>
+              <ul>
+                <li><strong>Economics</strong>: Predicting sales, GDP growth, or inflation rates</li>
+                <li><strong>Real Estate</strong>: Estimating house prices based on size, location, etc.</li>
+                <li><strong>Healthcare</strong>: Predicting patient outcomes based on treatment variables</li>
+                <li><strong>Marketing</strong>: Analyzing the relationship between advertising spend and revenue</li>
+                <li><strong>Science</strong>: Modeling relationships between variables in experimental data</li>
+              </ul>
+              <p>Despite its simplicity, linear regression provides a powerful baseline model and is often the first step in more complex analyses.</p>
+            </div>
+            
+            <!-- Assumptions & Limitations section -->
+            <div class="lr-education-section">
+              <h3>Assumptions & Limitations</h3>
+              <p>Linear regression makes several key assumptions:</p>
+              <ul>
+                <li><strong>Linearity</strong>: The relationship between variables is linear</li>
+                <li><strong>Independence</strong>: Observations are independent of each other</li>
+                <li><strong>Homoscedasticity</strong>: Error variance is constant across all levels of x</li>
+                <li><strong>Normality</strong>: Errors are normally distributed</li>
+                <li><strong>No Multicollinearity</strong>: Independent variables are not highly correlated (for multiple regression)</li>
+              </ul>
+              <p>Violations of these assumptions can lead to biased or inefficient estimates. For non-linear relationships, transformations or more advanced models may be necessary.</p>
+            </div>
           </div>
         </div>
       </div>
