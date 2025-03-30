@@ -1,0 +1,183 @@
+<div class="logistic-regression-container">
+    <header class="header">
+      <h1>Interactive Logistic Regression Simulation</h1>
+      <p class="subtitle">Explore how logistic regression works by visualizing its components</p>
+    </header>
+  
+    <section class="theory-section">
+      <div class="accordion">
+        <details>
+          <summary>What is Logistic Regression?</summary>
+          <div class="content">
+            <p>Logistic Regression is a machine learning algorithm designed for <strong>classification</strong> tasks, despite its name suggesting regression. It is most commonly applied to <strong>binary classification</strong> problems, where the goal is to predict whether an instance belongs to one of two classes.</p>
+            <p>Unlike Linear Regression, which predicts continuous values, Logistic Regression predicts the <strong>probability</strong> that an instance belongs to a specific class. While it excels in binary settings, it can be extended to multi-class problems using techniques like one-vs-rest or softmax regression.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How Does It Work?</summary>
+          <div class="content">
+            <p>Logistic Regression models the relationship between input features and the probability of a specific class using the <strong>logistic function</strong> (also called the sigmoid function). This function takes any real-valued input and outputs a value between 0 and 1, making it ideal for probability estimation.</p>
+            <p>The algorithm learns the optimal parameters (weights) by maximizing the likelihood of the observed data, effectively determining a decision boundary that separates the classes.</p>
+            <p>The core of logistic regression is the sigmoid function:</p>
+            <p class="formula">P(y=1|x) = 1 / (1 + e<sup>-z</sup>)</p>
+            <p>where z = w₀ + w₁x₁ + w₂x₂ + ... + wₙxₙ</p>
+          </div>
+        </details>
+        <details>
+          <summary>The Step-by-Step Process</summary>
+          <div class="content">
+            <ol>
+              <li><strong>Data Preparation</strong>: Collect a dataset with input features and binary labels.</li>
+              <li><strong>Model Definition</strong>: Define the logistic function to model the probability of class 1.</li>
+              <li><strong>Cost Function</strong>: Use the negative log-likelihood (binary cross-entropy) as the cost function.</li>
+              <li><strong>Optimization</strong>: Minimize the cost function using gradient descent or another optimization method.</li>
+              <li><strong>Prediction</strong>: For new data, compute the probability using the trained model and classify based on a threshold (usually 0.5).</li>
+            </ol>
+          </div>
+        </details>
+        <details>
+          <summary>Assumptions and Limitations</summary>
+          <div class="content">
+            <p><strong>Assumptions:</strong></p>
+            <ul>
+              <li>The log-odds of the outcome (logit) are a linear combination of the input features.</li>
+              <li>Observations are independent of each other.</li>
+              <li>No severe multicollinearity exists among features.</li>
+              <li>The data is approximately linearly separable in the feature space.</li>
+            </ul>
+            <p><strong>Limitations:</strong></p>
+            <ul>
+              <li>Assumes a linear relationship between the log-odds and features, limiting its ability to handle complex, non-linear data.</li>
+              <li>Can struggle with imbalanced datasets or outliers.</li>
+              <li>Often outperformed by advanced models on non-linear problems.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+  
+    <section class="simulation-controls">
+      <div class="control-panel">
+        <h3>Simulation Controls</h3>
+        <div class="control-group">
+          <div class="control-item">
+            <label for="learning-rate">Learning Rate:</label>
+            <input type="range" id="learning-rate" min="0.01" max="0.5" step="0.01" [(ngModel)]="learningRate">
+            <span>{{learningRate}}</span>
+          </div>
+          <div class="control-item">
+            <label for="iterations">Max Iterations:</label>
+            <input type="range" id="iterations" min="20" max="200" step="5" [(ngModel)]="iterations">
+            <span>{{iterations}}</span>
+          </div>
+          <div class="control-item">
+            <label for="speed">Animation Speed:</label>
+            <input type="range" id="speed" min="50" max="1000" step="50" [ngModel]="1200-speed" (ngModelChange)="speed = 1200 - $event">
+            <span>{{((1200-speed)/12) | number: '1.0-1'}}x</span>
+          </div>
+        </div>
+        <div class="button-group">
+          <button class="btn btn-primary" (click)="togglePlayPause()">
+            <span *ngIf="!isPlaying">▶ Play</span>
+            <span *ngIf="isPlaying">⏸ Pause</span>
+          </button>
+          <button class="btn" (click)="stepForward()">Step ▶|</button>
+          <button class="btn btn-secondary" (click)="resetSimulation()">↺ Reset</button>
+          <button class="btn" (click)="toggleProbabilities()">
+            <span *ngIf="!showProbabilities">Show Probabilities</span>
+            <span *ngIf="showProbabilities">Hide Probabilities</span>
+          </button>
+        </div>
+      </div>
+      <div class="current-step-panel">
+        <h3>Current Step: <span class="step-highlight">{{currentStep + 1}}/{{steps.length}}</span></h3>
+        <p class="step-description">{{steps[currentStep]}}</p>
+      </div>
+    </section>
+  
+    <section class="simulation-area">
+      <div class="grid-container">
+        <div class="grid-item">
+          <div #dataPlot class="plot-container"></div>
+          <div class="plot-description">
+            <p>This plot shows the data points with two features (X₁ and X₂) and their classes (blue and orange). The red line represents the decision boundary where P(y=1|x) = 0.5.</p>
+            <p><strong>Try it:</strong> Drag the green test point to see how its probability changes.</p>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div #sigmoidPlot class="plot-container"></div>
+          <div class="plot-description">
+            <p>The sigmoid function transforms the linear combination of features (z) into a probability between 0 and 1. When z = 0, P(y=1|x) = 0.5.</p>
+            <p>The green dot shows the position of the test point on the sigmoid curve.</p>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div #costPlot class="plot-container"></div>
+          <div class="plot-description">
+            <p>The cost function (binary cross-entropy) measures how well the model fits the data. Lower values indicate better fit.</p>
+            <p>This plot shows how the cost decreases as the gradient descent optimization progresses.</p>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div #coefficientsPlot class="plot-container"></div>
+          <div class="plot-description">
+            <p>This plot shows how the model parameters (weights) change during training.</p>
+            <p>The final values determine the position and orientation of the decision boundary.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <section class="equations-section">
+      <h3>Key Equations</h3>
+      <div class="equation-cards">
+        <div class="equation-card">
+          <h4>Sigmoid Function</h4>
+          <p class="formula">P(y=1|x) = 1 / (1 + e<sup>-z</sup>)</p>
+          <p class="formula">z = w₀ + w₁x₁ + w₂x₂</p>
+          <p>Transforms any real number into a probability between 0 and 1.</p>
+        </div>
+        <div class="equation-card">
+          <h4>Decision Boundary</h4>
+          <p class="formula">w₀ + w₁x₁ + w₂x₂ = 0</p>
+          <p>The line where P(y=1|x) = 0.5, separating the two classes.</p>
+        </div>
+        <div class="equation-card">
+          <h4>Cost Function</h4>
+          <p class="formula">J(w) = -1/m ∑[y log(p) + (1-y)log(1-p)]</p>
+          <p>Binary cross-entropy loss function that the algorithm aims to minimize.</p>
+        </div>
+        <div class="equation-card">
+          <h4>Gradient Descent Update</h4>
+          <p class="formula">w<sub>j</sub> := w<sub>j</sub> - α · ∂J/∂w<sub>j</sub></p>
+          <p>Where α is the learning rate and ∂J/∂w<sub>j</sub> is the gradient of the cost function.</p>
+        </div>
+      </div>
+    </section>
+  
+    <section class="applications-section">
+      <h3>Real-World Applications</h3>
+      <div class="application-cards">
+        <div class="application-card">
+          <h4>Medical Diagnosis</h4>
+          <p>Predicting the presence of a disease based on symptoms or test results.</p>
+        </div>
+        <div class="application-card">
+          <h4>Credit Scoring</h4>
+          <p>Assessing the likelihood of loan default based on customer data.</p>
+        </div>
+        <div class="application-card">
+          <h4>Marketing</h4>
+          <p>Predicting customer churn or response to campaigns.</p>
+        </div>
+        <div class="application-card">
+          <h4>Email Filtering</h4>
+          <p>Classifying emails as spam or legitimate based on content features.</p>
+        </div>
+      </div>
+    </section>
+  
+    <footer class="footer">
+      <p>This interactive simulation helps visualize how logistic regression works by showing the evolution of the decision boundary, cost function, and model parameters during training.</p>
+    </footer>
+  </div>
