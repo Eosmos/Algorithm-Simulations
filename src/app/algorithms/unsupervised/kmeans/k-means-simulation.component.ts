@@ -830,8 +830,10 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     if (!this.elbowChartRef || !this.elbowData.length) return;
     
     const container = this.elbowChartRef.nativeElement;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 600;
+    const height = container.clientHeight || 350;
+    
+    console.log('Updating elbow chart with data:', this.elbowData);
     
     // Create scales
     const xScale = d3.scaleLinear()
@@ -843,17 +845,56 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       .domain([0, maxWcss * 1.1])
       .range([height - 50, 50]);
     
-    // Update axes
-    const svg = d3.select(container).select('svg');
-    svg.select('.x-axis')
-      .call(d3.axisBottom(xScale).ticks(Math.min(this.maxK, 10)) as any);
+    // Clear previous chart
+    d3.select(container).select('svg').remove();
     
-    svg.select('.y-axis')
-      .call(d3.axisLeft(yScale) as any);
+    // Create new SVG
+    const svg = d3.select(container)
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('viewBox', [0, 0, width, height])
+      .style('background-color', this.COLORS.cardBackground);
     
-    // Remove previous elements
-    svg.selectAll('.elbow-point').remove();
-    svg.selectAll('.elbow-line').remove();
+    // Add title
+    svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', 30)
+      .attr('text-anchor', 'middle')
+      .attr('fill', this.COLORS.textEmphasis)
+      .text('Elbow Method: WCSS vs. K');
+    
+    // Add axes
+    const xAxis = d3.axisBottom(xScale).ticks(Math.min(this.elbowData.length, 10)).tickFormat(d3.format('d'));
+    const yAxis = d3.axisLeft(yScale);
+    
+    svg.append('g')
+      .attr('class', 'x-axis')
+      .attr('transform', `translate(0, ${height - 50})`)
+      .attr('color', this.COLORS.textSecondary)
+      .call(xAxis as any);
+    
+    svg.append('g')
+      .attr('class', 'y-axis')
+      .attr('transform', `translate(50, 0)`)
+      .attr('color', this.COLORS.textSecondary)
+      .call(yAxis as any);
+    
+    // Add axis labels
+    svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', height - 10)
+      .attr('text-anchor', 'middle')
+      .attr('fill', this.COLORS.textPrimary)
+      .text('Number of Clusters (k)');
+    
+    svg.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('x', -height / 2)
+      .attr('y', 15)
+      .attr('text-anchor', 'middle')
+      .attr('fill', this.COLORS.textPrimary)
+      .text('WCSS (Within-Cluster Sum of Squares)');
     
     // Draw line
     const line = d3.line<{k: number, wcss: number}>()
@@ -881,6 +922,50 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       .attr('fill', d => d.k === this.k ? this.COLORS.warning : this.COLORS.primary)
       .attr('stroke', this.COLORS.textEmphasis)
       .attr('stroke-width', d => d.k === this.k ? 2 : 1);
+    
+    // Find the elbow point (largest second derivative)
+    if (this.elbowData.length >= 3) {
+      const secondDerivatives: {k: number, derivative: number}[] = [];
+      
+      for (let i = 1; i < this.elbowData.length - 1; i++) {
+        const prevK = this.elbowData[i-1];
+        const currK = this.elbowData[i];
+        const nextK = this.elbowData[i+1];
+        
+        // Calculate approximate second derivative
+        const firstDeriv1 = (prevK.wcss - currK.wcss) / (currK.k - prevK.k);
+        const firstDeriv2 = (currK.wcss - nextK.wcss) / (nextK.k - currK.k);
+        const secondDeriv = Math.abs(firstDeriv2 - firstDeriv1);
+        
+        secondDerivatives.push({k: currK.k, derivative: secondDeriv});
+      }
+      
+      // Find k with max second derivative
+      secondDerivatives.sort((a, b) => b.derivative - a.derivative);
+      const suggestedK = secondDerivatives[0]?.k;
+      
+      if (suggestedK) {
+        // Mark suggested k
+        const suggestedPoint = this.elbowData.find(d => d.k === suggestedK);
+        if (suggestedPoint) {
+          svg.append('circle')
+            .attr('cx', xScale(suggestedPoint.k))
+            .attr('cy', yScale(suggestedPoint.wcss))
+            .attr('r', 12)
+            .attr('fill', 'none')
+            .attr('stroke', this.COLORS.success)
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '4,4');
+          
+          svg.append('text')
+            .attr('x', xScale(suggestedPoint.k))
+            .attr('y', yScale(suggestedPoint.wcss) - 15)
+            .attr('text-anchor', 'middle')
+            .attr('fill', this.COLORS.success)
+            .text('Suggested K: ' + suggestedK);
+        }
+      }
+    }
     
     // Add labels for each point
     svg.selectAll('.elbow-label')
@@ -1125,7 +1210,9 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       case 'assign':
         this.assignPointsToClusters();
         this.updateVisualization();
-        this.update3DVisualization();
+        if (this.show3D) {
+          this.update3DVisualization();
+        }
         this.currentStep = 'update';
         break;
         
@@ -1133,7 +1220,15 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
         this.updateCentroids();
         this.iterations++;
         this.updateVisualization();
-        this.update3DVisualization();
+        if (this.show3D) {
+          // Regenerate all z-positions if in 3D view to ensure proper visualization
+          if (this.iterations % 5 === 0) { // Regenerate occasionally for visual interest
+            this.points.forEach(point => {
+              point.zPos = undefined;
+            });
+          }
+          this.update3DVisualization();
+        }
         
         if (this.converged || this.iterations >= this.maxIterations) {
           this.currentStep = 'complete';
@@ -1205,6 +1300,14 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     if (this.k !== newK) {
       console.log(`Changing k from ${this.k} to ${newK}`);
       this.k = newK;
+      
+      // Reset 3D positions when changing k if in 3D view
+      if (this.show3D) {
+        this.points.forEach(point => {
+          point.zPos = undefined;
+        });
+      }
+      
       this.resetSimulation();
     }
   }
@@ -1224,25 +1327,135 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
 
   changeInitMethod(method: 'random' | 'kmeansplusplus'): void {
     this.initMethod = method;
+    
+    // Reset 3D positions when changing initialization method if in 3D view
+    if (this.show3D) {
+      this.points.forEach(point => {
+        point.zPos = undefined;
+      });
+    }
+    
     this.resetSimulation();
   }
 
   toggleElbowMethod(): void {
     this.showElbowMethod = !this.showElbowMethod;
+    
     if (this.showElbowMethod) {
+      // Generate elbow data if it's empty
+      if (this.elbowData.length < 2) {
+        this.generateElbowData();
+      }
+      
       setTimeout(() => {
         this.updateElbowChart();
-      }, 0);
+      }, 100);
     }
+  }
+  
+  // Generate elbow data for different k values
+  private generateElbowData(): void {
+    // Store original k value to restore it after
+    const originalK = this.k;
+    const originalCentroids = [...this.centroids];
+    const originalPoints = this.points.map(p => ({...p}));
+    
+    console.log('Generating elbow data');
+    this.elbowData = [];
+    
+    // Run K-means for different values of k to get WCSS
+    for (let k = 1; k <= Math.min(9, Math.floor(this.points.length / 10)); k++) {
+      this.k = k;
+      this.centroids = [];
+      
+      // Reset points to original state
+      this.points.forEach((point, i) => {
+        point.cluster = -1;
+        point.distance = undefined;
+      });
+      
+      // Initialize centroids
+      if (this.initMethod === 'random') {
+        this.initializeRandomCentroids();
+      } else {
+        this.initializeKMeansPlusPlusCentroids();
+      }
+      
+      // Run algorithm for a fixed number of iterations
+      let tempConverged = false;
+      let tempIterations = 0;
+      
+      while (!tempConverged && tempIterations < 10) {
+        this.assignPointsToClusters();
+        tempIterations++;
+        
+        // Update centroids and check convergence
+        let moved = false;
+        const newCentroids: Centroid[] = [];
+        
+        for (let i = 0; i < this.k; i++) {
+          const clusterPoints = this.points.filter(p => p.cluster === i);
+          
+          if (clusterPoints.length > 0) {
+            const sumX = clusterPoints.reduce((sum, p) => sum + p.x, 0);
+            const sumY = clusterPoints.reduce((sum, p) => sum + p.y, 0);
+            const newX = sumX / clusterPoints.length;
+            const newY = sumY / clusterPoints.length;
+            
+            const oldX = this.centroids[i].x;
+            const oldY = this.centroids[i].y;
+            if (Math.abs(newX - oldX) > 0.001 || Math.abs(newY - oldY) > 0.001) {
+              moved = true;
+            }
+            
+            newCentroids.push({
+              x: newX,
+              y: newY,
+              oldX: oldX,
+              oldY: oldY
+            });
+          } else {
+            newCentroids.push({...this.centroids[i]});
+          }
+        }
+        
+        this.centroids = newCentroids;
+        tempConverged = !moved;
+      }
+      
+      // Calculate WCSS for this k
+      this.calculateWCSS();
+      this.elbowData.push({ k: k, wcss: this.wcss });
+    }
+    
+    // Restore original state
+    this.k = originalK;
+    this.centroids = originalCentroids;
+    
+    // Reset points to original state
+    this.points.forEach((point, i) => {
+      Object.assign(point, originalPoints[i]);
+    });
+    
+    // Sort by k
+    this.elbowData.sort((a, b) => a.k - b.k);
+    console.log('Elbow data generated:', this.elbowData);
   }
 
   toggle3DView(): void {
+    const wasIn3D = this.show3D;
     this.show3D = !this.show3D;
     
     // Allow time for DOM to update before initializing/updating 3D view
     setTimeout(() => {
       if (this.show3D) {
         console.log('Initializing 3D view');
+        
+        // Clear existing 3D coordinates to force regeneration
+        this.points.forEach(point => {
+          point.zPos = undefined;
+        });
+        
         // Re-initialize the 3D view when toggling to ensure proper setup
         this.initialize3DVisualization();
         this.update3DVisualization();
