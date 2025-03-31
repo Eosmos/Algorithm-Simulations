@@ -1,0 +1,515 @@
+// Colors from the design system
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-bg: #2a4980;
+$light-gray-text: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+// Font settings
+$font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+$font-size-base: 14px;
+$font-size-sm: 12px;
+$font-size-lg: 16px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
+$font-size-xxxl: 32px;
+
+// Spacing
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 24px;
+$space-6: 32px;
+$space-7: 48px;
+$space-8: 64px;
+
+// Radius
+$radius-lg: 12px;
+$radius-md: 8px;
+$radius-sm: 4px;
+
+// Shadows
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Layout
+.pca-simulation-container {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  color: $light-gray-text;
+  background-color: $darkest-blue;
+  min-height: 100vh;
+  padding: $space-5;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.simulation-header {
+  text-align: center;
+  margin-bottom: $space-6;
+  width: 100%;
+
+  .title {
+    font-size: $font-size-xxxl;
+    font-weight: 700;
+    color: $white;
+    margin-bottom: $space-2;
+    background: linear-gradient(135deg, $primary-blue, $purple);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    @media (max-width: 768px) {
+      font-size: $font-size-xxl;
+    }
+  }
+
+  .subtitle {
+    font-size: $font-size-lg;
+    color: $muted-blue;
+    margin: 0;
+  }
+}
+
+// Navigation and controls
+.step-navigation {
+  margin-bottom: $space-5;
+  width: 100%;
+}
+
+.step-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: $space-4;
+  
+  .nav-button {
+    background-color: $medium-blue;
+    color: $light-gray-text;
+    border: none;
+    border-radius: $radius-md;
+    padding: $space-2 $space-4;
+    margin: 0 $space-2;
+    font-size: $font-size-base;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color $transition-fast;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+
+    &:hover:not(:disabled) {
+      background-color: $light-blue-bg;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.play-button {
+      background-color: $purple;
+      
+      &:hover {
+        background-color: $dark-purple;
+      }
+    }
+  }
+}
+
+.step-progress {
+  margin-top: $space-4;
+  
+  .step-dots {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: $space-3;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: $medium-blue;
+      z-index: 0;
+    }
+  }
+  
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    
+    .dot-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: $medium-blue;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-bottom: $space-2;
+      transition: background-color $transition-normal;
+    }
+    
+    .dot-label {
+      font-size: $font-size-sm;
+      color: $muted-blue;
+      text-align: center;
+      max-width: 80px;
+      transition: color $transition-normal;
+    }
+    
+    &.active .dot-number {
+      background-color: $primary-blue;
+      box-shadow: 0 0 0 4px rgba($primary-blue, 0.2);
+    }
+    
+    &.active .dot-label {
+      color: $light-gray-text;
+      font-weight: 600;
+    }
+    
+    &.completed .dot-number {
+      background-color: $green;
+    }
+  }
+  
+  .step-progress-bar {
+    height: 6px;
+    background-color: $medium-blue;
+    border-radius: $radius-lg;
+    margin-top: $space-4;
+    overflow: hidden;
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(135deg, $primary-blue, $purple);
+      border-radius: $radius-lg;
+      transition: width $transition-normal;
+    }
+  }
+}
+
+.step-description {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-lg;
+  padding: $space-4;
+  margin-bottom: $space-5;
+  box-shadow: $shadow-md;
+  width: 100%;
+  
+  .step-title {
+    font-size: $font-size-xl;
+    font-weight: 700;
+    color: $white;
+    margin-bottom: $space-3;
+  }
+  
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+// Visualization containers
+.visualization-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-5;
+  margin-bottom: $space-6;
+  width: 100%;
+  justify-content: center;
+  align-items: flex-start;
+  
+  .main-plot {
+    flex: 1;
+    min-width: 300px;
+    max-width: 600px;
+    height: 380px;
+    background-color: $dark-blue-bg;
+    border-radius: $radius-lg;
+    padding: $space-4;
+    box-shadow: $shadow-md;
+    overflow: hidden;
+    margin-bottom: $space-4;
+    
+    svg {
+      overflow: visible;
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+  
+  .side-plots {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+    width: 320px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity $transition-slow, transform $transition-slow;
+    
+    &.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .plot {
+      flex: 1;
+      height: 180px;
+      background-color: $dark-blue-bg;
+      border-radius: $radius-lg;
+      padding: $space-3;
+      box-shadow: $shadow-md;
+      overflow: hidden;
+      
+      svg {
+        max-width: 100%;
+        max-height: 100%;
+      }
+    }
+  }
+}
+
+// D3 visualization styling
+:host ::ng-deep {
+  .axis-label {
+    fill: $light-gray-text;
+    font-size: $font-size-sm;
+  }
+  
+  .plot-title {
+    fill: $white;
+    font-size: $font-size-lg;
+    font-weight: 600;
+  }
+  
+  .x-axis,
+  .y-axis {
+    .domain,
+    .tick line {
+      stroke: $medium-blue;
+    }
+    
+    .tick text {
+      fill: $light-gray-text !important;
+      font-size: 11px;
+    }
+  }
+  
+  // Points styling
+  .point {
+    transition: fill $transition-normal, opacity $transition-normal;
+  }
+  
+  .projected-point, 
+  .pc-point,
+  .reconstructed-point {
+    transition: cx $transition-normal, cy $transition-normal, r $transition-normal, opacity $transition-normal;
+  }
+  
+  // Axes styles
+  .pc-line {
+    transition: opacity $transition-normal;
+  }
+  
+  // Ellipse style
+  .ellipse {
+    transition: opacity $transition-normal, d $transition-slow;
+  }
+  
+  // SVG text elements
+  .x-label, .y-label, .plot-title, .scree-label, .variance-label, .cumulative-label {
+    font-family: $font-family;
+    fill: $light-gray-text !important;
+  }
+  
+  // Make sure bars don't overflow
+  .scree-bar, .variance-bar {
+    shape-rendering: crispEdges;
+  }
+  
+  // Ensure axis text is visible
+  text {
+    fill: $light-gray-text;
+  }
+}
+
+// Explanation panel
+.explanation-panel {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-lg;
+  padding: $space-5;
+  margin-top: $space-6;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $space-6;
+  box-shadow: $shadow-lg;
+  width: 100%;
+  
+  .explanation-section {
+    h3 {
+      color: $white;
+      font-size: $font-size-lg;
+      margin-top: 0;
+      margin-bottom: $space-3;
+      border-bottom: 2px solid $primary-blue;
+      padding-bottom: $space-2;
+      display: inline-block;
+    }
+    
+    p {
+      margin-top: 0;
+      line-height: 1.6;
+    }
+    
+    ul {
+      padding-left: $space-5;
+      margin-top: $space-2;
+      
+      li {
+        margin-bottom: $space-2;
+        position: relative;
+        
+        &::marker {
+          color: $primary-blue;
+        }
+      }
+    }
+    
+    .key-concept {
+      margin-bottom: $space-3;
+      padding: $space-3;
+      border-radius: $radius-md;
+      background-color: $medium-blue;
+      transition: transform $transition-fast;
+      
+      &:hover {
+        transform: translateX($space-1);
+      }
+      
+      .concept-name {
+        color: $light-cyan;
+        font-weight: 600;
+        margin-bottom: $space-1;
+      }
+      
+      .concept-description {
+        font-size: $font-size-sm;
+        color: $muted-blue;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+  .visualization-container {
+    flex-direction: column;
+    align-items: center;
+    
+    .main-plot {
+      width: 100%;
+      max-width: 500px;
+      height: 350px;
+      margin-bottom: $space-5;
+    }
+    
+    .side-plots {
+      width: 100%;
+      max-width: 500px;
+      flex-direction: row;
+      
+      .plot {
+        height: 200px;
+      }
+    }
+  }
+  
+  .explanation-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .step-dot .dot-label {
+    display: none;
+  }
+  
+  .step-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    
+    .nav-button {
+      margin-bottom: $space-2;
+    }
+  }
+  
+  .visualization-container {
+    .main-plot {
+      height: 300px;
+    }
+    
+    .side-plots {
+      flex-direction: column;
+      
+      .plot {
+        height: 180px;
+      }
+    }
+  }
+  
+  .simulation-header .title {
+    font-size: $font-size-xl;
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba($primary-blue, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba($primary-blue, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba($primary-blue, 0);
+  }
+}
+
+.active .dot-number {
+  animation: pulse 2s infinite;
+}

@@ -1,0 +1,91 @@
+<div class="pca-simulation-container" #simulationContainer id="pca-simulation-container">
+    <div class="simulation-header">
+      <h1 class="title">Principal Component Analysis (PCA) Simulation</h1>
+      <p class="subtitle">An interactive visualization of dimensionality reduction</p>
+    </div>
+  
+    <div class="step-navigation">
+      <div class="step-controls">
+        <button class="nav-button" [disabled]="currentStep === 0" (click)="prevStep()">
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <button class="nav-button play-button" (click)="toggleAutoPlay()">
+          <i class="fas" [class.fa-pause]="isPlaying" [class.fa-play]="!isPlaying"></i>
+          {{ isPlaying ? 'Pause' : 'Play' }}
+        </button>
+        <button class="nav-button" [disabled]="currentStep === maxSteps" (click)="nextStep()">
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+  
+      <div class="step-progress">
+        <div class="step-dots">
+          <div *ngFor="let title of stepTitles; let i = index" 
+               class="step-dot" 
+               [class.active]="i === currentStep" 
+               [class.completed]="i < currentStep"
+               (click)="currentStep = i; updateStepDescription(); handleCurrentStep()">
+            <div class="dot-number">{{ i + 1 }}</div>
+            <div class="dot-label">{{ title }}</div>
+          </div>
+        </div>
+        <div class="step-progress-bar">
+          <div class="progress-fill" [style.width.%]="(currentStep / maxSteps) * 100"></div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="step-description">
+      <div class="step-title">{{ stepTitles[currentStep] }}</div>
+      <p>{{ currentStepDescription }}</p>
+    </div>
+  
+    <div class="visualization-container">
+      <div class="main-plot" #scatterPlot></div>
+      
+      <div class="side-plots" [class.visible]="currentStep >= 4">
+        <div class="plot scree-plot" #screePlot></div>
+        <div class="plot variance-plot" #variancePlot></div>
+      </div>
+    </div>
+  
+    <div class="explanation-panel">
+      <div class="explanation-section">
+        <h3>What is PCA?</h3>
+        <p>Principal Component Analysis (PCA) is an <strong>unsupervised learning</strong> technique used for 
+        dimensionality reduction. It identifies new variables (principal components) that capture the 
+        directions of maximum variance in the data.</p>
+      </div>
+  
+      <div class="explanation-section">
+        <h3>Why use PCA?</h3>
+        <ul>
+          <li>Reduce dimensionality while preserving information</li>
+          <li>Visualize high-dimensional data</li>
+          <li>Identify important patterns/directions</li>
+          <li>Remove noise by discarding low-variance components</li>
+          <li>Create uncorrelated features</li>
+        </ul>
+      </div>
+  
+      <div class="explanation-section">
+        <h3>Key Concepts</h3>
+        <div class="key-concept">
+          <div class="concept-name">Principal Components</div>
+          <div class="concept-description">New axes that capture maximum variance, ordered by importance</div>
+        </div>
+        <div class="key-concept">
+          <div class="concept-name">Eigenvalues</div>
+          <div class="concept-description">Measure the amount of variance captured by each principal component</div>
+        </div>
+        <div class="key-concept">
+          <div class="concept-name">Eigenvectors</div>
+          <div class="concept-description">Directions of the principal components in the original feature space</div>
+        </div>
+        <div class="key-concept">
+          <div class="concept-name">Explained Variance</div>
+          <div class="concept-description">Proportion of total variance captured by each principal component</div>
+        </div>
+      </div>
+    </div>
+  </div>

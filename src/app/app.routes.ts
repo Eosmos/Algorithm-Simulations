@@ -46,11 +46,11 @@ export const routes: Routes = [
       loadComponent: () => import('./algorithms/unsupervised/kmeans/k-means-simulation.component')
         .then(c => c.KMeansSimulationComponent)
     },
-    // { 
-    //   path: 'pca',
-    //   loadComponent: () => import('./algorithms/unsupervised/pca/pca.component')
-    //     .then(c => c.PcaComponent)
-    // },
+    { 
+      path: 'pca',
+      loadComponent: () => import('./algorithms/unsupervised/pca/pca-simulation.component')
+        .then(c => c.PcaSimulationComponent)
+    },
     // { 
     //   path: 'autoencoders',
     //   loadComponent: () => import('./algorithms/unsupervised/autoencoders/autoencoders.component')
