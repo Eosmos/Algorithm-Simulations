@@ -1,0 +1,240 @@
+<div class="autoencoder-container" xmlns:d3="https://d3js.org/">
+    <div class="header">
+      <h1>Autoencoder Visualization</h1>
+      <div class="category-badge unsupervised">Unsupervised Learning</div>
+      <p class="description">
+        Explore how autoencoders learn compressed representations of data through 
+        unsupervised learning and reconstruction. This visualization demonstrates the encoder-decoder
+        architecture, latent space mapping, and denoising capabilities of autoencoders.
+      </p>
+    </div>
+    
+    <div class="visualization-container">
+      <div class="row">
+        <div class="visualization-panel network-panel">
+          <h2>Network Architecture</h2>
+          <div class="panel-description">
+            <p>The 3D visualization shows the encoder (blue) compressing data to a bottleneck layer (cyan),
+               and the decoder (purple) reconstructing the output. Watch as data flows through the network.</p>
+          </div>
+          <canvas #threeCanvas class="three-canvas"></canvas>
+        </div>
+        
+        <div class="visualization-panel latent-space-panel">
+          <h2>Latent Space (2D)</h2>
+          <div class="panel-description">
+            <p>Each point represents a digit encoded into a 2D latent space.
+              Similar digits cluster together, showing how the autoencoder learns meaningful representations.</p>
+          </div>
+          <div #latentSpaceCanvas class="latent-space-canvas"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="visualization-panel input-output-panel">
+          <h2>Input & Reconstruction</h2>
+          <div class="io-container">
+            <div class="input-image">
+              <h3>Original Input</h3>
+              <canvas #inputCanvas width="112" height="112" class="digit-canvas"></canvas>
+            </div>
+            <div class="arrow">→</div>
+            <div class="encoded-representation">
+              <h3>Encoded (z)</h3>
+              <div class="encoded-values">
+                <span>z₁: {{latentSpaceDim1.toFixed(2)}}</span>
+                <span>z₂: {{latentSpaceDim2.toFixed(2)}}</span>
+              </div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="output-image">
+              <h3>Reconstruction</h3>
+              <canvas #outputCanvas width="112" height="112" class="digit-canvas"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="visualization-panel denoising-panel">
+          <h2>Denoising Capability</h2>
+          <div class="io-container">
+            <div class="noisy-image">
+              <h3>Noisy Input</h3>
+              <canvas #noisyCanvas width="112" height="112" class="digit-canvas"></canvas>
+            </div>
+            <div class="arrow">→</div>
+            <div class="denoised-image">
+              <h3>Denoised Output</h3>
+              <canvas #denoisedCanvas width="112" height="112" class="digit-canvas"></canvas>
+            </div>
+          </div>
+          <div class="noise-control">
+            <label for="noise-slider">Noise Level:</label>
+            <input 
+              type="range" 
+              id="noise-slider" 
+              min="0" 
+              max="1" 
+              step="0.1" 
+              [value]="noiseLevel"
+              (input)="updateNoiseLevel($event)"
+            >
+            <span>{{(noiseLevel * 100).toFixed(0)}}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="controls-container">
+      <div class="examples">
+        <h3>Example Digits:</h3>
+        <div class="digit-selector">
+          <ng-container *ngFor="let i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]">
+          <div 
+            class="digit-option" 
+            [class.selected]="selectedExample === i"
+            (click)="selectExample(i)"
+          >
+            {{i}}
+          </div>
+        </ng-container>
+        </div>
+      </div>
+      
+      <div class="animation-controls">
+        <button class="control-btn" (click)="resetAnimation()">
+          <i class="fa fa-step-backward"></i> Reset
+        </button>
+        <button class="control-btn play-btn" (click)="togglePlayPause()">
+          <i class="fa" [class.fa-play]="!isPlaying" [class.fa-pause]="isPlaying"></i>
+          {{isPlaying ? 'Pause' : 'Play'}}
+        </button>
+      </div>
+      
+      <div class="latent-exploration">
+        <h3>Explore Latent Space:</h3>
+        <div class="latent-sliders">
+          <div class="slider-group">
+            <label for="z1-slider">z₁:</label>
+            <input 
+              type="range" 
+              id="z1-slider" 
+              min="-3" 
+              max="3" 
+              step="0.1" 
+              [value]="latentSpaceDim1"
+              (input)="updateLatentSpace($event, 'dim1')"
+            >
+            <span>{{latentSpaceDim1.toFixed(1)}}</span>
+          </div>
+          <div class="slider-group">
+            <label for="z2-slider">z₂:</label>
+            <input 
+              type="range" 
+              id="z2-slider" 
+              min="-3" 
+              max="3" 
+              step="0.1" 
+              [value]="latentSpaceDim2"
+              (input)="updateLatentSpace($event, 'dim2')"
+            >
+            <span>{{latentSpaceDim2.toFixed(1)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="info-container">
+      <div class="accordion-item">
+        <div class="accordion-header" (click)="toggleAccordion('purpose')">
+          <h3>Purpose & Applications</h3>
+          <i class="fa" [class.fa-chevron-down]="openAccordion !== 'purpose'" [class.fa-chevron-up]="openAccordion === 'purpose'"></i>
+        </div>
+        <div class="accordion-content" [class.open]="openAccordion === 'purpose'">
+          <ul>
+            <li><strong>Data Compression:</strong> Learning a compressed representation of data in a lower-dimensional latent space.</li>
+            <li><strong>Feature Extraction:</strong> Discovering meaningful features automatically without human supervision.</li>
+            <li><strong>Denoising:</strong> Removing noise from corrupted data by learning the underlying structure.</li>
+            <li><strong>Anomaly Detection:</strong> Identifying unusual data by measuring reconstruction error.</li>
+            <li><strong>Generative Modeling:</strong> Creating new data samples that resemble the training data (especially with Variational Autoencoders).</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="accordion-item">
+        <div class="accordion-header" (click)="toggleAccordion('mechanism')">
+          <h3>Core Mechanism</h3>
+          <i class="fa" [class.fa-chevron-down]="openAccordion !== 'mechanism'" [class.fa-chevron-up]="openAccordion === 'mechanism'"></i>
+        </div>
+        <div class="accordion-content" [class.open]="openAccordion === 'mechanism'">
+          <p>
+            Autoencoders consist of two main components working in sequence:
+          </p>
+          <ul>
+            <li><strong>Encoder (f):</strong> Maps high-dimensional input x to a lower-dimensional latent representation z: z = f(x)</li>
+            <li><strong>Bottleneck:</strong> The constrained latent space that forces the network to learn efficient encodings</li>
+            <li><strong>Decoder (g):</strong> Reconstructs the original input from the latent representation: x̂ = g(z)</li>
+          </ul>
+          <p>
+            Training minimizes the reconstruction error: L(x, x̂) between input and output. The network learns to capture the most important features needed for accurate reconstruction.
+          </p>
+        </div>
+      </div>
+      
+      <div class="accordion-item">
+        <div class="accordion-header" (click)="toggleAccordion('variants')">
+          <h3>Autoencoder Variants</h3>
+          <i class="fa" [class.fa-chevron-down]="openAccordion !== 'variants'" [class.fa-chevron-up]="openAccordion === 'variants'"></i>
+        </div>
+        <div class="accordion-content" [class.open]="openAccordion === 'variants'">
+          <ul>
+            <li><strong>Vanilla Autoencoder:</strong> The basic structure shown in this visualization.</li>
+            <li><strong>Denoising Autoencoder:</strong> Trained to reconstruct clean data from corrupted inputs, as shown in the denoising panel.</li>
+            <li><strong>Sparse Autoencoder:</strong> Adds regularization to encourage sparsity in the latent representation.</li>
+            <li><strong>Variational Autoencoder (VAE):</strong> A probabilistic version that learns a distribution in latent space, enabling better generative capabilities.</li>
+            <li><strong>Contractive Autoencoder:</strong> Adds a penalty to make the latent representation robust to small input variations.</li>
+            <li><strong>Convolutional Autoencoder:</strong> Uses convolutional layers for processing image data more effectively.</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="accordion-item">
+        <div class="accordion-header" (click)="toggleAccordion('math')">
+          <h3>Mathematical Formulation</h3>
+          <i class="fa" [class.fa-chevron-down]="openAccordion !== 'math'" [class.fa-chevron-up]="openAccordion === 'math'"></i>
+        </div>
+        <div class="accordion-content" [class.open]="openAccordion === 'math'">
+          <p>For an input x, the autoencoder produces:</p>
+          <ul>
+            <li>Encoder: z = f(x) = σ(Wx + b)</li>
+            <li>Decoder: x̂ = g(z) = σ(W'z + b')</li>
+            <li>Loss function: L(x, x̂) = ||x - x̂||² (for MSE loss)</li>
+          </ul>
+          <p>Where:</p>
+          <ul>
+            <li>σ is an activation function like ReLU, sigmoid, or tanh</li>
+            <li>W and W' are weight matrices</li>
+            <li>b and b' are bias vectors</li>
+          </ul>
+          <p>Training optimizes these parameters to minimize the reconstruction error across the dataset.</p>
+        </div>
+      </div>
+      
+      <div class="accordion-item">
+        <div class="accordion-header" (click)="toggleAccordion('comparison')">
+          <h3>Comparison to Other Techniques</h3>
+          <i class="fa" [class.fa-chevron-down]="openAccordion !== 'comparison'" [class.fa-chevron-up]="openAccordion === 'comparison'"></i>
+        </div>
+        <div class="accordion-content" [class.open]="openAccordion === 'comparison'">
+          <ul>
+            <li><strong>vs. PCA:</strong> Autoencoders can capture non-linear relationships, while PCA is limited to linear projections.</li>
+            <li><strong>vs. GANs:</strong> Both can generate data, but VAEs provide explicit latent representations and are often more stable to train.</li>
+            <li><strong>vs. Clustering:</strong> Autoencoders learn continuous representations rather than discrete clusters.</li>
+            <li><strong>vs. Supervised Learning:</strong> Autoencoders are unsupervised, learning from the data itself without requiring labels.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>This simulation demonstrates the core principles of autoencoders. For more details, refer to the influential paper by Hinton & Salakhutdinov (2006): "Reducing the Dimensionality of Data with Neural Networks."</p>
+    </div>
+  </div>

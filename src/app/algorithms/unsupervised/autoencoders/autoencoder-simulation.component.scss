@@ -1,0 +1,672 @@
+// AI Algorithm Explorer Design System Colors
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-hover: #2a4980;
+$light-gray: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+// Algorithm Category Colors
+$supervised-color: $primary-blue;
+$unsupervised-color: $cyan;
+$reinforcement-color: $orange;
+$deep-learning-color: $purple;
+
+// Font settings
+$base-font-size: 16px;
+$font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+// Spacing
+$spacing-1: 4px;
+$spacing-2: 8px;
+$spacing-3: 16px;
+$spacing-4: 24px;
+$spacing-5: 32px;
+$spacing-6: 48px;
+
+// Border radius
+$border-radius-sm: 8px;
+$border-radius: 12px;
+$border-radius-lg: 16px;
+$border-radius-circle: 50%;
+
+// Animation timing
+$transition-fast: 0.15s ease;
+$transition-medium: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Component-specific variables
+$panel-bg: $dark-blue-bg;
+$header-height: 120px;
+$canvas-height: 300px;
+$content-max-width: 1400px;
+
+// Shadow
+$card-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+$hover-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+
+// Imports for Font Awesome
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+// Import for Inter font
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Main container
+.autoencoder-container {
+  display: flex;
+  flex-direction: column;
+  font-family: $font-family;
+  color: $light-gray;
+  background-color: $darkest-blue;
+  min-height: 100vh;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-4;
+  overflow-x: hidden;
+}
+
+// Header
+.header {
+  margin-bottom: $spacing-5;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 $spacing-2 0;
+    color: $white;
+    background: linear-gradient(135deg, $cyan 0%, $purple 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+  
+  .category-badge {
+    display: inline-block;
+    padding: $spacing-1 $spacing-3;
+    border-radius: $border-radius-sm;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: $spacing-3;
+    text-transform: uppercase;
+    
+    &.unsupervised {
+      background-color: rgba($unsupervised-color, 0.2);
+      color: $unsupervised-color;
+      border: 1px solid rgba($unsupervised-color, 0.4);
+    }
+    
+    &.supervised {
+      background-color: rgba($supervised-color, 0.2);
+      color: $supervised-color;
+      border: 1px solid rgba($supervised-color, 0.4);
+    }
+    
+    &.reinforcement {
+      background-color: rgba($reinforcement-color, 0.2);
+      color: $reinforcement-color;
+      border: 1px solid rgba($reinforcement-color, 0.4);
+    }
+    
+    &.deep-learning {
+      background-color: rgba($deep-learning-color, 0.2);
+      color: $deep-learning-color;
+      border: 1px solid rgba($deep-learning-color, 0.4);
+    }
+  }
+  
+  .description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 900px;
+    color: $muted-blue;
+  }
+}
+
+// Visualization Container
+.visualization-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-5;
+  
+  .row {
+    display: flex;
+    gap: $spacing-4;
+    
+    @media (max-width: 1024px) {
+      flex-direction: column;
+    }
+  }
+  
+  .visualization-panel {
+    flex: 1;
+    background-color: $panel-bg;
+    border-radius: $border-radius;
+    padding: $spacing-3;
+    box-shadow: $card-shadow;
+    overflow: hidden;
+    position: relative;
+    
+    &:hover {
+      box-shadow: $hover-shadow;
+      transform: translateY(-2px);
+      transition: all $transition-medium;
+    }
+    
+    h2 {
+      margin-top: 0;
+      margin-bottom: $spacing-2;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $white;
+      display: flex;
+      align-items: center;
+      
+      &::after {
+        content: '';
+        display: block;
+        height: 3px;
+        margin-left: $spacing-2;
+        flex-grow: 1;
+        background: linear-gradient(90deg, rgba($primary-blue, 0.7), rgba($purple, 0));
+      }
+    }
+    
+    .panel-description {
+      color: $muted-blue;
+      font-size: 0.9rem;
+      margin-bottom: $spacing-3;
+      line-height: 1.5;
+    }
+  }
+  
+  // Network Panel
+  .network-panel {
+    .three-canvas {
+      width: 100%;
+      height: $canvas-height;
+      border-radius: $border-radius-sm;
+      background-color: $medium-blue;
+    }
+  }
+  
+  // Latent Space Panel
+  .latent-space-panel {
+    .latent-space-canvas {
+      width: 100%;
+      height: $canvas-height;
+      background-color: $medium-blue;
+      border-radius: $border-radius-sm;
+      overflow: hidden;
+      
+      svg {
+        background-color: transparent;
+      }
+    }
+  }
+  
+  // Input Output Panel
+  .input-output-panel {
+    .io-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: $spacing-3;
+      flex-wrap: wrap;
+      
+      @media (max-width: 768px) {
+        justify-content: center;
+      }
+      
+      .input-image, .output-image, .encoded-representation {
+        text-align: center;
+        
+        h3 {
+          margin-top: 0;
+          margin-bottom: $spacing-2;
+          font-size: 1rem;
+          font-weight: 500;
+          color: $light-gray;
+        }
+      }
+      
+      .encoded-representation {
+        padding: $spacing-3;
+        background-color: rgba($cyan, 0.1);
+        border-radius: $border-radius-sm;
+        border: 1px dashed rgba($cyan, 0.5);
+        
+        .encoded-values {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-2;
+          
+          span {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: $cyan;
+          }
+        }
+      }
+      
+      .arrow {
+        font-size: 1.5rem;
+        color: $muted-blue;
+        margin: 0 $spacing-2;
+        
+        @media (max-width: 768px) {
+          display: none;
+        }
+      }
+      
+      .digit-canvas {
+        border: 2px solid $medium-blue;
+        border-radius: $border-radius-sm;
+        image-rendering: pixelated;
+      }
+    }
+  }
+  
+  // Denoising Panel
+  .denoising-panel {
+    .io-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      margin-top: $spacing-3;
+      flex-wrap: wrap;
+      
+      @media (max-width: 768px) {
+        justify-content: center;
+      }
+      
+      .noisy-image, .denoised-image {
+        text-align: center;
+        
+        h3 {
+          margin-top: 0;
+          margin-bottom: $spacing-2;
+          font-size: 1rem;
+          font-weight: 500;
+          color: $light-gray;
+        }
+      }
+      
+      .arrow {
+        font-size: 1.5rem;
+        color: $muted-blue;
+        margin: 0 $spacing-2;
+        
+        @media (max-width: 768px) {
+          display: none;
+        }
+      }
+      
+      .digit-canvas {
+        border: 2px solid $medium-blue;
+        border-radius: $border-radius-sm;
+        image-rendering: pixelated;
+      }
+    }
+    
+    .noise-control {
+      display: flex;
+      align-items: center;
+      margin-top: $spacing-4;
+      justify-content: center;
+      
+      label {
+        margin-right: $spacing-2;
+        color: $muted-blue;
+      }
+      
+      input[type="range"] {
+        flex: 1;
+        max-width: 200px;
+        margin: 0 $spacing-2;
+        -webkit-appearance: none;
+        height: 6px;
+        background: linear-gradient(90deg, $primary-blue, $cyan);
+        border-radius: 3px;
+        
+        &::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 18px;
+          height: 18px;
+          border-radius: $border-radius-circle;
+          background: $white;
+          cursor: pointer;
+          border: 2px solid $cyan;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+      }
+      
+      span {
+        min-width: 40px;
+        color: $light-gray;
+      }
+    }
+  }
+}
+
+// Controls Container
+.controls-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-4;
+  margin-bottom: $spacing-5;
+  background-color: $panel-bg;
+  border-radius: $border-radius;
+  padding: $spacing-4;
+  box-shadow: $card-shadow;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+  
+  h3 {
+    margin-top: 0;
+    margin-bottom: $spacing-3;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $white;
+  }
+  
+  .examples {
+    flex: 1;
+    
+    .digit-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+      
+      .digit-option {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $medium-blue;
+        color: $light-gray;
+        border-radius: $border-radius-sm;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all $transition-fast;
+        
+        &:hover {
+          background-color: $light-blue-hover;
+        }
+        
+        &.selected {
+          background-color: $primary-blue;
+          color: $white;
+          box-shadow: 0 0 10px rgba($primary-blue, 0.5);
+        }
+      }
+    }
+  }
+  
+  .animation-controls {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: $spacing-3;
+    
+    .control-btn {
+      background-color: $medium-blue;
+      border: none;
+      color: $light-gray;
+      padding: $spacing-2 $spacing-3;
+      border-radius: $border-radius-sm;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all $transition-fast;
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      
+      &:hover {
+        background-color: $light-blue-hover;
+      }
+      
+      &.play-btn {
+        background-color: $primary-blue;
+        color: $white;
+        
+        &:hover {
+          background-color: $dark-blue;
+        }
+      }
+      
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+  
+  .latent-exploration {
+    flex: 1;
+    
+    .latent-sliders {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+      
+      .slider-group {
+        display: flex;
+        align-items: center;
+        
+        label {
+          width: 30px;
+          color: $cyan;
+          font-family: monospace;
+          font-weight: 600;
+        }
+        
+        input[type="range"] {
+          flex: 1;
+          margin: 0 $spacing-2;
+          -webkit-appearance: none;
+          height: 6px;
+          background: linear-gradient(90deg, $primary-blue, $cyan);
+          border-radius: 3px;
+          
+          &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: $border-radius-circle;
+            background: $white;
+            cursor: pointer;
+            border: 2px solid $cyan;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          }
+        }
+        
+        span {
+          width: 40px;
+          color: $light-gray;
+          font-family: monospace;
+        }
+      }
+    }
+  }
+}
+
+// Information Container
+.info-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  margin-bottom: $spacing-5;
+  
+  .accordion-item {
+    background-color: $panel-bg;
+    border-radius: $border-radius;
+    overflow: hidden;
+    transition: all $transition-fast;
+    
+    &:hover {
+      box-shadow: $card-shadow;
+    }
+    
+    .accordion-header {
+      padding: $spacing-3 $spacing-4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color $transition-fast;
+      
+      &:hover {
+        background-color: $medium-blue;
+      }
+      
+      h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: $white;
+      }
+      
+      i {
+        color: $muted-blue;
+        font-size: 1rem;
+      }
+    }
+    
+    .accordion-content {
+      height: 0;
+      overflow: hidden;
+      transition: all $transition-medium;
+      padding: 0 $spacing-4;
+      
+      &.open {
+        height: auto;
+        padding: 0 $spacing-4 $spacing-4 $spacing-4;
+      }
+      
+      p {
+        line-height: 1.6;
+        color: $light-gray;
+      }
+      
+      ul {
+        padding-left: $spacing-4;
+        
+        li {
+          margin-bottom: $spacing-2;
+          color: $muted-blue;
+          line-height: 1.6;
+          
+          strong {
+            color: $light-gray;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Footer
+.footer {
+  padding-top: $spacing-4;
+  border-top: 1px solid $medium-blue;
+  
+  p {
+    color: $muted-blue;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+}
+
+// Animations and decorations
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+@keyframes flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// Responsiveness
+@media (max-width: 1200px) {
+  .autoencoder-container {
+    padding: $spacing-3;
+  }
+  
+  .header {
+    h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .autoencoder-container {
+    padding: $spacing-2;
+  }
+  
+  .header {
+    h1 {
+      font-size: 1.8rem;
+    }
+    
+    .description {
+      font-size: 1rem;
+    }
+  }
+  
+  .three-canvas, .latent-space-canvas {
+    height: 250px !important;
+  }
+  
+  .io-container {
+    flex-direction: column !important;
+    gap: $spacing-4;
+    
+    .arrow {
+      transform: rotate(90deg);
+      margin: $spacing-2 0 !important;
+      display: block !important;
+    }
+  }
+  
+  .controls-container {
+    padding: $spacing-3;
+  }
+}

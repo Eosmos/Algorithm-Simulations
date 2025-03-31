@@ -51,11 +51,11 @@ export const routes: Routes = [
       loadComponent: () => import('./algorithms/unsupervised/pca/pca-simulation.component')
         .then(c => c.PcaSimulationComponent)
     },
-    // { 
-    //   path: 'autoencoders',
-    //   loadComponent: () => import('./algorithms/unsupervised/autoencoders/autoencoders.component')
-    //     .then(c => c.AutoencodersComponent)
-    // },
+    { 
+      path: 'autoencoders',
+      loadComponent: () => import('./algorithms/unsupervised/autoencoders/autoencoder-simulation.component')
+        .then(c => c.AutoencoderSimulationComponent)
+    },
     
     // // Reinforcement Learning algorithms
     // { 
