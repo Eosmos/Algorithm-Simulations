@@ -69,12 +69,12 @@ export const routes: Routes = [
         .then(c => c.PolicyGradientSimulationComponent)
     },
     
-    // // Deep Learning algorithms
-    // { 
-    //   path: 'cnn',
-    //   loadComponent: () => import('./algorithms/deep-learning/cnn/cnn.component')
-    //     .then(c => c.CnnComponent)
-    // },
+    // Deep Learning algorithms
+    { 
+      path: 'cnn',
+      loadComponent: () => import('./algorithms/deep-learning/cnn/cnn-visualization.component')
+        .then(c => c.CnnVisualizationComponent)
+    },
     // { 
     //   path: 'rnn',
     //   loadComponent: () => import('./algorithms/deep-learning/rnn/rnn.component')

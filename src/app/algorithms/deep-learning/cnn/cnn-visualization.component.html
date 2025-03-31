@@ -1,0 +1,237 @@
+<div class="cnn-visualization-container">
+    <div class="title-section">
+      <h1>Convolutional Neural Networks</h1>
+      <p class="subtitle">Interactive Visualization</p>
+    </div>
+  
+    <div class="controls-section">
+      <div class="operations-tabs">
+        <button *ngFor="let op of operations; let i = index"
+                [class.active]="currentOperationIndex === i"
+                (click)="selectOperation(i)">
+          {{ op.name }}
+        </button>
+      </div>
+  
+      <div class="operation-description">
+        <p>{{ operations[currentOperationIndex].description }}</p>
+      </div>
+  
+      <div class="playback-controls">
+        <button (click)="stepBackward()" class="control-btn" title="Step Backward">
+          <i class="fas fa-step-backward"></i>
+        </button>
+        <button *ngIf="!isPlaying" (click)="play()" class="control-btn play-btn" title="Play">
+          <i class="fas fa-play"></i>
+        </button>
+        <button *ngIf="isPlaying" (click)="pause()" class="control-btn" title="Pause">
+          <i class="fas fa-pause"></i>
+        </button>
+        <button (click)="step()" class="control-btn" title="Step Forward">
+          <i class="fas fa-step-forward"></i>
+        </button>
+        <button (click)="reset()" class="control-btn" title="Reset">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button (click)="toggleAdvancedControls()" class="control-btn" [class.active]="showAdvancedControls" title="Advanced Controls">
+          <i class="fas fa-cog"></i>
+        </button>
+        <button (click)="storyModeActive ? stopStoryMode() : startStoryMode()" class="control-btn" [class.active]="storyModeActive" title="Story Mode">
+          <i class="fas fa-book-open"></i>
+        </button>
+      </div>
+  
+      <div class="progress-bar">
+        <div class="progress-indicator" [style.width.%]="progress"></div>
+      </div>
+  
+      <div *ngIf="showAdvancedControls" class="advanced-controls" style="display: block;">
+        <div class="speed-control">
+          <label>Animation Speed:</label>
+          <input type="range" min="10" max="200" [value]="sliderValue" (input)="handleSpeedInput($event)">
+          <span>{{ speedLabel }}</span>
+        </div>
+        
+        <div *ngIf="currentPhase === 'convolution'" class="parameter-controls">
+          <div class="param-group">
+            <label>Filter Size:</label>
+            <div class="button-group">
+              <button [class.active]="filterSize === 3" (click)="filterSize = 3; reset()">3×3</button>
+              <button [class.active]="filterSize === 5" (click)="filterSize = 5; reset()">5×5</button>
+              <button [class.active]="filterSize === 7" (click)="filterSize = 7; reset()">7×7</button>
+            </div>
+          </div>
+          
+          <div class="param-group">
+            <label>Stride:</label>
+            <div class="button-group">
+              <button [class.active]="stride === 1" (click)="stride = 1; reset()">1</button>
+              <button [class.active]="stride === 2" (click)="stride = 2; reset()">2</button>
+            </div>
+          </div>
+          
+          <div class="param-group">
+            <label>Padding:</label>
+            <div class="button-group">
+              <button [class.active]="padding === 0" (click)="padding = 0; reset()">None</button>
+              <button [class.active]="padding === 1" (click)="padding = 1; reset()">Same</button>
+              <button [class.active]="padding === 2" (click)="padding = 2; reset()">Valid</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="visualization-section" #visualizationContainer>
+      <!-- Processing window in its own row -->
+      <div class="visualization-row">
+        <div class="visualization-column full-width">
+          <div class="visualization-panel processing-panel">
+            <h3>Processing</h3>
+            <div class="processing-wrapper">
+              <canvas #outputCanvas width="900" height="520"></canvas>
+              <div class="processing-overlay" *ngIf="currentPhase === 'hierarchical'">
+                <div class="layer-labels">
+                  <div class="layer-label">Layer 1: Edges & Textures</div>
+                  <div class="layer-label">Layer 2: Shapes & Patterns</div>
+                  <div class="layer-label">Layer 3: Complex Features</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Input and Output windows in a separate row -->
+      <div class="visualization-row io-row">
+        <div class="visualization-column half-width">
+          <div class="visualization-panel">
+            <h3>Input</h3>
+            <canvas #imageCanvas width="240" height="240"></canvas>
+          </div>
+        </div>
+        
+        <div class="visualization-column half-width">
+          <div class="visualization-panel">
+            <h3>Output</h3>
+            <canvas #featureMapCanvas width="240" height="240"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="explanation-section">
+      <h2>Understanding {{ operations[currentOperationIndex].name }}</h2>
+      
+      <div *ngIf="currentPhase === 'convolution'" class="explanation-content">
+        <p><strong>Convolution</strong> is the key operation in CNNs where a small filter (or kernel) slides across the input image to detect features.</p>
+        <ul>
+          <li><strong>Filter/Kernel:</strong> A small matrix of weights that detects specific patterns.</li>
+          <li><strong>Stride:</strong> How many pixels the filter moves at each step.</li>
+          <li><strong>Feature Map:</strong> The output produced when a filter is applied across the entire input.</li>
+        </ul>
+        <p>Each element in the feature map is the sum of element-wise multiplication between the filter and the corresponding patch of the input image.</p>
+      </div>
+      
+      <div *ngIf="currentPhase === 'activation'" class="explanation-content">
+        <p><strong>ReLU (Rectified Linear Unit)</strong> is a non-linear activation function that helps the network learn complex patterns.</p>
+        <ul>
+          <li><strong>Formula:</strong> f(x) = max(0, x)</li>
+          <li><strong>Effect:</strong> Converts all negative values to zero, keeping positive values unchanged.</li>
+          <li><strong>Purpose:</strong> Introduces non-linearity, allowing the network to learn more complex functions than simple linear combinations.</li>
+        </ul>
+        <p>Without activation functions like ReLU, multiple layers would just behave like a single linear layer, limiting the network's learning capacity.</p>
+      </div>
+      
+      <div *ngIf="currentPhase === 'pooling'" class="explanation-content">
+        <p><strong>Max Pooling</strong> reduces the spatial dimensions of feature maps while preserving important information.</p>
+        <ul>
+          <li><strong>Operation:</strong> Takes the maximum value from each local region of the feature map.</li>
+          <li><strong>Benefits:</strong> Reduces computation, controls overfitting, and provides translation invariance.</li>
+          <li><strong>Common Size:</strong> 2×2 pooling with stride 2 reduces dimensions by half.</li>
+        </ul>
+        <p>By keeping only the strongest activations, pooling helps the network focus on the presence of features rather than their exact location.</p>
+      </div>
+      
+      <div *ngIf="currentPhase === 'hierarchical'" class="explanation-content">
+        <p><strong>Hierarchical Feature Learning</strong> is a key strength of CNNs, where deeper layers build upon earlier features to detect increasingly complex patterns.</p>
+        <ul>
+          <li><strong>Early Layers:</strong> Detect simple features like edges, corners, and textures.</li>
+          <li><strong>Middle Layers:</strong> Combine simple features to detect shapes, parts, and patterns.</li>
+          <li><strong>Deep Layers:</strong> Detect complex features, object parts, and even entire objects.</li>
+        </ul>
+        <p>This hierarchical structure allows CNNs to automatically learn feature representations from raw pixel data, eliminating the need for manual feature engineering.</p>
+      </div>
+      
+      <div *ngIf="currentPhase === 'full_network'" class="explanation-content">
+        <p><strong>Full Network Architecture</strong> shows how data flows through a complete CNN, from input to output.</p>
+        <ul>
+          <li><strong>Input:</strong> Raw pixel values (e.g., 28×28×1 for a grayscale image).</li>
+          <li><strong>Convolutional Layers:</strong> Extract features using learned filters.</li>
+          <li><strong>Pooling Layers:</strong> Reduce dimensions and provide translation invariance.</li>
+          <li><strong>Flatten:</strong> Converts 2D feature maps to a 1D vector for fully connected layers.</li>
+          <li><strong>Fully Connected Layers:</strong> Combine features for final classification.</li>
+          <li><strong>Output:</strong> Class probabilities (e.g., 10 neurons for digit classification).</li>
+        </ul>
+        <p>Modern CNN architectures like ResNet, VGG, and Inception build upon these basic principles with additional innovations like skip connections, deeper networks, and specialized modules.</p>
+      </div>
+    </div>
+  
+    <div class="key-points-section">
+      <h2>Key Concepts in CNNs</h2>
+      <div class="key-points-grid">
+        <div class="key-point">
+          <h3>Parameter Sharing</h3>
+          <p>The same filter weights are used across the entire input, dramatically reducing the number of parameters compared to fully connected networks.</p>
+        </div>
+        <div class="key-point">
+          <h3>Local Receptive Fields</h3>
+          <p>Neurons connect only to a small region of the input layer, exploiting the spatial locality present in images.</p>
+        </div>
+        <div class="key-point">
+          <h3>Translation Invariance</h3>
+          <p>CNNs can recognize patterns regardless of their position in the image, thanks to convolution and pooling operations.</p>
+        </div>
+        <div class="key-point">
+          <h3>Hierarchical Learning</h3>
+          <p>Deeper layers build upon earlier features, allowing CNNs to learn complex visual concepts without manual feature engineering.</p>
+        </div>
+      </div>
+    </div>
+  
+    <div class="applications-section">
+      <h2>Common Applications</h2>
+      <div class="applications-grid">
+        <div class="application">
+          <i class="fas fa-image"></i>
+          <h3>Image Classification</h3>
+          <p>Assigning a label to an entire image (e.g., "cat", "dog", "car")</p>
+        </div>
+        <div class="application">
+          <i class="fas fa-search"></i>
+          <h3>Object Detection</h3>
+          <p>Identifying multiple objects and their locations within an image</p>
+        </div>
+        <div class="application">
+          <i class="fas fa-crop-alt"></i>
+          <h3>Image Segmentation</h3>
+          <p>Classifying each pixel to create detailed object boundaries</p>
+        </div>
+        <div class="application">
+          <i class="fas fa-film"></i>
+          <h3>Video Analysis</h3>
+          <p>Processing video frames for action recognition, tracking, and more</p>
+        </div>
+        <div class="application">
+          <i class="fas fa-heartbeat"></i>
+          <h3>Medical Imaging</h3>
+          <p>Analyzing medical scans for diagnosis and disease detection</p>
+        </div>
+        <div class="application">
+          <i class="fas fa-robot"></i>
+          <h3>Autonomous Vehicles</h3>
+          <p>Identifying roads, vehicles, pedestrians, and obstacles</p>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,5 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, NgZone, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import * as d3 from 'd3';
+
+type Direction = 'up' | 'down' | 'left' | 'right';
 
 interface GridCell {
   x: number;
@@ -22,14 +25,16 @@ interface AgentState {
   episode: number;
   step: number;
   isExploring: boolean;
-  lastAction?: 'up' | 'down' | 'left' | 'right';
+  lastAction?: Direction;
   tdError?: number;
 }
 
 @Component({
   selector: 'app-q-learning-simulation',
   templateUrl: './q-learning-simulation.component.html',
-  styleUrls: ['./q-learning-simulation.component.scss']
+  styleUrls: ['./q-learning-simulation.component.scss'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('gridContainer') gridContainer!: ElementRef;
@@ -149,8 +154,8 @@ export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDe
     const stateQValues: { stateKey: string; maxQValue: number; bestAction: string }[] = [];
     for (const stateKey in this.qTable) {
       const qValues = this.qTable[stateKey];
-      const actions = ['up', 'down', 'left', 'right'] as const;
-      let bestAction: "up" | "down" | "left" | "right" = actions[0];
+      const actions: Direction[] = ['up', 'down', 'left', 'right'];
+      let bestAction = actions[0];
       let maxQValue = qValues[bestAction];
       
       actions.forEach(action => {
@@ -295,8 +300,8 @@ export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDe
     return `${x},${y}`;
   }
 
-  private getValidActions(x: number, y: number): ('up' | 'down' | 'left' | 'right')[] {
-    const actions: ('up' | 'down' | 'left' | 'right')[] = [];
+  private getValidActions(x: number, y: number): Direction[] {
+    const actions: Direction[] = [];
     
     // Check each direction
     if (y > 0 && this.grid[x][y - 1].type !== 'wall') actions.push('up');
@@ -307,23 +312,29 @@ export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDe
     return actions;
   }
 
-  private chooseAction(x: number, y: number): { action: 'up' | 'down' | 'left' | 'right', isExploring: boolean } {
+  private chooseAction(x: number, y: number): { action: Direction, isExploring: boolean } {
     const stateKey = this.getStateKey(x, y);
     const validActions = this.getValidActions(x, y);
+    
+    // Ensure we have at least one valid action
+    if (validActions.length === 0) {
+      console.error('No valid actions available at position', x, y);
+      return { action: 'up', isExploring: false }; // Default fallback
+    }
     
     // With probability epsilon, explore (random action)
     if (Math.random() < this.epsilon) {
       const randomIndex = Math.floor(Math.random() * validActions.length);
-      const randomAction = validActions[randomIndex];
-      return { action: randomAction, isExploring: true };
+      return { action: validActions[randomIndex], isExploring: true };
     }
     
     // Otherwise, exploit (greedy action - choose best Q-value)
-    const initialAction = validActions[0];
-    let bestAction: 'up' | 'down' | 'left' | 'right' = initialAction;
-    let bestQValue = this.qTable[stateKey][initialAction];
+    let bestAction = validActions[0];
+    let bestQValue = this.qTable[stateKey][bestAction];
     
-    for (const action of validActions) {
+    // Find action with highest Q-value
+    for (let i = 1; i < validActions.length; i++) {
+      const action = validActions[i];
       if (this.qTable[stateKey][action] > bestQValue) {
         bestQValue = this.qTable[stateKey][action];
         bestAction = action;
@@ -333,7 +344,7 @@ export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDe
     return { action: bestAction, isExploring: false };
   }
 
-  private getNextState(x: number, y: number, action: 'up' | 'down' | 'left' | 'right'): { nextX: number, nextY: number } {
+  private getNextState(x: number, y: number, action: Direction): { nextX: number, nextY: number } {
     let nextX = x;
     let nextY = y;
     
@@ -355,7 +366,7 @@ export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDe
     return { nextX, nextY };
   }
 
-  private updateQValue(x: number, y: number, action: 'up' | 'down' | 'left' | 'right', nextX: number, nextY: number, reward: number): number {
+  private updateQValue(x: number, y: number, action: Direction, nextX: number, nextY: number, reward: number): number {
     const stateKey = this.getStateKey(x, y);
     const nextStateKey = this.getStateKey(nextX, nextY);
     
@@ -688,8 +699,8 @@ export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDe
           if (!qValues) continue;
           
           // Find max Q-value for this state
-          const actions = ['up', 'down', 'left', 'right'] as const;
-          let bestAction: 'up' | 'down' | 'left' | 'right' = actions[0];
+          const actions: Direction[] = ['up', 'down', 'left', 'right'];
+          let bestAction: Direction = actions[0];
           let maxQ = qValues[bestAction];
           
           actions.forEach(action => {
@@ -707,7 +718,7 @@ export class QLearningSimulationComponent implements OnInit, AfterViewInit, OnDe
             
             // Draw arrow based on best action
             let dx = 0, dy = 0;
-            switch (bestAction as 'up' | 'down' | 'left' | 'right') {
+            switch (bestAction) {
               case 'up': dy = -arrowLength; break;
               case 'down': dy = arrowLength; break;
               case 'left': dx = -arrowLength; break;
