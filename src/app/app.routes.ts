@@ -63,11 +63,11 @@ export const routes: Routes = [
       loadComponent: () => import('./algorithms/reinforcement/qlearning/q-learning-simulation.component')
         .then(c => c.QLearningSimulationComponent)
     },
-    // { 
-    //   path: 'policy-gradient',
-    //   loadComponent: () => import('./algorithms/reinforcement/policy-gradient/policy-gradient.component')
-    //     .then(c => c.PolicyGradientComponent)
-    // },
+    { 
+      path: 'policy-gradient',
+      loadComponent: () => import('./algorithms/reinforcement/policy-gradient/policy-gradient-simulation.component')
+        .then(c => c.PolicyGradientSimulationComponent)
+    },
     
     // // Deep Learning algorithms
     // { 

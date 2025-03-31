@@ -1,0 +1,604 @@
+// Color Variables from Design System
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+$darkest-blue: #0c1428;
+$dark-bg-blue: #162a4a;
+$medium-blue: #1e3a66;
+$light-bg-blue: #2a4980;
+$light-gray: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+// Reinforcement Learning Color
+$rl-primary: $orange;
+$rl-secondary: darken($orange, 10%);
+
+// Base Styles
+:host {
+  display: block;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: $light-gray;
+  background-color: $darkest-blue;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+// Main Container
+.pg-simulation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Header Styles
+.simulation-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 16px;
+  
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: $white;
+    
+    @media (min-width: 768px) {
+      font-size: 32px;
+    }
+  }
+  
+  .subtitle {
+    font-size: 16px;
+    color: $muted-blue;
+    margin-top: 4px;
+  }
+  
+  .category-badge {
+    display: inline-block;
+    background-color: $rl-primary;
+    color: $white;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 16px;
+    margin-top: 8px;
+  }
+}
+
+// Controls Styles
+.simulation-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background-color: $dark-bg-blue;
+  border-radius: 12px;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .control-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .control-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: $medium-blue;
+    color: $light-gray;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: lighten($medium-blue, 5%);
+    }
+    
+    &.active {
+      background-color: $rl-primary;
+      color: $white;
+    }
+    
+    .icon {
+      font-style: normal;
+    }
+  }
+  
+  .speed-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $light-gray;
+    
+    .speed-btn {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: $medium-blue;
+      color: $light-gray;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      
+      &:hover:not([disabled]) {
+        background-color: lighten($medium-blue, 5%);
+      }
+      
+      &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    
+    .speed-display {
+      min-width: 40px;
+      text-align: center;
+    }
+  }
+  
+  .simulation-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .info-label {
+        color: $muted-blue;
+        font-size: 14px;
+      }
+      
+      .info-value {
+        font-weight: 600;
+      }
+      
+      .phase-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        
+        &.environment {
+          background-color: $purple;
+        }
+        
+        &.policy {
+          background-color: $primary-blue;
+        }
+        
+        &.gradient {
+          background-color: $orange;
+        }
+        
+        &.update {
+          background-color: $green;
+        }
+      }
+    }
+  }
+}
+
+// Grid Layout
+.simulation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .grid-item {
+    background-color: $dark-bg-blue;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, opacity 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+    }
+    
+    &.full-width {
+      grid-column: 1 / -1;
+      height: 500px; // Larger height for full-width view
+      
+      .simulation-canvas, 
+      .chart-container {
+        height: 400px;
+      }
+    }
+    
+    &.active-pane {
+      border: 2px solid $rl-primary;
+      box-shadow: 0 0 20px rgba($rl-primary, 0.4);
+    }
+    
+    @media (max-width: 1199px) {
+      &.environment-container,
+      &.parameter-container {
+        grid-column: span 2;
+      }
+    }
+    
+    @media (max-width: 767px) {
+      &.environment-container,
+      &.policy-container,
+      &.reward-container,
+      &.parameter-container {
+        grid-column: span 1;
+      }
+    }
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba($light-gray, 0.1);
+    
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $light-gray;
+    }
+    
+    .active-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: $muted-blue;
+      
+      &.active {
+        background-color: $rl-primary;
+        box-shadow: 0 0 8px rgba($rl-primary, 0.6);
+      }
+    }
+  }
+  
+  // View selector
+  .view-selector {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    
+    .view-btn {
+      padding: 8px 16px;
+      background-color: $medium-blue;
+      color: $light-gray;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: lighten($medium-blue, 5%);
+      }
+      
+      &.active {
+        background-color: $rl-primary;
+        color: $white;
+      }
+    }
+  }
+}
+
+// Simulation Canvas
+.simulation-canvas {
+  width: 100%;
+  height: 300px;
+  min-height: 300px;
+  position: relative;
+  background-color: rgba($darkest-blue, 0.3);
+  
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+}
+
+// Chart Container
+.chart-container {
+  width: 100%;
+  height: 200px;
+  padding: 0;
+  overflow: hidden;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// Info Panel
+.info-panel {
+  padding: 16px;
+  background-color: rgba($darkest-blue, 0.4);
+  border-top: 1px solid rgba($light-gray, 0.1);
+  transition: all 0.3s ease;
+  opacity: 1;
+  
+  &.environment-info {
+    border-left: 4px solid $purple;
+  }
+  
+  &.policy-info {
+    border-left: 4px solid $primary-blue;
+  }
+  
+  &.rewards-info {
+    border-left: 4px solid $orange;
+  }
+  
+  &.landscape-info {
+    border-left: 4px solid $green;
+  }
+  
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: $light-gray;
+  }
+  
+  p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: $muted-blue;
+    line-height: 1.5;
+  }
+}
+
+// Explanation Toggle
+.explanation-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+  gap: 12px;
+  
+  .toggle-btn {
+    padding: 8px 16px;
+    background-color: $medium-blue;
+    color: $light-gray;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: lighten($medium-blue, 5%);
+    }
+  }
+  
+  .explanation-status {
+    color: $muted-blue;
+    font-style: italic;
+    font-size: 14px;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+}
+
+// Environment Details
+.environment-details {
+  margin-top: 24px;
+  padding: 20px;
+  background-color: $dark-bg-blue;
+  border-radius: 12px;
+  border-left: 5px solid $purple;
+  
+  h2 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    border-bottom: 1px solid rgba($light-gray, 0.2);
+    padding-bottom: 8px;
+  }
+  
+  .details-content {
+    p {
+      margin: 12px 0;
+      color: $light-gray;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    
+    strong {
+      color: $white;
+      font-weight: 600;
+    }
+  }
+}
+
+// Algorithm Details
+.algorithm-details {
+  margin-top: 24px;
+  padding: 24px;
+  background-color: $dark-bg-blue;
+  border-radius: 12px;
+  border-left: 5px solid $primary-blue;
+  
+  h2 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    border-bottom: 1px solid rgba($light-gray, 0.2);
+    padding-bottom: 8px;
+  }
+  
+  h3 {
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: $light-gray;
+  }
+  
+  p {
+    margin: 8px 0;
+    line-height: 1.6;
+    color: $light-gray;
+  }
+  
+  ul, ol {
+    padding-left: 24px;
+    margin: 12px 0;
+    
+    li {
+      margin-bottom: 8px;
+      color: $light-gray;
+      line-height: 1.6;
+    }
+  }
+  
+  strong {
+    color: $white;
+  }
+}
+
+// D3 Chart Styling
+:host ::ng-deep {
+  .x-axis,
+  .y-axis {
+    color: $muted-blue;
+    
+    line {
+      stroke: rgba($muted-blue, 0.3);
+    }
+    
+    path {
+      stroke: rgba($muted-blue, 0.3);
+    }
+  }
+  
+  .x-label,
+  .y-label {
+    fill: $muted-blue;
+    font-size: 12px;
+  }
+  
+  .gaussian-area {
+    opacity: 0.6;
+  }
+  
+  .reward-line {
+    stroke-width: 2.5;
+  }
+  
+  .mean-line {
+    stroke-dasharray: 5,5;
+  }
+  
+  .contours path {
+    opacity: 0.7;
+  }
+  
+  .policy-point {
+    filter: drop-shadow(0 0 4px rgba($rl-primary, 0.7));
+  }
+  
+  .gradient-arrow {
+    animation: pulse 1.5s infinite alternate;
+  }
+}
+
+// Animations
+@keyframes pulse {
+  from {
+    opacity: 0.5;
+    stroke-width: 2;
+  }
+  to {
+    opacity: 1;
+    stroke-width: 3;
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Simulation Status
+.simulation-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background-color: $dark-bg-blue;
+  border-radius: 8px;
+  border-left: 4px solid $rl-primary;
+  animation: fadeIn 0.3s ease-in-out;
+  
+  .status-indicator {
+    .status-spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba($rl-primary, 0.3);
+      border-top: 3px solid $rl-primary;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+  
+  .status-message {
+    font-size: 14px;
+    color: $light-gray;
+    flex: 1;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
