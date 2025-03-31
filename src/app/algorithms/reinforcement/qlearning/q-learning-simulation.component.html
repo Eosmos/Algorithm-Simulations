@@ -1,0 +1,189 @@
+<div class="q-learning-container">
+    <div class="header">
+      <h1>Q-Learning Algorithm Visualization</h1>
+      <div class="algorithm-category">
+        <span class="badge reinforcement">Reinforcement Learning</span>
+      </div>
+    </div>
+  
+    <div class="description">
+      <p>Q-learning is a model-free, off-policy reinforcement learning algorithm that learns the value of an action in a particular state. The "Q" represents the "quality" of an action taken in a state.</p>
+    </div>
+  
+    <div class="simulation-controls">
+      <div class="control-group">
+        <button (click)="startSimulation()" [disabled]="isRunning" class="btn primary">
+          <span class="icon">▶</span> Start
+        </button>
+        <button (click)="stopSimulation()" [disabled]="!isRunning" class="btn secondary">
+          <span class="icon">⏸</span> Pause
+        </button>
+        <button (click)="resetSimulation()" class="btn secondary">
+          <span class="icon">↺</span> Reset
+        </button>
+      </div>
+      
+      <div class="control-group">
+        <button (click)="toggleAutoplay()" class="btn primary" [class.active]="isAutoPlaying">
+          <span class="icon">{{ isAutoPlaying ? '⏸' : '▶' }}</span> {{ isAutoPlaying ? 'Stop Auto' : 'Auto Play' }}
+        </button>
+        <button (click)="manualStep()" [disabled]="isAutoPlaying" class="btn secondary">
+          <span class="icon">⏯</span> Step
+        </button>
+      </div>
+      
+      <div class="control-group">
+        <div class="speed-control">
+          <label>Speed:</label>
+          <button (click)="changeSpeed(0.5)" [class.active]="playbackSpeed === 0.5" class="btn mini">0.5x</button>
+          <button (click)="changeSpeed(1)" [class.active]="playbackSpeed === 1" class="btn mini">1x</button>
+          <button (click)="changeSpeed(2)" [class.active]="playbackSpeed === 2" class="btn mini">2x</button>
+          <button (click)="changeSpeed(5)" [class.active]="playbackSpeed === 5" class="btn mini">5x</button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="simulation-layout">
+      <div class="main-section">
+        <div class="grid-section">
+          <h2>Environment Grid</h2>
+          <div class="grid-legend">
+            <div class="legend-item">
+              <div class="legend-color empty"></div>
+              <span>Empty Cell (-1)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color wall"></div>
+              <span>Wall</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color goal"></div>
+              <span>Goal (+100)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color pitfall"></div>
+              <span>Pitfall (-50)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color agent"></div>
+              <span>Agent</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color exploring"></div>
+              <span>Exploring</span>
+            </div>
+          </div>
+          <div #gridContainer class="grid-container"></div>
+        </div>
+        
+        <div class="info-section">
+          <div class="agent-info">
+            <h2>Agent Status</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Episode:</label>
+                <span>{{agent.episode + 1}}/{{maxEpisodes}}</span>
+              </div>
+              <div class="info-item">
+                <label>Step:</label>
+                <span>{{agent.step}}</span>
+              </div>
+              <div class="info-item">
+                <label>Position:</label>
+                <span>({{agent.x}}, {{agent.y}})</span>
+              </div>
+              <div class="info-item">
+                <label>Total Reward:</label>
+                <span>{{agent.totalReward.toFixed(2)}}</span>
+              </div>
+              <div class="info-item">
+                <label>ε (Exploration):</label>
+                <span>{{epsilon.toFixed(3)}}</span>
+              </div>
+              <div class="info-item">
+                <label>α (Learning Rate):</label>
+                <span>{{learningRate.toFixed(2)}}</span>
+              </div>
+              <div class="info-item">
+                <label>γ (Discount):</label>
+                <span>{{discountFactor.toFixed(2)}}</span>
+              </div>
+              <div class="info-item exploration-mode" [class.exploring]="agent.isExploring">
+                <label>Mode:</label>
+                <span>{{agent.isExploring ? 'Exploring (Random)' : 'Exploiting (Greedy)'}}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="q-value-visualization">
+            <h2>Q-Values</h2>
+            <div #qValueChart class="q-value-chart"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="charts-section">
+        <div class="chart">
+          <h2>Reward Progress</h2>
+          <div #rewardChart class="reward-chart"></div>
+        </div>
+        
+        <div class="chart">
+          <h2>TD Error</h2>
+          <div #tdErrorChart class="td-error-chart"></div>
+        </div>
+      </div>
+      
+      <div class="explanation-section">
+        <h2>Algorithm Explanation</h2>
+        <div class="explanation-content">
+          <h3>Current State</h3>
+          <div class="current-explanation">
+            <p>{{currentExplanation}}</p>
+          </div>
+          
+          <!-- Results Summary (appears after completion) -->
+          <div *ngIf="isSimulationComplete" class="results-summary">
+            <h3>Simulation Results</h3>
+            <textarea readonly class="results-text">{{simulationResults}}</textarea>
+            <button (click)="copyResultsToClipboard()" class="btn secondary copy-btn">
+              <span class="icon">📋</span> Copy Results
+            </button>
+          </div>
+          
+          <div class="algorithm-details">
+            <h3>Q-Learning Key Concepts</h3>
+            <div class="detail-item">
+              <h4>Temporal Difference (TD) Learning</h4>
+              <p>Q-learning uses TD updates where the value estimate is updated based on the observed reward and the estimated value of the next state.</p>
+            </div>
+            <div class="detail-item">
+              <h4>Update Formula</h4>
+              <div class="formula">
+                Q(s, a) ← Q(s, a) + α [r + γ max<sub>a'</sub> Q(s', a') - Q(s, a)]
+              </div>
+              <p>Where:</p>
+              <ul>
+                <li><strong>Q(s, a)</strong>: Current estimate of action-value</li>
+                <li><strong>α</strong>: Learning rate (How quickly to update values)</li>
+                <li><strong>r</strong>: Immediate reward</li>
+                <li><strong>γ</strong>: Discount factor (Value of future rewards)</li>
+                <li><strong>s'</strong>: Next state</li>
+                <li><strong>a'</strong>: Possible actions in next state</li>
+                <li><strong>max<sub>a'</sub> Q(s', a')</strong>: Maximum Q-value in next state</li>
+              </ul>
+            </div>
+            <div class="detail-item">
+              <h4>Exploration vs. Exploitation</h4>
+              <p>The agent balances exploration (trying new actions) with exploitation (choosing best known actions) using an epsilon-greedy strategy:</p>
+              <ul>
+                <li>With probability <strong>ε</strong>, choose a random action (explore)</li>
+                <li>With probability <strong>1-ε</strong>, choose the best action (exploit)</li>
+                <li><strong>ε</strong> decreases over time to favor exploitation as the agent learns</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

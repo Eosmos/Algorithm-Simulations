@@ -1,0 +1,519 @@
+// Variables based on the design system
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-bg: #2a4980;
+
+$light-gray: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+$primary-gradient: linear-gradient(135deg, $primary-blue, $purple);
+$accent-gradient: linear-gradient(135deg, $cyan, $light-purple);
+$success-gradient: linear-gradient(135deg, $green, #2de2a3);
+
+// Reinforcement Learning specific color
+$reinforcement-color: $orange;
+
+// Base styling
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background-color: $darkest-blue;
+  color: $light-gray;
+  line-height: 1.6;
+}
+
+// Container styling
+.q-learning-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: $darkest-blue;
+}
+
+// Header section
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid $medium-blue;
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: $white;
+    margin: 0;
+  }
+
+  .algorithm-category {
+    display: flex;
+    gap: 8px;
+  }
+
+  .badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    
+    &.reinforcement {
+      background-color: rgba($reinforcement-color, 0.2);
+      color: $reinforcement-color;
+      border: 1px solid $reinforcement-color;
+    }
+  }
+}
+
+// Description
+.description {
+  margin-bottom: 24px;
+  
+  p {
+    font-size: 16px;
+    color: $muted-blue;
+    max-width: 900px;
+  }
+}
+
+// Simulation controls
+.simulation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  
+  .control-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .speed-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    label {
+      font-size: 14px;
+      color: $muted-blue;
+    }
+  }
+}
+
+// Buttons
+.btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  
+  &.primary {
+    background-color: $primary-blue;
+    color: $white;
+    
+    &:hover:not(:disabled) {
+      background-color: $dark-blue;
+    }
+    
+    &.active {
+      background-color: $dark-blue;
+      box-shadow: 0 0 0 2px rgba($primary-blue, 0.5);
+    }
+  }
+  
+  &.secondary {
+    background-color: $medium-blue;
+    color: $light-gray;
+    
+    &:hover:not(:disabled) {
+      background-color: $light-blue-bg;
+    }
+  }
+  
+  &.mini {
+    padding: 4px 8px;
+    font-size: 12px;
+    
+    &.active {
+      background-color: $primary-blue;
+      color: $white;
+    }
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .icon {
+    font-size: 12px;
+  }
+}
+
+// Main layout
+.simulation-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.main-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Grid section
+.grid-section {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: $white;
+  }
+}
+
+.grid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      
+      &.empty {
+        background-color: $medium-blue;
+      }
+      
+      &.wall {
+        background-color: $darkest-blue;
+      }
+      
+      &.goal {
+        background-color: $green;
+      }
+      
+      &.pitfall {
+        background-color: $red;
+      }
+      
+      &.agent {
+        background-color: $primary-blue;
+      }
+      
+      &.exploring {
+        background-color: $orange;
+      }
+    }
+  }
+}
+
+.grid-container {
+  display: flex;
+  justify-content: center;
+  
+  svg {
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Info section
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.agent-info {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: $white;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    
+    label {
+      font-size: 12px;
+      color: $muted-blue;
+    }
+    
+    span {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    &.exploration-mode {
+      grid-column: 1 / -1;
+      padding: 8px;
+      border-radius: 8px;
+      background-color: rgba($primary-blue, 0.1);
+      
+      &.exploring {
+        background-color: rgba($orange, 0.1);
+        
+        span {
+          color: $orange;
+        }
+      }
+    }
+  }
+}
+
+.q-value-visualization {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: $white;
+  }
+}
+
+// Charts section
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart {
+    background-color: $dark-blue-bg;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    
+    h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: $white;
+    }
+  }
+}
+
+// Explanation section
+.explanation-section {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: $white;
+  }
+  
+  h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: $white;
+  }
+  
+  h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: $white;
+  }
+  
+  .current-explanation {
+    background-color: $medium-blue;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    border-left: 4px solid $cyan;
+    
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  }
+  
+  .results-summary {
+    background-color: $medium-blue;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    border-left: 4px solid $purple;
+    
+    h3 {
+      color: $purple;
+      margin-bottom: 12px;
+    }
+    
+    .results-text {
+      width: 100%;
+      min-height: 200px;
+      background-color: $darkest-blue;
+      color: $light-gray;
+      border: 1px solid $light-blue-bg;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: monospace;
+      resize: vertical;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    
+    .copy-btn {
+      background-color: $medium-blue;
+      border: 1px solid $light-blue-bg;
+      
+      &:hover {
+        background-color: $light-blue-bg;
+      }
+    }
+  }
+  
+  .algorithm-details {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    
+    .detail-item {
+      border-bottom: 1px solid $medium-blue;
+      padding-bottom: 16px;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      p {
+        font-size: 14px;
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+      
+      .formula {
+        background-color: $medium-blue;
+        padding: 12px;
+        border-radius: 8px;
+        font-family: monospace;
+        margin-bottom: 12px;
+        text-align: center;
+        font-size: 16px;
+      }
+      
+      ul {
+        padding-left: 24px;
+        
+        li {
+          font-size: 14px;
+          margin-bottom: 4px;
+        }
+      }
+    }
+  }
+}
+
+// Tooltip
+:host ::ng-deep .tooltip {
+  font-size: 12px;
+  line-height: 1.4;
+  
+  strong {
+    color: $white;
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .q-values {
+    margin-top: 8px;
+    font-weight: 600;
+    color: $cyan;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .q-learning-container {
+    padding: 16px;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .simulation-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .agent-info .info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

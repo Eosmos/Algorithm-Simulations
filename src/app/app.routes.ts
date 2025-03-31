@@ -57,12 +57,12 @@ export const routes: Routes = [
         .then(c => c.AutoencoderSimulationComponent)
     },
     
-    // // Reinforcement Learning algorithms
-    // { 
-    //   path: 'qlearning',
-    //   loadComponent: () => import('./algorithms/reinforcement/qlearning/qlearning.component')
-    //     .then(c => c.QlearningComponent)
-    // },
+    // Reinforcement Learning algorithms
+    { 
+      path: 'qlearning',
+      loadComponent: () => import('./algorithms/reinforcement/qlearning/q-learning-simulation.component')
+        .then(c => c.QLearningSimulationComponent)
+    },
     // { 
     //   path: 'policy-gradient',
     //   loadComponent: () => import('./algorithms/reinforcement/policy-gradient/policy-gradient.component')
