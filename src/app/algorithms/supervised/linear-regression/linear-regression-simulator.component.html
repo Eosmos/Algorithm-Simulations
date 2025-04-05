@@ -1,0 +1,674 @@
+<div class="algorithm-explorer" [attr.data-category]="category">
+    <header class="algorithm-header">
+      <div class="breadcrumb">
+        <span>Algorithm Explorer</span>
+        <span> / </span>
+        <span>Supervised Learning</span>
+        <span> / </span>
+        <span>{{algorithmName}}</span>
+      </div>
+      
+      <h1 class="algorithm-title">{{algorithmName}}</h1>
+      <div class="category-badge">{{category}}</div>
+      <p class="algorithm-description">{{description}}</p>
+    </header>
+    
+    <div class="tab-navigation">
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'visualization'"
+        (click)="switchTab('visualization')">
+        Interactive Visualization
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'details'"
+        (click)="switchTab('details')">
+        Algorithm Details
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'math'"
+        (click)="switchTab('math')">
+        Mathematical Formulation
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'history'"
+        (click)="switchTab('history')">
+        Historical Context
+      </button>
+    </div>
+    
+    <div class="tab-content">
+      <!-- Interactive Visualization Tab -->
+      <div class="tab-pane" *ngIf="activeTab === 'visualization'">
+        <div class="visualization-controls">
+          <div class="visualization-mode-toggle">
+            <button 
+              class="toggle-button" 
+              [class.active]="currentVisualization === '2d'"
+              (click)="switchVisualization('2d')">
+              2D Line Fitting
+            </button>
+            <button 
+              class="toggle-button" 
+              [class.active]="currentVisualization === '3d'"
+              (click)="switchVisualization('3d')">
+              3D Cost Surface
+            </button>
+          </div>
+          
+          <div class="playback-controls">
+            <button class="control-button" (click)="resetSimulation()" title="Reset simulation">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+            <button class="control-button" (click)="stepBackward()" [disabled]="currentStep === 0" title="Step backward">
+              <i class="fas fa-step-backward"></i> Back
+            </button>
+            <button class="control-button play-button" *ngIf="!isPlaying" (click)="playSimulation()" title="Play simulation">
+              <i class="fas fa-play"></i> Play
+            </button>
+            <button class="control-button pause-button" *ngIf="isPlaying" (click)="pauseSimulation()" title="Pause simulation">
+              <i class="fas fa-pause"></i> Pause
+            </button>
+            <button class="control-button" (click)="stepForward()" [disabled]="currentStep >= iterations" title="Step forward">
+              <i class="fas fa-step-forward"></i> Step
+            </button>
+          </div>
+        </div>
+        
+        <div class="current-equation">
+          <div class="equation-heading">Current Model:</div>
+          <div class="equation">{{equationDisplay}}</div>
+        </div>
+        
+        <div class="visualization-container">
+          <div class="visualization-panel" [class.active]="currentVisualization === '2d'">
+            <div class="visualization-2d" #d3Container></div>
+            <div class="visualization-caption">
+              <h3>2D Line Fitting Visualization</h3>
+              <p>The blue dots represent your data points. The orange line shows the current regression line fitting these points. The red dashed lines represent the residuals (errors) between each data point and the regression line prediction.</p>
+            </div>
+          </div>
+          
+          <div class="visualization-panel" [class.active]="currentVisualization === '3d'">
+            <div class="visualization-3d" #threeContainer></div>
+            <div class="visualization-caption">
+              <h3>3D Cost Surface Visualization</h3>
+              <p>This 3D visualization shows the cost function (Mean Squared Error) landscape. The x-axis represents β₀ (intercept), the z-axis represents β₁ (slope), and the y-axis represents the MSE value. The orange path shows the gradient descent trajectory, and the green dot shows the optimal solution.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="parameter-controls">
+          <div class="parameter-group">
+            <label for="learning-rate">Learning Rate (α):</label>
+            <div class="slider-container">
+              <input 
+                  type="range" 
+                  id="learning-rate" 
+                  min="0.001" 
+                  max="0.1" 
+                  step="0.001" 
+                  [(ngModel)]="learningRate">
+                <span class="parameter-value">{{learningRate}}</span>
+            </div>
+            <div class="parameter-description">
+              Controls the step size of each gradient descent iteration. Higher values converge faster but may overshoot.
+            </div>
+          </div>
+          
+          <div class="parameter-group">
+            <label for="iterations">Iterations:</label>
+            <div class="slider-container">
+              <input 
+                  type="range" 
+                  id="iterations" 
+                  min="10" 
+                  max="500" 
+                  step="10" 
+                  [(ngModel)]="iterations">
+                <span class="parameter-value">{{iterations}}</span>
+            </div>
+            <div class="parameter-description">
+              Maximum number of gradient descent steps to perform.
+            </div>
+          </div>
+          
+          <div class="parameter-group">
+            <label for="animation-speed">Animation Speed:</label>
+            <div class="slider-container">
+              <input 
+                  type="range" 
+                  id="animation-speed" 
+                  min="100" 
+                  max="2000" 
+                  step="100" 
+                  [ngModel]="2100 - animationSpeed"
+                  (ngModelChange)="setAnimationSpeed(2100 - $event)">
+                <span class="parameter-value">{{(2100 - animationSpeed) / 1000}}x</span>
+            </div>
+            <div class="parameter-description">
+              Controls the speed of the animation during automatic playback.
+            </div>
+          </div>
+        </div>
+        
+        <div class="current-state">
+          <div class="state-parameter">
+            <span class="parameter-label">Intercept (β₀):</span>
+            <span class="parameter-value">{{currentParameters.beta0}}</span>
+          </div>
+          <div class="state-parameter">
+            <span class="parameter-label">Slope (β₁):</span>
+            <span class="parameter-value">{{currentParameters.beta1}}</span>
+          </div>
+          <div class="state-parameter">
+            <span class="parameter-label">Mean Squared Error:</span>
+            <span class="parameter-value">{{currentMSE}}</span>
+          </div>
+          <div class="state-parameter">
+            <span class="parameter-label">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="simulationProgress"></div>
+            </div>
+            <span class="progress-text">{{currentStep}} / {{iterations}} steps</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Algorithm Details Tab -->
+      <div class="tab-pane" *ngIf="activeTab === 'details'">
+        <div class="details-content">
+          <h2>Linear Regression: Core Concepts</h2>
+          <p>Linear Regression is one of the most fundamental <strong>supervised learning</strong> algorithms, primarily used for predicting a continuous target variable based on one or more input features.</p>
+          
+          <div class="info-card">
+            <div class="info-card-header">
+              <i class="fas fa-lightbulb"></i>
+              <h3>Key Characteristics</h3>
+            </div>
+            <ul>
+              <li><strong>Supervised Learning:</strong> Requires labeled training data with input features and corresponding target values.</li>
+              <li><strong>Regression Algorithm:</strong> Predicts continuous output values (as opposed to classification algorithms that predict discrete classes).</li>
+              <li><strong>Linear Model:</strong> Assumes a linear relationship between the input features and the output variable.</li>
+              <li><strong>Interpretable:</strong> The coefficients directly indicate the strength and direction of the relationship between each feature and the target variable.</li>
+            </ul>
+          </div>
+          
+          <h3>How Linear Regression Works</h3>
+          <p>Linear Regression models the relationship between the dependent variable (y) and one or more independent variables (x₁, x₂, ..., xₙ) as a linear equation:</p>
+          <div class="formula">y = β₀ + β₁x₁ + β₂x₂ + ... + βₙxₙ + ε</div>
+          
+          <p>Where:</p>
+          <ul>
+            <li><strong>y:</strong> The dependent variable (what we want to predict).</li>
+            <li><strong>xⱼ:</strong> The j-th independent variable or feature.</li>
+            <li><strong>β₀:</strong> The intercept (or bias), the expected value of y when all xⱼ are zero.</li>
+            <li><strong>βⱼ:</strong> The coefficient for the j-th feature. It represents the expected change in y for a one-unit change in xⱼ, holding all other features constant.</li>
+            <li><strong>ε:</strong> The error term (or residual), representing the difference between the actual value y and the predicted value.</li>
+          </ul>
+          
+          <div class="types-container">
+            <div class="type-card">
+              <div class="type-card-header">
+                <h4>Simple Linear Regression</h4>
+              </div>
+              <div class="type-card-content">
+                <p>Involves only one independent variable: y = β₀ + β₁x + ε</p>
+                <div class="type-illustration simple-regression"></div>
+                <p>The model fits a straight line to the data points, minimizing the sum of squared errors.</p>
+              </div>
+            </div>
+            
+            <div class="type-card">
+              <div class="type-card-header">
+                <h4>Multiple Linear Regression</h4>
+              </div>
+              <div class="type-card-content">
+                <p>Involves two or more independent variables: y = β₀ + β₁x₁ + β₂x₂ + ... + βₙxₙ + ε</p>
+                <div class="type-illustration multiple-regression"></div>
+                <p>The model fits a hyperplane in a multidimensional space, also minimizing the sum of squared errors.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h3>Optimization Methods</h3>
+          <div class="methods-container">
+            <div class="method-card">
+              <div class="method-card-header">
+                <h4>Normal Equation</h4>
+              </div>
+              <div class="method-card-content">
+                <p>An analytical approach that directly calculates the optimal parameter values in one step:</p>
+                <div class="formula">β = (X^T X)^-1 X^T y</div>
+                <p><strong>Pros:</strong> Direct solution, no iterations needed, no learning rate to tune.</p>
+                <p><strong>Cons:</strong> Computationally expensive for large feature sets, requires matrix inversion.</p>
+              </div>
+            </div>
+            
+            <div class="method-card">
+              <div class="method-card-header">
+                <h4>Gradient Descent</h4>
+              </div>
+              <div class="method-card-content">
+                <p>An iterative optimization algorithm that incrementally adjusts parameters to minimize the cost function:</p>
+                <div class="formula">βⱼ := βⱼ - α · ∂J/∂βⱼ</div>
+                <p><strong>Pros:</strong> Works well with large datasets, can be implemented with streaming data.</p>
+                <p><strong>Cons:</strong> Requires tuning learning rate, needs multiple iterations, may converge slowly.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h3>Assumptions of Linear Regression</h3>
+          <div class="assumptions-grid">
+            <div class="assumption-card">
+              <div class="assumption-icon"><i class="fas fa-equals"></i></div>
+              <h4>Linearity</h4>
+              <p>The relationship between features and target is linear.</p>
+            </div>
+            
+            <div class="assumption-card">
+              <div class="assumption-icon"><i class="fas fa-cut"></i></div>
+              <h4>Independence</h4>
+              <p>Observations are independent of each other.</p>
+            </div>
+            
+            <div class="assumption-card">
+              <div class="assumption-icon"><i class="fas fa-random"></i></div>
+              <h4>Homoscedasticity</h4>
+              <p>Constant variance of residuals across all feature values.</p>
+            </div>
+            
+            <div class="assumption-card">
+              <div class="assumption-icon"><i class="fas fa-bell"></i></div>
+              <h4>Normality</h4>
+              <p>Residuals follow a normal distribution.</p>
+            </div>
+            
+            <div class="assumption-card">
+              <div class="assumption-icon"><i class="fas fa-unlink"></i></div>
+              <h4>No Multicollinearity</h4>
+              <p>Features are not highly correlated with each other.</p>
+            </div>
+          </div>
+          
+          <h3>Common Applications</h3>
+          <div class="applications-container">
+            <div class="application-card">
+              <div class="application-icon"><i class="fas fa-chart-line"></i></div>
+              <h4>Economics</h4>
+              <p>Predicting GDP growth, inflation rates, consumer spending patterns, etc.</p>
+            </div>
+            
+            <div class="application-card">
+              <div class="application-icon"><i class="fas fa-coins"></i></div>
+              <h4>Finance</h4>
+              <p>Forecasting stock prices, risk assessment, portfolio optimization.</p>
+            </div>
+            
+            <div class="application-card">
+              <div class="application-icon"><i class="fas fa-home"></i></div>
+              <h4>Real Estate</h4>
+              <p>Estimating property values based on features like location, size, etc.</p>
+            </div>
+            
+            <div class="application-card">
+              <div class="application-icon"><i class="fas fa-flask"></i></div>
+              <h4>Biology</h4>
+              <p>Modeling the relationship between variables like drug dosage and patient response.</p>
+            </div>
+            
+            <div class="application-card">
+              <div class="application-icon"><i class="fas fa-leaf"></i></div>
+              <h4>Environmental Science</h4>
+              <p>Analyzing the impact of various factors on pollution levels, climate patterns.</p>
+            </div>
+            
+            <div class="application-card">
+              <div class="application-icon"><i class="fas fa-shopping-cart"></i></div>
+              <h4>Marketing</h4>
+              <p>Predicting sales based on advertising spend, pricing strategies, etc.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mathematical Formulation Tab -->
+      <div class="tab-pane" *ngIf="activeTab === 'math'">
+        <div class="math-content">
+          <h2>Mathematical Formulation</h2>
+          
+          <div class="math-section">
+            <h3>Model Representation</h3>
+            <p>The linear regression model can be represented as:</p>
+            <div class="formula">y = β₀ + β₁x₁ + β₂x₂ + ... + βₙxₙ + ε</div>
+            
+            <p>In vector notation (for multiple features), this becomes:</p>
+            <div class="formula-box">
+              <div class="formula">y = Xβ + ε</div>
+              
+              <p>Where:</p>
+              <ul>
+                <li><strong>y:</strong> An m×1 vector of target values, where m is the number of training examples.</li>
+                <li><strong>X:</strong> An m×(n+1) matrix of input features, where n is the number of features. The first column is all ones for the intercept term.</li>
+                <li><strong>β:</strong> An (n+1)×1 vector of parameters (weights).</li>
+                <li><strong>ε:</strong> An m×1 vector of error terms.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="math-section">
+            <h3>Cost Function (Mean Squared Error)</h3>
+            <p>The goal is to find the values of parameters β that minimize the Mean Squared Error (MSE) cost function:</p>
+            <div class="formula-box">
+              <div class="formula">J(β) = 1/m · Σ(ŷᵢ - yᵢ)²</div>
+              
+              <p>Expanded:</p>
+              <div class="formula">J(β) = 1/m · Σ((β₀ + β₁x₁ᵢ + ... + βₙxₙᵢ) - yᵢ)²</div>
+              
+              <div class="math-explanation">
+                <p>The Mean Squared Error measures the average squared difference between the predicted values (ŷ) and the actual values (y). Squaring the differences:</p>
+                <ul>
+                  <li>Ensures all terms are positive (since errors in either direction count against the model)</li>
+                  <li>Penalizes larger errors more heavily than smaller ones</li>
+                  <li>Makes the function differentiable (important for optimization)</li>
+                </ul>
+              </div>
+            </div>
+            
+            <h4>Why Minimize MSE?</h4>
+            <p>Minimizing the MSE is equivalent to finding the Maximum Likelihood Estimate (MLE) under the assumption that the errors are normally distributed. This gives us the "best fit" line that minimizes the overall prediction error.</p>
+          </div>
+          
+          <div class="math-section">
+            <h3>Normal Equation Solution</h3>
+            <p>The analytical solution to find the optimal parameters is given by:</p>
+            <div class="formula-box">
+              <div class="formula">β = (X^T X)^-1 X^T y</div>
+              
+              <div class="math-explanation">
+                <p>This expression comes from setting the derivative of the cost function with respect to β equal to zero and solving for β. It directly calculates the parameters that minimize the cost function in one step, without iteration.</p>
+                <p>For this to work, the matrix X^T X must be invertible (non-singular), which requires the features to be linearly independent.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="math-section">
+            <h3>Gradient Descent Algorithm</h3>
+            <p>Gradient Descent is an iterative optimization algorithm that finds the minimum of the cost function by taking steps proportional to the negative of the gradient:</p>
+            
+            <h4>Update Rule:</h4>
+            <div class="formula-box">
+              <div class="formula">β_j := β_j - α · ∂J(β)/∂β_j</div>
+              
+              <p>Where:</p>
+              <ul>
+                <li><strong>α:</strong> The learning rate, controlling the step size.</li>
+                <li><strong>∂J(β)/∂β_j:</strong> The partial derivative of the cost function with respect to parameter β_j.</li>
+              </ul>
+            </div>
+            
+            <h4>Partial Derivatives:</h4>
+            <div class="formula-box">
+              <div class="formula">∂J/∂β_0 = 2/m · Σ(ŷ^(i) - y^(i))</div>
+              <div class="formula">∂J/∂β_j = 2/m · Σ(ŷ^(i) - y^(i)) · x_j^(i)</div>
+              
+              <div class="math-explanation">
+                <p>These derivatives represent the rate of change of the cost function with respect to each parameter. The gradient descent algorithm moves in the direction of steepest descent (negative gradient) to find the minimum cost.</p>
+              </div>
+            </div>
+            
+            <h4>Gradient Descent Variants:</h4>
+            <div class="variants-container">
+              <div class="variant-card">
+                <h5>Batch Gradient Descent</h5>
+                <p>Uses all training examples in each iteration. Computationally expensive for large datasets but produces stable convergence.</p>
+              </div>
+              
+              <div class="variant-card">
+                <h5>Stochastic Gradient Descent</h5>
+                <p>Uses a single randomly selected training example in each iteration. Faster but produces noisier convergence paths.</p>
+              </div>
+              
+              <div class="variant-card">
+                <h5>Mini-Batch Gradient Descent</h5>
+                <p>Uses a small random subset of training examples in each iteration. Balances computation efficiency and convergence stability.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="math-section">
+            <h3>Assessing Fit Quality</h3>
+            <p>Common metrics for evaluating the performance of a linear regression model include:</p>
+            
+            <h4>R-squared (Coefficient of Determination):</h4>
+            <div class="formula-box">
+              <div class="formula">R² = 1 - (SS_res/SS_tot)</div>
+              
+              <p>Where:</p>
+              <ul>
+                <li><strong>SS_res:</strong> Sum of squared residuals Σ(y^(i) - ŷ^(i))²</li>
+                <li><strong>SS_tot:</strong> Total sum of squares Σ(y^(i) - ȳ)²</li>
+              </ul>
+              
+              <div class="math-explanation">
+                <p>R² ranges from 0 to 1, with higher values indicating a better fit. It represents the proportion of the variance in the dependent variable that is predictable from the independent variables.</p>
+              </div>
+            </div>
+            
+            <h4>Adjusted R-squared:</h4>
+            <div class="formula-box">
+              <div class="formula">R²ₐ = 1 - [(1 - R²)(n - 1)/(n - p - 1)]</div>
+              
+              <p>Where n is the number of observations and p is the number of predictors. Adjusted R² accounts for the number of predictors in the model, penalizing excessive complexity.</p>
+            </div>
+            
+            <h4>Other Metrics:</h4>
+            <ul>
+              <li><strong>Mean Absolute Error (MAE):</strong> 1/m · Σ|y^(i) - ŷ^(i)|</li>
+              <li><strong>Root Mean Squared Error (RMSE):</strong> √(1/m · Σ(y^(i) - ŷ^(i))²)</li>
+              <li><strong>Mean Absolute Percentage Error (MAPE):</strong> 100%/m · Σ|(y^(i) - ŷ^(i))/y^(i)|</li>
+            </ul>
+          </div>
+          
+          <div class="math-section regularization">
+            <h3>Regularization Extensions</h3>
+            <p>To prevent overfitting and improve generalization, regularization terms can be added to the cost function:</p>
+            
+            <div class="regularization-methods">
+              <div class="regularization-card">
+                <h4>Ridge Regression (L2 Regularization)</h4>
+                <div class="formula">J(β) = MSE + λ·Σβ_j²</div>
+                <p>Adds a penalty proportional to the square of the magnitude of coefficients. Shrinks coefficients but doesn't set them to exactly zero.</p>
+              </div>
+              
+              <div class="regularization-card">
+                <h4>Lasso Regression (L1 Regularization)</h4>
+                <div class="formula">J(β) = MSE + λ·Σ|β_j|</div>
+                <p>Adds a penalty proportional to the absolute value of coefficients. Can drive some coefficients to exactly zero, performing feature selection.</p>
+              </div>
+              
+              <div class="regularization-card">
+                <h4>Elastic Net</h4>
+                <div class="formula">J(β) = MSE + λ₁·Σ|β_j| + λ₂·Σβ_j²</div>
+                <p>Combines L1 and L2 regularization to get the benefits of both approaches.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Historical Context Tab -->
+      <div class="tab-pane" *ngIf="activeTab === 'history'">
+        <div class="history-content">
+          <h2>Historical Context</h2>
+          
+          <h3>Origins of Linear Regression</h3>
+          <p>Linear Regression and the underlying method of least squares are foundational concepts in statistics that predate machine learning as a field by centuries. The development spans from astronomical applications to modern data science:</p>
+          
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-date">1805</div>
+              <div class="timeline-content">
+                <h4>Adrien-Marie Legendre</h4>
+                <p>Published the first formal account of the method of least squares in "Nouvelles méthodes pour la détermination des orbites des comètes". Legendre developed this method to solve astronomical problems, specifically to find the best-fitting curve for a set of points representing observations of celestial bodies.</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">1809</div>
+              <div class="timeline-content">
+                <h4>Carl Friedrich Gauss</h4>
+                <p>Published his work on the method of least squares in "Theoria Motus Corporum Coelestium". Gauss claimed to have used the method since 1795 but hadn't published it previously. He connected the method to probability theory and the normal distribution of errors (now known as the Gaussian distribution).</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">1821</div>
+              <div class="timeline-content">
+                <h4>Gauss-Markov Theorem</h4>
+                <p>Gauss formulated the theorem (later generalized by Andrey Markov) which states that under certain conditions, the ordinary least squares estimator has the lowest variance among all linear unbiased estimators.</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">Late 19th Century</div>
+              <div class="timeline-content">
+                <h4>Francis Galton</h4>
+                <p>Introduced the concept of regression to the mean and correlation coefficient in his studies of biological inheritance, particularly in his work on the heights of parents and their children.</p>
+                <div class="historical-image galton-regression"></div>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">Early 20th Century</div>
+              <div class="timeline-content">
+                <h4>R.A. Fisher</h4>
+                <p>Developed the theory of maximum likelihood estimation and advanced the statistical foundations of regression analysis. His work in the design of experiments and analysis of variance (ANOVA) expanded the applications of regression techniques.</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">1950s-1960s</div>
+              <div class="timeline-content">
+                <h4>Computational Advances</h4>
+                <p>With the advent of computers, regression analysis became more practical for larger datasets. Statisticians developed numerical methods for solving regression problems efficiently.</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">1970s-1980s</div>
+              <div class="timeline-content">
+                <h4>Regularization Methods</h4>
+                <p>Development of ridge regression (Hoerl & Kennard, 1970) and later the Lasso (Tibshirani, 1996) to address overfitting and multicollinearity concerns in regression models.</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">Recent Decades</div>
+              <div class="timeline-content">
+                <h4>Machine Learning Integration</h4>
+                <p>Linear regression became a foundational algorithm in machine learning, serving as a building block for more complex models and as a baseline comparison for advanced techniques. Its integration with computational frameworks like stochastic gradient descent has made it applicable to very large datasets in modern data science.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h3>Key Papers and References</h3>
+          <div class="references">
+            <div class="reference-card">
+              <div class="reference-year">1805</div>
+              <div class="reference-content">
+                <h4>Legendre, A.M.</h4>
+                <p>Nouvelles méthodes pour la détermination des orbites des comètes.</p>
+                <p class="reference-description">First published formal description of the method of least squares, developed for astronomical purposes.</p>
+              </div>
+            </div>
+            
+            <div class="reference-card">
+              <div class="reference-year">1809</div>
+              <div class="reference-content">
+                <h4>Gauss, C.F.</h4>
+                <p>Theoria Motus Corporum Coelestium in Sectionibus Conicis Solem Ambientium.</p>
+                <p class="reference-description">Connected least squares to probability theory and the normal distribution of errors.</p>
+              </div>
+            </div>
+            
+            <div class="reference-card">
+              <div class="reference-year">1886</div>
+              <div class="reference-content">
+                <h4>Galton, F.</h4>
+                <p>Regression towards mediocrity in hereditary stature.</p>
+                <p class="reference-description">Journal of the Anthropological Institute of Great Britain and Ireland, 15, 246-263.</p>
+              </div>
+            </div>
+            
+            <div class="reference-card">
+              <div class="reference-year">1925</div>
+              <div class="reference-content">
+                <h4>Fisher, R.A.</h4>
+                <p>Statistical Methods for Research Workers.</p>
+                <p class="reference-description">Fundamental work that developed and standardized many statistical methods, including regression analysis.</p>
+              </div>
+            </div>
+            
+            <div class="reference-card">
+              <div class="reference-year">1970</div>
+              <div class="reference-content">
+                <h4>Hoerl, A.E., & Kennard, R.W.</h4>
+                <p>Ridge regression: Biased estimation for nonorthogonal problems.</p>
+                <p class="reference-description">Technometrics, 12(1), 55-67.</p>
+              </div>
+            </div>
+            
+            <div class="reference-card">
+              <div class="reference-year">1996</div>
+              <div class="reference-content">
+                <h4>Tibshirani, R.</h4>
+                <p>Regression shrinkage and selection via the lasso.</p>
+                <p class="reference-description">Journal of the Royal Statistical Society: Series B, 58(1), 267-288.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h3>Modern Applications and Advances</h3>
+          <p>While linear regression is one of the oldest statistical techniques, it remains relevant today and has been extended in several important ways:</p>
+          
+          <div class="modern-applications">
+            <div class="modern-card">
+              <h4>Big Data Applications</h4>
+              <p>Modern implementations of linear regression can scale to handle enormous datasets with billions of examples and features using distributed computing frameworks like Apache Spark.</p>
+            </div>
+            
+            <div class="modern-card">
+              <h4>Online Learning</h4>
+              <p>Incremental versions of linear regression can update models in real-time as new data arrives, important for streaming data applications.</p>
+            </div>
+            
+            <div class="modern-card">
+              <h4>Feature Learning</h4>
+              <p>Combination with representation learning techniques allows linear regression to work effectively with complex, high-dimensional data.</p>
+            </div>
+            
+            <div class="modern-card">
+              <h4>Ensemble Methods</h4>
+              <p>Linear regression models are often used as weak learners in ensemble methods like gradient boosting, enhancing predictive performance.</p>
+            </div>
+          </div>
+          
+          <div class="impact-section">
+            <h3>Legacy and Impact</h3>
+            <p>The principles developed for linear regression have influenced countless other algorithms and statistical methods:</p>
+            <ul>
+              <li>The concept of fitting a model by minimizing a cost function is fundamental to most machine learning algorithms</li>
+              <li>Gradient descent optimization is used throughout deep learning</li>
+              <li>Regularization techniques first developed for linear regression are now applied broadly</li>
+              <li>The statistical framework for evaluating model fit has informed how we assess all predictive models</li>
+            </ul>
+            <p>Linear regression remains a cornerstone of data science education and practice, often serving as the first algorithm students learn and as a baseline against which more complex models are compared.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

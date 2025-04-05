@@ -11,8 +11,8 @@ export const routes: Routes = [
     // Supervised Learning algorithms
     { 
       path: 'linear-regression',
-      loadComponent: () => import('./algorithms/supervised/linear-regression/linear-regression.component')
-        .then(c => c.LinearRegressionComponent)
+      loadComponent: () => import('./algorithms/supervised/linear-regression/linear-regression-simulator.component')
+        .then(c => c.LinearRegressionSimulatorComponent)
     },
     { 
       path: 'logistic-regression',
