@@ -1,0 +1,766 @@
+// Variables based on the design system
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+
+// Reinforcement Learning Color
+$orange: #ff9d45;
+$light-orange: #ffb87a;
+$dark-orange: #e67e17;
+
+// Background Colors
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-bg: #2a4980;
+
+// Text Colors
+$light-gray: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+
+// Semantic Colors
+$green: #24b47e;
+$red: #ff6b6b;
+
+// Gradients
+$primary-gradient: linear-gradient(135deg, $primary-blue, $purple);
+$rl-gradient: linear-gradient(135deg, $orange, $dark-orange);
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Border Radius
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+
+// Shadows
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+// Global Styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// Container Styles
+.policy-gradient-container {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: $light-gray;
+  background-color: $darkest-blue;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+// Header Styles
+.header {
+  padding: $spacing-lg $spacing-xl;
+  background-color: $dark-blue-bg;
+  box-shadow: $shadow-md;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: $white;
+  }
+  
+  .category-badge {
+    background-color: $orange;
+    color: $white;
+    padding: $spacing-xs $spacing-md;
+    border-radius: $radius-sm;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Navigation Styles
+.navigation {
+  background-color: $medium-blue;
+  padding: 0 $spacing-xl;
+  box-shadow: $shadow-sm;
+  
+  .tabs {
+    display: flex;
+    list-style: none;
+    
+    li {
+      padding: $spacing-md $spacing-lg;
+      cursor: pointer;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: rgba($light-blue-bg, 0.3);
+      }
+      
+      &.active {
+        border-bottom-color: $orange;
+        color: $white;
+      }
+    }
+  }
+}
+
+// Content Container
+.content-container {
+  padding: $spacing-xl;
+}
+
+// Tab Content
+.tab-content {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  
+  &.hidden {
+    display: none;
+  }
+  
+  &.visible {
+    display: block;
+  }
+}
+
+// Section Styles
+.section {
+  margin-bottom: $spacing-xl;
+  
+  h2 {
+    color: $white;
+    font-size: 22px;
+    margin-bottom: $spacing-lg;
+    font-weight: 600;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background-color: $orange;
+      border-radius: 2px;
+    }
+  }
+}
+
+// Overview Tab Styles
+.overview-content {
+  padding: $spacing-xl;
+  
+  p {
+    line-height: 1.6;
+    margin-bottom: $spacing-md;
+  }
+  
+  .advantages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-lg;
+    margin-top: $spacing-lg;
+    
+    .advantage-card {
+      background-color: $medium-blue;
+      border-radius: $radius-md;
+      padding: $spacing-lg;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-5px);
+      }
+      
+      .advantage-icon {
+        margin-bottom: $spacing-md;
+      }
+      
+      h3 {
+        color: $white;
+        margin-bottom: $spacing-md;
+        font-size: 18px;
+      }
+      
+      p {
+        color: $muted-blue;
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-lg;
+    margin-top: $spacing-lg;
+    
+    .concept-card {
+      background-color: $medium-blue;
+      border-radius: $radius-md;
+      padding: $spacing-lg;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: $light-blue-bg;
+      }
+      
+      h3 {
+        color: $white;
+        margin-bottom: $spacing-md;
+        font-size: 18px;
+      }
+      
+      p {
+        color: $muted-blue;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+    }
+  }
+  
+  .simulation-preview {
+    background-color: $medium-blue;
+    padding: $spacing-xl;
+    border-radius: $radius-md;
+    text-align: center;
+    
+    p {
+      max-width: 800px;
+      margin: 0 auto $spacing-lg;
+    }
+    
+    .primary-button {
+      background: $rl-gradient;
+      color: $white;
+      border: none;
+      padding: $spacing-md $spacing-xl;
+      border-radius: $radius-sm;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+    }
+  }
+}
+
+// Simulation Tab Styles
+.simulation-content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  max-height: 850px; // Fixed max height for simulation content
+  overflow: hidden;
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+    max-height: none; // Remove max-height on small screens for better mobile experience
+  }
+  
+  .control-panel {
+    background-color: $medium-blue;
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+    
+    h2 {
+      font-size: 20px;
+      margin-bottom: $spacing-lg;
+      color: $white;
+    }
+    
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-md;
+      margin-bottom: $spacing-lg;
+    }
+    
+    .control-button {
+      background-color: $light-blue-bg;
+      color: $white;
+      border: none;
+      padding: $spacing-md $spacing-lg;
+      border-radius: $radius-sm;
+      cursor: pointer;
+      flex: 1;
+      min-width: 80px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: darken($light-blue-bg, 5%);
+      }
+      
+      &.active {
+        background-color: $orange;
+      }
+    }
+    
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      margin-top: $spacing-md;
+      
+      label {
+        font-size: 14px;
+      }
+      
+      .toggle-switch {
+        width: 50px;
+        height: 24px;
+        background-color: $light-blue-bg;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        
+        .toggle-slider {
+          width: 20px;
+          height: 20px;
+          background-color: $white;
+          border-radius: 50%;
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          transition: transform 0.2s ease;
+        }
+        
+        &.active {
+          background-color: $orange;
+          
+          .toggle-slider {
+            transform: translateX(26px);
+          }
+        }
+      }
+    }
+    
+    .slider-control {
+      margin-bottom: $spacing-lg;
+      
+      label {
+        display: block;
+        margin-bottom: $spacing-sm;
+        font-size: 14px;
+      }
+      
+      input[type="range"] {
+        width: 100%;
+        -webkit-appearance: none;
+        height: 4px;
+        background: $light-blue-bg;
+        border-radius: 2px;
+        outline: none;
+        
+        &::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: $orange;
+          cursor: pointer;
+        }
+      }
+    }
+    
+    .stats {
+      background-color: $dark-blue-bg;
+      border-radius: $radius-sm;
+      padding: $spacing-md;
+      
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: $spacing-sm;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .stat-label {
+          font-size: 14px;
+          color: $muted-blue;
+        }
+        
+        .stat-value {
+          font-weight: 500;
+          color: $white;
+        }
+      }
+    }
+  }
+  
+  .visualization-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: $spacing-lg;
+    
+    .visualization-card {
+      background-color: $dark-blue-bg;
+      border-radius: $radius-md;
+      padding: $spacing-md;
+      display: flex;
+      flex-direction: column;
+      height: 400px; // Fixed height
+      
+      h3 {
+        font-size: 16px;
+        margin-bottom: $spacing-md;
+        color: $white;
+        text-align: center;
+      }
+      
+      canvas, .viz-container {
+        flex: 1;
+        height: 280px; // Fixed height
+        min-height: 250px;
+        max-height: 280px; // Fixed max height
+        border-radius: $radius-sm;
+        overflow: hidden;
+        background-color: $darkest-blue;
+      }
+      
+      .viz-description {
+        margin-top: $spacing-md;
+        height: 60px; // Fixed height for description
+        overflow-y: auto;
+        
+        p {
+          font-size: 12px;
+          color: $muted-blue;
+          line-height: 1.4;
+        }
+      }
+      
+      &.pendulum-viz {
+        canvas {
+          background-color: $darkest-blue;
+        }
+      }
+    }
+  }
+}
+
+// Technical Details Tab Styles
+.details-content {
+  padding: $spacing-xl;
+  
+  .algorithm-box {
+    background-color: $medium-blue;
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+    margin-bottom: $spacing-xl;
+    
+    h3 {
+      color: $white;
+      font-size: 20px;
+      margin-bottom: $spacing-lg;
+    }
+    
+    .algorithm-step {
+      display: flex;
+      margin-bottom: $spacing-md;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: $orange;
+        color: $white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: $spacing-md;
+        flex-shrink: 0;
+      }
+      
+      .step-content {
+        padding-top: 4px;
+        
+        strong {
+          color: $white;
+        }
+      }
+    }
+  }
+  
+  .theorem-box {
+    background-color: $medium-blue;
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+    margin-bottom: $spacing-xl;
+    
+    .math-formula {
+      text-align: center;
+      font-size: 18px;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+      color: $white;
+      background-color: rgba($darkest-blue, 0.5);
+      border-radius: $radius-sm;
+    }
+    
+    .theorem-explanation {
+      p {
+        margin-bottom: $spacing-md;
+        line-height: 1.6;
+        
+        strong {
+          color: $white;
+        }
+      }
+      
+      ul {
+        margin-left: $spacing-xl;
+        
+        li {
+          margin-bottom: $spacing-sm;
+          line-height: 1.6;
+          
+          strong {
+            color: $white;
+          }
+        }
+      }
+    }
+  }
+  
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-lg;
+    
+    .detail-card {
+      background-color: $medium-blue;
+      border-radius: $radius-md;
+      padding: $spacing-lg;
+      
+      h3 {
+        color: $white;
+        font-size: 18px;
+        margin-bottom: $spacing-md;
+      }
+      
+      p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: $muted-blue;
+      }
+    }
+  }
+  
+  .method-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-lg;
+    
+    .method-item {
+      background-color: $medium-blue;
+      border-radius: $radius-md;
+      padding: $spacing-lg;
+      border-left: 4px solid $orange;
+      
+      h3 {
+        color: $white;
+        font-size: 18px;
+        margin-bottom: $spacing-md;
+      }
+      
+      p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: $muted-blue;
+      }
+    }
+  }
+}
+
+// Research Papers Tab Styles
+.papers-content {
+  padding: $spacing-xl;
+  
+  .paper-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    
+    .paper-card {
+      background-color: $medium-blue;
+      border-radius: $radius-md;
+      padding: $spacing-lg;
+      display: flex;
+      align-items: flex-start;
+      
+      .paper-icon {
+        margin-right: $spacing-lg;
+        flex-shrink: 0;
+      }
+      
+      .paper-details {
+        h3 {
+          color: $white;
+          font-size: 18px;
+          margin-bottom: $spacing-sm;
+        }
+        
+        .paper-authors {
+          color: $light-gray;
+          font-size: 14px;
+          margin-bottom: $spacing-sm;
+        }
+        
+        .paper-citation, .paper-volume, .paper-pages {
+          color: $muted-blue;
+          font-size: 14px;
+          margin-bottom: $spacing-xs;
+        }
+        
+        .paper-link {
+          display: inline-block;
+          margin-top: $spacing-md;
+          color: $orange;
+          text-decoration: none;
+          font-weight: 500;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+  
+  .resource-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $spacing-lg;
+    
+    .resource-card {
+      background-color: $medium-blue;
+      border-radius: $radius-md;
+      padding: $spacing-lg;
+      
+      h3 {
+        color: $white;
+        font-size: 18px;
+        margin-bottom: $spacing-md;
+      }
+      
+      p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: $muted-blue;
+      }
+    }
+  }
+}
+
+// D3 Visualization Styles
+.visualization-title {
+  font-size: 14px;
+  fill: $white;
+}
+
+.x-axis, .y-axis {
+  font-size: 10px;
+  
+  path, line {
+    stroke: $muted-blue;
+  }
+  
+  text {
+    fill: $muted-blue;
+  }
+}
+
+.param-path, .reward-path {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.axis-label {
+  font-size: 12px;
+  fill: $muted-blue;
+}
+
+.mean-label {
+  font-size: 12px;
+  fill: $white;
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .category-badge {
+      margin-top: $spacing-sm;
+    }
+  }
+  
+  .navigation .tabs {
+    overflow-x: auto;
+    padding-bottom: $spacing-xs;
+    
+    li {
+      padding: $spacing-md $spacing-sm;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+  }
+  
+  .content-container {
+    padding: $spacing-md;
+  }
+  
+  .simulation-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .visualization-panel {
+    grid-template-columns: 1fr;
+    
+    .visualization-card {
+      canvas, .viz-container {
+        min-height: 200px;
+      }
+    }
+  }
+}

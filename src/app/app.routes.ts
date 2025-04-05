@@ -65,8 +65,8 @@ export const routes: Routes = [
     },
     { 
       path: 'policy-gradient',
-      loadComponent: () => import('./algorithms/reinforcement/policy-gradient/policy-gradient-simulation.component')
-        .then(c => c.PolicyGradientSimulationComponent)
+      loadComponent: () => import('./algorithms/reinforcement/policy-gradient/policy-gradient.component')
+        .then(c => c.PolicyGradientComponent)
     },
     
     // Deep Learning algorithms

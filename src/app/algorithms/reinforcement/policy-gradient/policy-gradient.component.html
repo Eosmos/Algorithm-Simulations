@@ -1,0 +1,441 @@
+<div class="policy-gradient-container" (window:resize)="onResize()">
+    <div class="header">
+      <h1>Policy Gradient Methods</h1>
+      <div class="category-badge">Reinforcement Learning</div>
+    </div>
+  
+    <div class="navigation">
+      <ul class="tabs">
+        <li [class.active]="activeTab === 'overview'" (click)="selectTab('overview')">Overview</li>
+        <li [class.active]="activeTab === 'simulation'" (click)="selectTab('simulation')">Simulation</li>
+        <li [class.active]="activeTab === 'details'" (click)="selectTab('details')">Technical Details</li>
+        <li [class.active]="activeTab === 'papers'" (click)="selectTab('papers')">Research Papers</li>
+      </ul>
+    </div>
+  
+    <div class="content-container">
+      <!-- Overview Tab -->
+      <div class="tab-content" [ngClass]="{'visible': activeTab === 'overview', 'hidden': activeTab !== 'overview'}">
+        <div class="overview-content">
+          <div class="section">
+            <h2>What are Policy Gradient Methods?</h2>
+            <p>
+              Policy Gradient (PG) methods are a class of <strong>reinforcement learning</strong> algorithms that 
+              directly learn a <strong>parameterized policy</strong> which maps states to actions (or action probabilities), 
+              without necessarily needing to learn a value function first (though many advanced methods do use value functions). 
+              Their primary purpose is to optimize the policy parameters to maximize the <strong>expected cumulative reward</strong>.
+            </p>
+          </div>
+  
+          <div class="section">
+            <h2>Key Advantages</h2>
+            <div class="advantages">
+              <div class="advantage-card">
+                <div class="advantage-icon">
+                  <svg viewBox="0 0 24 24" width="48" height="48">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#ff9d45" stroke-width="2"></circle>
+                    <path d="M9 12 L11 14 L15 10" stroke="#ff9d45" stroke-width="2" fill="none"></path>
+                  </svg>
+                </div>
+                <h3>Continuous Action Spaces</h3>
+                <p>
+                  Naturally applicable to problems where actions are continuous (e.g., robot joint torques, throttle control), 
+                  which is difficult for purely value-based methods like Q-learning.
+                </p>
+              </div>
+  
+              <div class="advantage-card">
+                <div class="advantage-icon">
+                  <svg viewBox="0 0 24 24" width="48" height="48">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#ff9d45" stroke-width="2"></circle>
+                    <path d="M12 6 L12 18 M6 12 L18 12" stroke="#ff9d45" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <h3>Stochastic Policies</h3>
+                <p>
+                  Can directly learn policies that output probabilities over actions, which is optimal in partially observable 
+                  environments or when exploration needs to be inherent in the policy.
+                </p>
+              </div>
+  
+              <div class="advantage-card">
+                <div class="advantage-icon">
+                  <svg viewBox="0 0 24 24" width="48" height="48">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#ff9d45" stroke-width="2"></circle>
+                    <path d="M8 12 L12 8 L16 12 L12 16 Z" stroke="#ff9d45" stroke-width="2" fill="none"></path>
+                  </svg>
+                </div>
+                <h3>Better Convergence</h3>
+                <p>
+                  Can sometimes offer smoother convergence properties compared to value-based methods, 
+                  although they typically converge to a local optimum.
+                </p>
+              </div>
+            </div>
+          </div>
+  
+          <div class="section">
+            <h2>Core Concepts</h2>
+            <div class="concept-grid">
+              <div class="concept-card">
+                <h3>Parameterized Policy (π<sub>θ</sub>)</h3>
+                <p>
+                  The core idea is to represent the policy as a function with tunable parameters θ 
+                  (e.g., the weights of a neural network). This function π<sub>θ</sub>(a|s) outputs the 
+                  probability of taking action a in state s.
+                </p>
+              </div>
+  
+              <div class="concept-card">
+                <h3>Objective Function (J(θ))</h3>
+                <p>
+                  The goal is to find the parameters θ that maximize an objective function J(θ), 
+                  typically defined as the expected total discounted reward obtained by following the policy π<sub>θ</sub>.
+                </p>
+              </div>
+  
+              <div class="concept-card">
+                <h3>Gradient Ascent</h3>
+                <p>
+                  Policy Gradient methods update the policy parameters θ by performing gradient ascent on 
+                  the objective function J(θ): θ ← θ + α∇<sub>θ</sub>J(θ), where α is the learning rate.
+                </p>
+              </div>
+  
+              <div class="concept-card">
+                <h3>Policy Gradient Theorem</h3>
+                <p>
+                  Provides a way to calculate the gradient ∇<sub>θ</sub>J(θ) without needing to know the 
+                  environment's dynamics, making these methods model-free.
+                </p>
+              </div>
+            </div>
+          </div>
+  
+          <div class="section simulation-preview">
+            <h2>Simulation Preview</h2>
+            <p>
+              In our interactive simulation, you'll see Policy Gradient methods applied to control a pendulum system. 
+              The algorithm learns a policy that determines the torque to apply, with the goal of balancing the pendulum upright.
+            </p>
+            <button class="primary-button" (click)="selectTab('simulation')">
+              Launch Simulation
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Simulation Tab -->
+      <div class="tab-content" [ngClass]="{'visible': activeTab === 'simulation', 'hidden': activeTab !== 'simulation'}">
+        <div class="simulation-content">
+          <div class="control-panel">
+            <h2>Simulation Controls</h2>
+            
+            <div class="control-group">
+              <button class="control-button" [class.active]="isSimulationRunning" (click)="toggleSimulation()">
+                {{ isSimulationRunning ? 'Pause' : 'Start' }}
+              </button>
+              
+              <button class="control-button" (click)="resetSimulation()">
+                Reset
+              </button>
+              
+              <div class="toggle-container">
+                <label for="autoplay">Auto Play</label>
+                <div class="toggle-switch" [class.active]="isAutoPlay" (click)="toggleAutoPlay()">
+                  <div class="toggle-slider"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="slider-control">
+              <label for="learning-rate">Learning Rate: {{ learningRate }}</label>
+              <input 
+                type="range" 
+                id="learning-rate" 
+                min="0.001" 
+                max="0.1" 
+                step="0.001" 
+                [value]="learningRate" 
+                (input)="updateLearningRate($event)"
+              />
+            </div>
+            
+            <div class="slider-control">
+              <label for="discount-factor">Discount Factor: {{ discountFactor }}</label>
+              <input 
+                type="range" 
+                id="discount-factor" 
+                min="0.8" 
+                max="0.999" 
+                step="0.001" 
+                [value]="discountFactor" 
+                (input)="updateDiscountFactor($event)"
+              />
+            </div>
+            
+            <div class="stats">
+              <div class="stat-item">
+                <div class="stat-label">Episodes</div>
+                <div class="stat-value">{{ episodeCount }}</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Total Reward</div>
+                <div class="stat-value">{{ totalReward.toFixed(1) }}</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Current Step</div>
+                <div class="stat-value">{{ currentStep }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="visualization-panel">
+            <div class="visualization-card pendulum-viz">
+              <h3>Pendulum Control</h3>
+              <canvas #pendulumCanvas></canvas>
+              <div class="viz-description">
+                <p>
+                  The 3D pendulum visualization shows the current state of the environment. 
+                  The policy learns to control the torque applied to the pendulum to keep it balanced upright.
+                </p>
+              </div>
+            </div>
+            
+            <div class="visualization-card parameter-viz">
+              <h3>Policy Parameter Space</h3>
+              <div #parameterLandscape class="viz-container"></div>
+              <div class="viz-description">
+                <p>
+                  This visualization shows how the policy parameters change during training. 
+                  Each point represents the policy after an episode, with color indicating the total reward.
+                </p>
+              </div>
+            </div>
+            
+            <div class="visualization-card trajectory-viz">
+              <h3>Learning Progress</h3>
+              <div #trajectoryVisualization class="viz-container"></div>
+              <div class="viz-description">
+                <p>
+                  This graph shows the total reward per episode, illustrating how the policy improves over time 
+                  as it learns to balance the pendulum more effectively.
+                </p>
+              </div>
+            </div>
+            
+            <div class="visualization-card policy-viz">
+              <h3>Policy Output</h3>
+              <div #policyOutput class="viz-container"></div>
+              <div class="viz-description">
+                <p>
+                  This visualization shows the current policy output: a probability distribution over possible actions (torques).
+                  The mean of this distribution is the most likely action to take in the current state.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Technical Details Tab -->
+      <div class="tab-content" [ngClass]="{'visible': activeTab === 'details', 'hidden': activeTab !== 'details'}">
+        <div class="details-content">
+          <div class="section">
+            <h2>Policy Gradient Algorithm</h2>
+            
+            <div class="algorithm-box">
+              <h3>REINFORCE Algorithm</h3>
+              <div class="algorithm-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <strong>Initialization:</strong> Initialize the policy parameters θ randomly
+                </div>
+              </div>
+              <div class="algorithm-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <strong>Generate Trajectories:</strong> Execute the current policy π<sub>θ</sub> in the environment to collect complete trajectories
+                </div>
+              </div>
+              <div class="algorithm-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <strong>Calculate Returns:</strong> For each time step t, calculate the discounted return-to-go: G<sub>t</sub> = Σ<sub>k=t</sub><sup>T</sup> γ<sup>k-t</sup>r<sub>k+1</sub>
+                </div>
+              </div>
+              <div class="algorithm-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <strong>Estimate Policy Gradient:</strong> Compute the gradient estimate using the Policy Gradient Theorem
+                </div>
+              </div>
+              <div class="algorithm-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                  <strong>Update Parameters:</strong> θ ← θ + α∇<sub>θ</sub>J(θ)
+                </div>
+              </div>
+              <div class="algorithm-step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                  <strong>Repeat:</strong> Discard the collected trajectories and repeat the process with the updated policy
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section">
+            <h2>Policy Gradient Theorem</h2>
+            <div class="theorem-box">
+              <p class="math-formula">
+                ∇<sub>θ</sub>J(θ) = E<sub>τ ~ π<sub>θ</sub></sub> [Σ<sub>t=0</sub><sup>T</sup> ∇<sub>θ</sub>log π<sub>θ</sub>(a<sub>t</sub>|s<sub>t</sub>) · Ψ<sub>t</sub>]
+              </p>
+              <div class="theorem-explanation">
+                <p>
+                  <strong>∇<sub>θ</sub>log π<sub>θ</sub>(a<sub>t</sub>|s<sub>t</sub>):</strong> This term is the <em>score function</em>. It indicates how sensitive the log-probability of taking action a<sub>t</sub> in state s<sub>t</sub> is to changes in the parameters θ.
+                </p>
+                <p>
+                  <strong>Ψ<sub>t</sub>:</strong> This term is a measure of how "good" the action a<sub>t</sub> taken at time step t was. It weights the score function. Different algorithms use different choices for Ψ<sub>t</sub>:
+                </p>
+                <ul>
+                  <li>
+                    <strong>REINFORCE Algorithm:</strong> Uses the total discounted return from time step t onwards: Ψ<sub>t</sub> = G<sub>t</sub>
+                  </li>
+                  <li>
+                    <strong>Baselines:</strong> To reduce variance, a state-dependent baseline b(s<sub>t</sub>) is subtracted: Ψ<sub>t</sub> = G<sub>t</sub> - b(s<sub>t</sub>)
+                  </li>
+                  <li>
+                    <strong>Actor-Critic Methods:</strong> Use an estimate of the Advantage function A(s<sub>t</sub>, a<sub>t</sub>) = Q(s<sub>t</sub>, a<sub>t</sub>) - V(s<sub>t</sub>) for Ψ<sub>t</sub>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section">
+            <h2>Key Details and Practical Considerations</h2>
+            <div class="details-grid">
+              <div class="detail-card">
+                <h3>High Variance</h3>
+                <p>
+                  The gradient estimates in basic PG methods often have high variance because the return depends on many random actions and state transitions. This can make learning slow and unstable. Techniques like baselines and actor-critic methods are crucial for practical applications.
+                </p>
+              </div>
+              
+              <div class="detail-card">
+                <h3>On-Policy Learning</h3>
+                <p>
+                  Most simple PG algorithms are <strong>on-policy</strong>, meaning the trajectories used to compute the gradient must be generated by the current version of the policy π<sub>θ</sub>. This can be sample-inefficient as data is often discarded after one update.
+                </p>
+              </div>
+              
+              <div class="detail-card">
+                <h3>Local Optima</h3>
+                <p>
+                  Gradient ascent guarantees convergence only to a local optimum of the objective function J(θ). The policy might get stuck in suboptimal behaviors depending on initialization and environment dynamics.
+                </p>
+              </div>
+              
+              <div class="detail-card">
+                <h3>Hyperparameter Sensitivity</h3>
+                <p>
+                  Performance is sensitive to the learning rate α and potentially other parameters like the neural network architecture or policy representation. Careful tuning is often necessary for good results.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section">
+            <h2>Advanced Policy Gradient Methods</h2>
+            <div class="method-list">
+              <div class="method-item">
+                <h3>Actor-Critic</h3>
+                <p>
+                  Combines policy gradient (actor) with value function estimation (critic) to reduce variance in updates.
+                </p>
+              </div>
+              
+              <div class="method-item">
+                <h3>Trust Region Policy Optimization (TRPO)</h3>
+                <p>
+                  Constrains policy updates to ensure stability by limiting the KL divergence between old and new policies.
+                </p>
+              </div>
+              
+              <div class="method-item">
+                <h3>Proximal Policy Optimization (PPO)</h3>
+                <p>
+                  A simplified version of TRPO that uses a clipped objective function to achieve similar performance with better computational efficiency.
+                </p>
+              </div>
+              
+              <div class="method-item">
+                <h3>Deterministic Policy Gradient (DPG)</h3>
+                <p>
+                  Learns deterministic policies (rather than stochastic) which can be more efficient in certain continuous control tasks.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Research Papers Tab -->
+      <div class="tab-content" [ngClass]="{'visible': activeTab === 'papers', 'hidden': activeTab !== 'papers'}">
+        <div class="papers-content">
+          <div class="section">
+            <h2>Foundational Research Papers</h2>
+            
+            <div class="paper-list">
+              <div class="paper-card" *ngFor="let paper of papers">
+                <div class="paper-icon">
+                  <svg viewBox="0 0 24 24" width="32" height="32">
+                    <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" fill="none" stroke="#ff9d45" stroke-width="2"></path>
+                    <path d="M14 2V8H20" fill="none" stroke="#ff9d45" stroke-width="2"></path>
+                    <path d="M8 12H16M8 16H16" stroke="#ff9d45" stroke-width="2"></path>
+                  </svg>
+                </div>
+                
+                <div class="paper-details">
+                  <h3>{{ paper.title }}</h3>
+                  <p class="paper-authors">{{ paper.author }}</p>
+                  <p class="paper-citation">{{ paper.journal }} ({{ paper.year }})</p>
+                  <p class="paper-volume" *ngIf="paper.volume">{{ paper.volume }}</p>
+                  <p class="paper-pages" *ngIf="paper.pages">{{ paper.pages }}</p>
+                  <a [href]="paper.url" target="_blank" class="paper-link">View Paper</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section">
+            <h2>Additional Resources</h2>
+            
+            <div class="resource-list">
+              <div class="resource-card">
+                <h3>Reinforcement Learning: An Introduction</h3>
+                <p>
+                  By Richard S. Sutton and Andrew G. Barto (2018, 2nd Edition). This textbook provides a comprehensive introduction to reinforcement learning, including a detailed discussion of policy gradient methods in Chapter 13.
+                </p>
+              </div>
+              
+              <div class="resource-card">
+                <h3>Policy Gradient Algorithms</h3>
+                <p>
+                  By Lilian Weng (2018). A blog post providing an overview of various policy gradient algorithms, their similarities, differences, and evolutionary relationships.
+                </p>
+              </div>
+              
+              <div class="resource-card">
+                <h3>Spinning Up in Deep RL</h3>
+                <p>
+                  By OpenAI. A comprehensive educational resource that includes clear explanations of various policy gradient algorithms and their implementations.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
