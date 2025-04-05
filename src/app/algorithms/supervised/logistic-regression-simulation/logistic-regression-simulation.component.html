@@ -1,183 +1,477 @@
 <div class="logistic-regression-container">
-    <header class="header">
-      <h1>Interactive Logistic Regression Simulation</h1>
-      <p class="subtitle">Explore how logistic regression works by visualizing its components</p>
-    </header>
-  
-    <section class="theory-section">
-      <div class="accordion">
-        <details>
-          <summary>What is Logistic Regression?</summary>
-          <div class="content">
-            <p>Logistic Regression is a machine learning algorithm designed for <strong>classification</strong> tasks, despite its name suggesting regression. It is most commonly applied to <strong>binary classification</strong> problems, where the goal is to predict whether an instance belongs to one of two classes.</p>
-            <p>Unlike Linear Regression, which predicts continuous values, Logistic Regression predicts the <strong>probability</strong> that an instance belongs to a specific class. While it excels in binary settings, it can be extended to multi-class problems using techniques like one-vs-rest or softmax regression.</p>
-          </div>
-        </details>
-        <details>
-          <summary>How Does It Work?</summary>
-          <div class="content">
-            <p>Logistic Regression models the relationship between input features and the probability of a specific class using the <strong>logistic function</strong> (also called the sigmoid function). This function takes any real-valued input and outputs a value between 0 and 1, making it ideal for probability estimation.</p>
-            <p>The algorithm learns the optimal parameters (weights) by maximizing the likelihood of the observed data, effectively determining a decision boundary that separates the classes.</p>
-            <p>The core of logistic regression is the sigmoid function:</p>
-            <p class="formula">P(y=1|x) = 1 / (1 + e<sup>-z</sup>)</p>
-            <p>where z = w₀ + w₁x₁ + w₂x₂ + ... + wₙxₙ</p>
-          </div>
-        </details>
-        <details>
-          <summary>The Step-by-Step Process</summary>
-          <div class="content">
-            <ol>
-              <li><strong>Data Preparation</strong>: Collect a dataset with input features and binary labels.</li>
-              <li><strong>Model Definition</strong>: Define the logistic function to model the probability of class 1.</li>
-              <li><strong>Cost Function</strong>: Use the negative log-likelihood (binary cross-entropy) as the cost function.</li>
-              <li><strong>Optimization</strong>: Minimize the cost function using gradient descent or another optimization method.</li>
-              <li><strong>Prediction</strong>: For new data, compute the probability using the trained model and classify based on a threshold (usually 0.5).</li>
-            </ol>
-          </div>
-        </details>
-        <details>
-          <summary>Assumptions and Limitations</summary>
-          <div class="content">
-            <p><strong>Assumptions:</strong></p>
-            <ul>
-              <li>The log-odds of the outcome (logit) are a linear combination of the input features.</li>
-              <li>Observations are independent of each other.</li>
-              <li>No severe multicollinearity exists among features.</li>
-              <li>The data is approximately linearly separable in the feature space.</li>
-            </ul>
-            <p><strong>Limitations:</strong></p>
-            <ul>
-              <li>Assumes a linear relationship between the log-odds and features, limiting its ability to handle complex, non-linear data.</li>
-              <li>Can struggle with imbalanced datasets or outliers.</li>
-              <li>Often outperformed by advanced models on non-linear problems.</li>
-            </ul>
-          </div>
-        </details>
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="algorithm-info">
+      <h1>Logistic Regression</h1>
+      <div class="category-badge">Supervised Learning</div>
+      <p class="algorithm-description">
+        A classification algorithm that estimates the probability of an instance belonging to a particular class.
+      </p>
+    </div>
+    <div class="controls">
+      <div class="play-controls">
+        <button class="control-btn" [class.active]="isPlaying" (click)="isPlaying ? stopSimulation() : playSimulation()">
+          <i class="fa" [class.fa-pause]="isPlaying" [class.fa-play]="!isPlaying"></i>
+          <span [textContent]="isPlaying ? 'Pause' : 'Play'"></span>
+        </button>
+        <button class="control-btn" (click)="resetSimulation()">
+          <i class="fa fa-refresh"></i>
+          Reset
+        </button>
+        <button class="control-btn" (click)="runOneIteration()">
+          <i class="fa fa-step-forward"></i>
+          Step
+        </button>
+        <button class="control-btn" (click)="runMultipleIterations(10)">
+          <i class="fa fa-fast-forward"></i>
+          +10 Steps
+        </button>
+        <button class="control-btn" (click)="runAllIterations()">
+          <i class="fa fa-forward"></i>
+          Complete
+        </button>
       </div>
-    </section>
-  
-    <section class="simulation-controls">
-      <div class="control-panel">
-        <h3>Simulation Controls</h3>
+      <div class="simulation-controls">
         <div class="control-group">
-          <div class="control-item">
-            <label for="learning-rate">Learning Rate:</label>
-            <input type="range" id="learning-rate" min="0.01" max="0.5" step="0.01" [(ngModel)]="learningRate">
-            <span>{{learningRate}}</span>
-          </div>
-          <div class="control-item">
-            <label for="iterations">Max Iterations:</label>
-            <input type="range" id="iterations" min="20" max="200" step="5" [(ngModel)]="iterations">
-            <span>{{iterations}}</span>
-          </div>
-          <div class="control-item">
-            <label for="speed">Animation Speed:</label>
-            <input type="range" id="speed" min="50" max="1000" step="50" [ngModel]="1200-speed" (ngModelChange)="speed = 1200 - $event">
-            <span>{{((1200-speed)/12) | number: '1.0-1'}}x</span>
-          </div>
+          <label for="learning-rate">Learning Rate:</label>
+          <select id="learning-rate" (change)="setLearningRate($any($event.target).value)">
+            <option value="0.01">0.01</option>
+            <option value="0.05">0.05</option>
+            <option value="0.1" selected>0.1</option>
+            <option value="0.2">0.2</option>
+            <option value="0.5">0.5</option>
+          </select>
         </div>
-        <div class="button-group">
-          <button class="btn btn-primary" (click)="togglePlayPause()">
-            <span *ngIf="!isPlaying">▶ Play</span>
-            <span *ngIf="isPlaying">⏸ Pause</span>
-          </button>
-          <button class="btn" (click)="stepForward()">Step ▶|</button>
-          <button class="btn btn-secondary" (click)="resetSimulation()">↺ Reset</button>
-          <button class="btn" (click)="toggleProbabilities()">
-            <span *ngIf="!showProbabilities">Show Probabilities</span>
-            <span *ngIf="showProbabilities">Hide Probabilities</span>
-          </button>
+        <div class="control-group">
+          <label for="play-speed">Speed:</label>
+          <select id="play-speed" (change)="setSpeed($any($event.target).value)">
+            <option value="3000">Slow</option>
+            <option value="2000" selected>Normal</option>
+            <option value="1000">Fast</option>
+            <option value="500">Very Fast</option>
+          </select>
         </div>
+        <button class="control-btn generate-btn" (click)="generateNewData()">
+          <i class="fa fa-random"></i>
+          New Data
+        </button>
       </div>
-      <div class="current-step-panel">
-        <h3>Current Step: <span class="step-highlight">{{currentStep + 1}}/{{steps.length}}</span></h3>
-        <p class="step-description">{{steps[currentStep]}}</p>
-      </div>
-    </section>
-  
-    <section class="simulation-area">
-      <div class="grid-container">
-        <div class="grid-item">
-          <div #dataPlot class="plot-container"></div>
-          <div class="plot-description">
-            <p>This plot shows the data points with two features (X₁ and X₂) and their classes (blue and orange). The red line represents the decision boundary where P(y=1|x) = 0.5.</p>
-            <p><strong>Try it:</strong> Drag the green test point to see how its probability changes.</p>
-          </div>
-        </div>
-        <div class="grid-item">
-          <div #sigmoidPlot class="plot-container"></div>
-          <div class="plot-description">
-            <p>The sigmoid function transforms the linear combination of features (z) into a probability between 0 and 1. When z = 0, P(y=1|x) = 0.5.</p>
-            <p>The green dot shows the position of the test point on the sigmoid curve.</p>
-          </div>
-        </div>
-        <div class="grid-item">
-          <div #costPlot class="plot-container"></div>
-          <div class="plot-description">
-            <p>The cost function (binary cross-entropy) measures how well the model fits the data. Lower values indicate better fit.</p>
-            <p>This plot shows how the cost decreases as the gradient descent optimization progresses.</p>
-          </div>
-        </div>
-        <div class="grid-item">
-          <div #coefficientsPlot class="plot-container"></div>
-          <div class="plot-description">
-            <p>This plot shows how the model parameters (weights) change during training.</p>
-            <p>The final values determine the position and orientation of the decision boundary.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  
-    <section class="equations-section">
-      <h3>Key Equations</h3>
-      <div class="equation-cards">
-        <div class="equation-card">
-          <h4>Sigmoid Function</h4>
-          <p class="formula">P(y=1|x) = 1 / (1 + e<sup>-z</sup>)</p>
-          <p class="formula">z = w₀ + w₁x₁ + w₂x₂</p>
-          <p>Transforms any real number into a probability between 0 and 1.</p>
-        </div>
-        <div class="equation-card">
-          <h4>Decision Boundary</h4>
-          <p class="formula">w₀ + w₁x₁ + w₂x₂ = 0</p>
-          <p>The line where P(y=1|x) = 0.5, separating the two classes.</p>
-        </div>
-        <div class="equation-card">
-          <h4>Cost Function</h4>
-          <p class="formula">J(w) = -1/m ∑[y log(p) + (1-y)log(1-p)]</p>
-          <p>Binary cross-entropy loss function that the algorithm aims to minimize.</p>
-        </div>
-        <div class="equation-card">
-          <h4>Gradient Descent Update</h4>
-          <p class="formula">w<sub>j</sub> := w<sub>j</sub> - α · ∂J/∂w<sub>j</sub></p>
-          <p>Where α is the learning rate and ∂J/∂w<sub>j</sub> is the gradient of the cost function.</p>
-        </div>
-      </div>
-    </section>
-  
-    <section class="applications-section">
-      <h3>Real-World Applications</h3>
-      <div class="application-cards">
-        <div class="application-card">
-          <h4>Medical Diagnosis</h4>
-          <p>Predicting the presence of a disease based on symptoms or test results.</p>
-        </div>
-        <div class="application-card">
-          <h4>Credit Scoring</h4>
-          <p>Assessing the likelihood of loan default based on customer data.</p>
-        </div>
-        <div class="application-card">
-          <h4>Marketing</h4>
-          <p>Predicting customer churn or response to campaigns.</p>
-        </div>
-        <div class="application-card">
-          <h4>Email Filtering</h4>
-          <p>Classifying emails as spam or legitimate based on content features.</p>
-        </div>
-      </div>
-    </section>
-  
-    <footer class="footer">
-      <p>This interactive simulation helps visualize how logistic regression works by showing the evolution of the decision boundary, cost function, and model parameters during training.</p>
-    </footer>
+    </div>
   </div>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <div class="tab" [class.active]="activePage === 1" (click)="changePage(1)">
+      <i class="fa fa-eye"></i>
+      Visualization
+    </div>
+    <div class="tab" [class.active]="activePage === 2" (click)="changePage(2)">
+      <i class="fa fa-book"></i>
+      Concept
+    </div>
+    <div class="tab" [class.active]="activePage === 3" (click)="changePage(3)">
+      <i class="fa fa-code"></i>
+      Implementation
+    </div>
+    <div class="tab" [class.active]="activePage === 4" (click)="changePage(4)">
+      <i class="fa fa-graduation-cap"></i>
+      Research
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="content-area">
+    <!-- Visualization Page -->
+    <div class="page" [hidden]="activePage !== 1">
+      <div class="visualization-grid">
+        <div class="viz-container sigmoid-container">
+          <div #sigmoidCanvas class="visualization-canvas"></div>
+        </div>
+        <div class="viz-container decision-boundary-container">
+          <div #decisionBoundaryCanvas class="visualization-canvas"></div>
+        </div>
+        <div class="viz-container cost-function-container">
+          <div #costFunctionCanvas class="visualization-canvas"></div>
+        </div>
+        <div class="viz-container heatmap-container">
+          <div #heatmapCanvas class="visualization-canvas"></div>
+        </div>
+      </div>
+      <div class="current-parameters">
+        <h3>Current Model Parameters</h3>
+        <div class="parameter-list">
+          <div class="parameter">
+            <span class="parameter-name">β₀ (Bias):</span>
+            <span class="parameter-value" [textContent]="beta0.toFixed(4)"></span>
+          </div>
+          <div class="parameter">
+            <span class="parameter-name">β₁ (Weight 1):</span>
+            <span class="parameter-value" [textContent]="beta1.toFixed(4)"></span>
+          </div>
+          <div class="parameter">
+            <span class="parameter-name">β₂ (Weight 2):</span>
+            <span class="parameter-value" [textContent]="beta2.toFixed(4)"></span>
+          </div>
+          <div class="parameter">
+            <span class="parameter-name">Iteration:</span>
+            <span class="parameter-value">
+              <span [textContent]="currentIteration"></span> / <span [textContent]="iterations"></span>
+            </span>
+          </div>
+          <div class="parameter">
+            <span class="parameter-name">Cost:</span>
+            <span class="parameter-value" [textContent]="getFormattedCurrentCost()"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Concept Page -->
+    <div class="page" [hidden]="activePage !== 2">
+      <div class="content-section">
+        <h2>Logistic Regression: Overview</h2>
+        <div class="concept-explanation">
+          <p>
+            Logistic Regression is a fundamental <strong>supervised learning</strong> algorithm primarily used for <strong>binary classification</strong> tasks, 
+            where the goal is to predict one of two possible outcomes (e.g., Yes/No, Spam/Not Spam, True/False, 0/1). Despite its name, 
+            it's a classification algorithm, not a regression one (though it predicts probabilities, which are continuous).
+          </p>
+          
+          <div class="key-points">
+            <div class="point">
+              <h3>Core Concept & Mechanism</h3>
+              <ol>
+                <li>
+                  <strong>Linear Combination:</strong> Like Linear Regression, it starts by calculating a weighted sum of the input features (x<sub>i</sub>) 
+                  plus a bias term (β<sub>0</sub>). This linear combination is often called the <strong>logit</strong> or log-odds:
+                  <div class="equation">z = β₀ + β₁x₁ + β₂x₂ + ⋯ + βₙxₙ</div>
+                  Here, β<sub>i</sub> are the model parameters (coefficients) learned during training.
+                </li>
+                <li>
+                  <strong>Sigmoid (Logistic) Function:</strong> Instead of using z directly as the output, Logistic Regression applies the 
+                  <strong>sigmoid function</strong> to squash the result into the range [0, 1]:
+                  <div class="equation">P(y=1|x) = σ(z) = 1 / (1 + e^(-z))</div>
+                  The output P(y=1|x) represents the estimated <strong>probability</strong> that the given input instance x belongs to the positive class (class 1).
+                </li>
+                <li>
+                  <strong>Decision Boundary:</strong> To make a final classification, a threshold (typically 0.5) is applied to the predicted probability:
+                  <ul>
+                    <li>If P(y=1|x) ≥ 0.5, predict class 1.</li>
+                    <li>If P(y=1|x) < 0.5, predict class 0.</li>
+                  </ul>
+                  The decision boundary occurs where P(y=1|x) = 0.5, which corresponds to z = 0.
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h2>Training Process</h2>
+        <div class="training-process">
+          <ol class="process-steps">
+            <li>
+              <h3>Data Preparation</h3>
+              <p>Gather labeled training data with input features and corresponding binary class labels (0 or 1). 
+                Preprocess features through scaling, normalization, and handling missing values.</p>
+            </li>
+            <li>
+              <h3>Initialize Parameters</h3>
+              <p>Start with initial values for the coefficients β (often zeros or small random numbers).</p>
+            </li>
+            <li>
+              <h3>Define Cost Function</h3>
+              <p>The goal is to find the β values that minimize the error between predicted probabilities and actual labels. 
+                The standard cost function for Logistic Regression is <strong>Cross-Entropy Loss</strong> (Log Loss):</p>
+              <div class="equation">J(β) = -1/m ∑[y^(i) log(h_β(x^(i))) + (1 - y^(i)) log(1 - h_β(x^(i)))]</div>
+              <p>This function penalizes confident wrong predictions heavily.</p>
+            </li>
+            <li>
+              <h3>Optimization (Gradient Descent)</h3>
+              <p>Use an optimization algorithm like <strong>Gradient Descent</strong> to iteratively update the parameters β in the direction 
+                that minimizes the cost function. The process repeats until the cost converges to a minimum.</p>
+            </li>
+            <li>
+              <h3>Model Ready</h3>
+              <p>Once the optimal β parameters are found, the model is trained and ready for prediction.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h2>Key Assumptions & Characteristics</h2>
+        <div class="assumption-list">
+          <div class="assumption">
+            <i class="fa fa-check-circle"></i>
+            <p>Assumes a <strong>linear relationship</strong> between the features and the log-odds of the outcome.</p>
+          </div>
+          <div class="assumption">
+            <i class="fa fa-check-circle"></i>
+            <p>Features should be independent, though it often performs well even when features are correlated.</p>
+          </div>
+          <div class="assumption">
+            <i class="fa fa-check-circle"></i>
+            <p>Highly <strong>interpretable</strong> - the sign and magnitude of coefficients can indicate direction and strength of association.</p>
+          </div>
+          <div class="assumption">
+            <i class="fa fa-check-circle"></i>
+            <p>Can be sensitive to <strong>outliers</strong> in the training data.</p>
+          </div>
+          <div class="assumption">
+            <i class="fa fa-check-circle"></i>
+            <p>The decision boundary created is <strong>linear</strong> in the feature space.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h2>Common Use Cases</h2>
+        <div class="use-cases-grid">
+          <div class="use-case">
+            <div class="use-case-icon">
+              <i class="fa fa-heartbeat"></i>
+            </div>
+            <h3>Medical Diagnosis</h3>
+            <p>Predicting disease presence based on patient symptoms and test results.</p>
+          </div>
+          <div class="use-case">
+            <div class="use-case-icon">
+              <i class="fa fa-credit-card"></i>
+            </div>
+            <h3>Credit Scoring</h3>
+            <p>Determining credit approval or fraud detection based on financial history.</p>
+          </div>
+          <div class="use-case">
+            <div class="use-case-icon">
+              <i class="fa fa-envelope"></i>
+            </div>
+            <h3>Spam Detection</h3>
+            <p>Classifying emails as spam or legitimate based on content and metadata.</p>
+          </div>
+          <div class="use-case">
+            <div class="use-case-icon">
+              <i class="fa fa-user"></i>
+            </div>
+            <h3>Customer Behavior</h3>
+            <p>Predicting whether a customer will purchase a product or service.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Implementation Page -->
+    <div class="page" [hidden]="activePage !== 3">
+      <div class="implementation-section">
+        <h2>Logistic Regression Implementation</h2>
+        <p>Below are implementations of Logistic Regression in popular programming languages and frameworks.</p>
+      </div>
+
+      <div class="implementation-section">
+        <h2>Python Implementation</h2>
+        <div class="code-container">
+          <pre class="code-block">{{ pythonImplementation }}</pre>
+        </div>
+      </div>
+
+      <div class="implementation-section">
+        <h2>JavaScript Implementation</h2>
+        <div class="code-container">
+          <pre class="code-block">{{ jsImplementation }}</pre>
+        </div>
+      </div>
+
+      <div class="implementation-section">
+        <h2>R Implementation</h2>
+        <div class="code-container">
+          <pre class="code-block">{{ rImplementation }}</pre>
+        </div>
+      </div>
+
+      <div class="implementation-section">
+        <h2>Common Variations</h2>
+        <div class="variations">
+          <div class="variation">
+            <h3>Multinomial Logistic Regression</h3>
+            <p>Extension of the binary case to handle multiple classes using softmax function instead of sigmoid.</p>
+            <div class="equation">P(y=k|x) = e^(β₀ᵏ + β₁ᵏx₁ + ...) / ∑ e^(β₀ʲ + β₁ʲx₁ + ...)</div>
+          </div>
+          <div class="variation">
+            <h3>Regularized Logistic Regression</h3>
+            <p>Adds penalty terms to prevent overfitting:</p>
+            <div class="equation">L1 (Lasso): J(β) + λ∑|βᵢ|</div>
+            <div class="equation">L2 (Ridge): J(β) + λ∑βᵢ²</div>
+          </div>
+          <div class="variation">
+            <h3>Bayesian Logistic Regression</h3>
+            <p>Treats model parameters as random variables with prior distributions, providing uncertainty estimates.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="implementation-section">
+        <h2>Popular Tools & Libraries</h2>
+        <div class="tools-grid">
+          <div class="tool">
+            <h3>Scikit-Learn (Python)</h3>
+            <div class="code-snippet">
+              <pre>
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+probabilities = model.predict_proba(X_test)</pre>
+            </div>
+          </div>
+          <div class="tool">
+            <h3>TensorFlow/Keras (Python)</h3>
+            <div class="code-snippet">
+              <pre>
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+model = Sequential([
+  Dense(1, activation='sigmoid')
+])
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=10)</pre>
+            </div>
+          </div>
+          <div class="tool">
+            <h3>StatsModels (Python)</h3>
+            <div class="code-snippet">
+              <pre>
+import statsmodels.api as sm
+X_with_const = sm.add_constant(X)
+model = sm.Logit(y, X_with_const)
+result = model.fit()
+print(result.summary())</pre>
+            </div>
+          </div>
+          <div class="tool">
+            <h3>GLM (R)</h3>
+            <div class="code-snippet">
+              <pre>
+# Fit logistic regression in R
+model <- glm(formula = y ~ x1 + x2,
+             family = binomial(link = "logit"),
+             data = training_data)
+summary(model)
+predictions <- predict(model, newdata=test_data, type="response")</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Page -->
+    <div class="page" [hidden]="activePage !== 4">
+      <div class="research-section">
+        <h2>Historical Development</h2>
+        <div class="timeline">
+          @for (event of timelineEvents; track event.year) {
+            <div class="timeline-item">
+              <div class="timeline-date">{{ event.year }}</div>
+              <div class="timeline-content">
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.content }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="research-section">
+        <h2>Key Research Papers</h2>
+        <div class="papers-list">
+          @for (paper of researchPapers; track paper.title) {
+            <div class="paper">
+              <h3>{{ paper.title }}</h3>
+              <div class="paper-details">
+                <div><strong>Authors:</strong> {{ paper.authors }}</div>
+                <div><strong>Year:</strong> {{ paper.year }}</div>
+                <div><strong>Journal:</strong> {{ paper.journal }}</div>
+                <div><strong>DOI:</strong> <a [href]="paper.doi" target="_blank">{{ paper.doi }}</a></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="research-section">
+        <h2>Advantages & Limitations</h2>
+        <div class="pros-cons">
+          <div class="pros">
+            <h3>Advantages</h3>
+            <ul>
+              <li>Highly interpretable - coefficients directly indicate feature importance and direction</li>
+              <li>Outputs well-calibrated probabilities (unlike SVM)</li>
+              <li>Efficient training even on large datasets</li>
+              <li>Minimal hyperparameter tuning required</li>
+              <li>Resistant to overfitting when regularized</li>
+              <li>Works well even when data is not linearly separable</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h3>Limitations</h3>
+            <ul>
+              <li>Can only model linear decision boundaries without feature engineering</li>
+              <li>May underperform with highly imbalanced datasets</li>
+              <li>Assumes independence of features (though often works regardless)</li>
+              <li>Sensitive to outliers in the training data</li>
+              <li>May struggle with high-dimensional feature spaces</li>
+              <li>Can suffer from multicollinearity issues</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="research-section">
+        <h2>Related Algorithms</h2>
+        <div class="related-algorithms">
+          <div class="algorithm">
+            <h3>Support Vector Machines</h3>
+            <p>Focuses on finding the optimal hyperplane that maximizes the margin between classes, rather than modeling probabilities.</p>
+          </div>
+          <div class="algorithm">
+            <h3>Decision Trees</h3>
+            <p>Creates non-linear decision boundaries through recursive partitioning of the feature space into regions.</p>
+          </div>
+          <div class="algorithm">
+            <h3>Naive Bayes</h3>
+            <p>Generative model that applies Bayes' theorem with strong feature independence assumptions.</p>
+          </div>
+          <div class="algorithm">
+            <h3>Neural Networks</h3>
+            <p>A single-layer neural network with sigmoid activation is equivalent to logistic regression, but multi-layer networks can model non-linear boundaries.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="pagination">
+      <button class="pagination-btn" [disabled]="activePage === 1" (click)="prevPage()">
+        <i class="fa fa-chevron-left"></i>
+        Previous
+      </button>
+      <div class="page-indicators">
+        @for (i of [1,2,3,4]; track i) {
+          <span class="page-dot" [class.active]="activePage === i" (click)="changePage(i)"></span>
+        }
+      </div>
+      <button class="pagination-btn" [disabled]="activePage === totalPages" (click)="nextPage()">
+        Next
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+    <div class="copyright">
+      © 2025 AI Algorithm Explorer
+    </div>
+  </div>
+</div>
