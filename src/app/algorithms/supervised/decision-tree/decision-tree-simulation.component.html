@@ -1,0 +1,317 @@
+<div class="decision-tree-simulator">
+    <!-- Header Section -->
+    <header class="simulator-header">
+      <h1>Decision Tree Learning Algorithm</h1>
+      <div class="category-badge">Supervised Learning</div>
+      <p class="description">
+        A fundamental supervised learning algorithm used for both classification and regression tasks that makes predictions by learning simple decision rules from data features.
+      </p>
+    </header>
+  
+    <!-- Main Content Section -->
+    <div class="simulator-content">
+      <!-- Visualization Modes Tabs -->
+      <div class="mode-tabs">
+        <button 
+          *ngFor="let mode of simulationModes" 
+          [class.active]="activeMode === mode.id"
+          (click)="changeMode(mode.id)">
+          {{mode.name}}
+        </button>
+      </div>
+  
+      <!-- Settings Panel -->
+      <div class="settings-panel">
+        <h3>Simulation Settings</h3>
+        <div class="settings-grid">
+          <div class="setting-group">
+            <label for="datasetSelect">Dataset:</label>
+            <select 
+              id="datasetSelect" 
+              [(ngModel)]="selectedDataset" 
+              (change)="changeDataset(selectedDataset)">
+              <option *ngFor="let dataset of datasets" [value]="dataset.name">{{dataset.name}}</option>
+            </select>
+          </div>
+          
+          <div class="setting-group">
+            <label for="criterionSelect">Split Criterion:</label>
+            <select 
+              id="criterionSelect" 
+              [(ngModel)]="selectedSplitCriterion" 
+              (change)="changeSplitCriterion(selectedSplitCriterion)">
+              <option value="gini">Gini Impurity</option>
+              <option value="entropy">Entropy / Information Gain</option>
+            </select>
+          </div>
+          
+          <div class="setting-group">
+            <label for="depthControl">Maximum Tree Depth:</label>
+            <div class="depth-control">
+              <input 
+                id="depthControl" 
+                type="range" 
+                min="1" 
+                max="10" 
+                step="1" 
+                [value]="maxDepth"
+                (input)="onMaxDepthChange($event)">
+              <span class="depth-value">{{maxDepth}}</span>
+            </div>
+          </div>
+        </div>
+        <p class="setting-description">{{getDatasetDescription()}}</p>
+      </div>
+  
+      <!-- Visualization Area -->
+      <div class="visualization-area">
+        <!-- Animation Controls -->
+        <div class="animation-controls">
+          <button class="control-btn" (click)="resetSimulation()" aria-label="Reset">
+            <span class="control-icon">↺</span>
+          </button>
+          <button class="control-btn" (click)="previousStep()" [disabled]="currentStep === 0" aria-label="Previous Step">
+            <span class="control-icon">◀</span>
+          </button>
+          <button class="control-btn play-btn" (click)="playSimulation()" aria-label="Play/Pause">
+            <span class="control-icon">{{isPlaying ? '⏸' : '▶'}}</span>
+          </button>
+          <button class="control-btn" (click)="nextStep()" [disabled]="currentStep === maxSteps - 1" aria-label="Next Step">
+            <span class="control-icon">▶</span>
+          </button>
+  
+          <div class="speed-control">
+            <label for="speedControl">Speed:</label>
+            <input 
+              id="speedControl" 
+              type="range" 
+              min="0.5" 
+              max="3" 
+              step="0.5" 
+              [value]="animationSpeed"
+              (input)="onAnimationSpeedChange($event)">
+          </div>
+        </div>
+  
+        <!-- Tree Building Visualization -->
+        <div *ngIf="activeMode === 'treeBuilding'" class="visualization-container">
+          <div class="tree-view">
+            <h3>Decision Tree Structure</h3>
+            <div class="canvas-container" #treeCanvas></div>
+          </div>
+          <div class="impurity-view">
+            <h3>Impurity Measures</h3>
+            <div class="canvas-container" #impurityCanvas></div>
+          </div>
+        </div>
+  
+        <!-- Feature Space Visualization -->
+        <div *ngIf="activeMode === 'featureSpace'" class="visualization-container">
+          <div class="feature-space-view">
+            <h3>Feature Space Partitioning</h3>
+            <div class="canvas-container" #featureSpaceCanvas></div>
+          </div>
+          <div class="tree-mini-view">
+            <h3>Current Tree</h3>
+            <div class="canvas-container" #treeCanvas></div>
+          </div>
+        </div>
+  
+        <!-- Impurity Calculation Visualization -->
+        <div *ngIf="activeMode === 'impurityMeasures'" class="visualization-container impurity-special-view">
+          <div class="impurity-detail-view">
+            <h3>Information Gain Calculation</h3>
+            <div class="canvas-container detailed-view">
+              <!-- Detailed impurity calculation visualization -->
+              <div class="formula-display">
+                <h4>Gini Impurity</h4>
+                <div class="formula">
+                  Gini = 1 - Σ(p<sub>i</sub>²)
+                </div>
+                <p>Where p<sub>i</sub> is the proportion of class i in the node</p>
+                
+                <h4>Entropy</h4>
+                <div class="formula">
+                  Entropy = -Σ(p<sub>i</sub> log<sub>2</sub>(p<sub>i</sub>))
+                </div>
+                
+                <h4>Information Gain</h4>
+                <div class="formula">
+                  Gain = Entropy(parent) - WeightedAvg(Entropy(children))
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="impurity-chart-view">
+            <h3>Current Node Impurity</h3>
+            <div class="canvas-container impurity-chart" #impurityCanvas></div>
+          </div>
+        </div>
+  
+        <!-- Prediction Path Visualization -->
+        <div *ngIf="activeMode === 'prediction'" class="visualization-container">
+          <div class="prediction-path-view">
+            <h3>Prediction Path Through Tree</h3>
+            <div class="canvas-container" #treeCanvas></div>
+          </div>
+          <div class="feature-space-view">
+            <h3>Data Point in Feature Space</h3>
+            <div class="canvas-container" #featureSpaceCanvas></div>
+          </div>
+        </div>
+  
+        <!-- Overfitting & Pruning Visualization -->
+        <div *ngIf="activeMode === 'overfitting'" class="visualization-container">
+          <div class="overfitted-tree-view">
+            <h3>Overfitted Tree (Max Depth: Unlimited)</h3>
+            <div class="canvas-container" #treeCanvas></div>
+          </div>
+          <div class="pruned-tree-view">
+            <h3>Pruned Tree</h3>
+            <div class="canvas-container pruned-view"></div>
+          </div>
+        </div>
+  
+        <!-- Animation Container for 3D effects -->
+        <div #animationContainer class="animation-container"></div>
+  
+        <!-- Step Description -->
+        <div class="step-description">
+          <p>{{getCurrentStepDescription()}}</p>
+          <div class="step-indicator">
+            Step {{currentStep + 1}} of {{maxSteps}}
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  
+    <!-- Detailed Information Section -->
+    <div class="information-section">
+      <div class="info-tabs">
+        <button class="info-tab" [class.active]="activeInfoTab === 'algorithm'" (click)="activeInfoTab = 'algorithm'">Algorithm Details</button>
+        <button class="info-tab" [class.active]="activeInfoTab === 'usecases'" (click)="activeInfoTab = 'usecases'">Use Cases</button>
+        <button class="info-tab" [class.active]="activeInfoTab === 'research'" (click)="activeInfoTab = 'research'">Research Papers</button>
+      </div>
+      
+      <div class="info-content">
+        <!-- Algorithm Details Tab -->
+        <div class="info-panel algorithm-details" [class.active]="activeInfoTab === 'algorithm'">
+          <h3>Core Concept & Mechanism</h3>
+          <div class="concept-explanation">
+            <p>A decision tree represents a hierarchical structure consisting of:</p>
+            <ul>
+              <li><strong>Root Node:</strong> Represents the entire dataset/population.</li>
+              <li><strong>Internal Nodes:</strong> Represent a test or condition on a specific feature.</li>
+              <li><strong>Branches:</strong> Represent the outcome of the test (e.g., True/False).</li>
+              <li><strong>Leaf Nodes:</strong> Represent the final decision or prediction.</li>
+            </ul>
+            
+            <h4>Algorithm Steps</h4>
+            <ol>
+              <li><strong>Start:</strong> Begin with all training data instances at the root node.</li>
+              <li><strong>Check Stopping Criteria:</strong> Determine if the current node should be a leaf node.</li>
+              <li><strong>Find Best Split:</strong> Iterate through each available feature and potential split points.</li>
+              <li><strong>Split Data:</strong> Partition the data based on the chosen best split.</li>
+              <li><strong>Recurse:</strong> Recursively call the algorithm on each child node.</li>
+            </ol>
+            
+            <h4>Splitting Criteria</h4>
+            <p>The "best" split is determined by measures of purity/impurity:</p>
+            <ul>
+              <li><strong>Gini Impurity:</strong> Measures the probability of incorrectly classifying a randomly chosen element.</li>
+              <li><strong>Entropy / Information Gain:</strong> Entropy measures the amount of disorder in a node. Information Gain measures the reduction in entropy achieved by a split.</li>
+              <li><strong>Variance Reduction:</strong> For regression trees, minimizes the variance of the target variable within each leaf node.</li>
+            </ul>
+            
+            <h4>Key Characteristics</h4>
+            <ul>
+              <li>Requires minimal data preparation (no need for scaling/normalization)</li>
+              <li>Can handle both numerical and categorical features</li>
+              <li>Highly interpretable "white box" model</li>
+              <li>Prone to overfitting (mitigated by pruning or depth limits)</li>
+              <li>Forms the foundation for powerful ensemble methods (Random Forests, Gradient Boosted Trees)</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Use Cases Tab -->
+        <div class="info-panel use-cases" [class.active]="activeInfoTab === 'usecases'">
+          <h3>Common Applications</h3>
+          <div class="use-case-list">
+            <div class="use-case">
+              <h4>Classification</h4>
+              <ul>
+                <li>Customer churn prediction</li>
+                <li>Email spam detection</li>
+                <li>Disease diagnosis</li>
+                <li>Credit risk assessment</li>
+                <li>Sentiment analysis</li>
+              </ul>
+            </div>
+            
+            <div class="use-case">
+              <h4>Regression</h4>
+              <ul>
+                <li>House price prediction</li>
+                <li>Stock price forecasting</li>
+                <li>Demand forecasting</li>
+                <li>Temperature prediction</li>
+              </ul>
+            </div>
+            
+            <div class="use-case">
+              <h4>Feature Selection</h4>
+              <ul>
+                <li>Identifying the most important features in a dataset</li>
+                <li>Dimensionality reduction</li>
+                <li>Feature ranking</li>
+              </ul>
+            </div>
+            
+            <div class="use-case">
+              <h4>Decision Support Systems</h4>
+              <ul>
+                <li>Medical diagnosis assistance</li>
+                <li>Financial investment guidance</li>
+                <li>Customer service decision trees</li>
+              </ul>
+            </div>
+            
+            <div class="use-case">
+              <h4>Ensemble Methods Foundation</h4>
+              <ul>
+                <li>Random Forests</li>
+                <li>Gradient Boosted Trees (XGBoost, LightGBM, CatBoost)</li>
+                <li>AdaBoost</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Research Papers Tab -->
+        <div class="info-panel research-papers" [class.active]="activeInfoTab === 'research'">
+          <h3>Historical Development & Key Papers</h3>
+          <div class="papers-list">
+            <div class="paper" *ngFor="let paper of researchPapers">
+              <h4>{{paper.title}} ({{paper.year}})</h4>
+              <p class="authors"><strong>Authors:</strong> {{paper.authors}}</p>
+              <p class="publication"><strong>Publication:</strong> {{paper.publication}}</p>
+              <p class="description">{{paper.description}}</p>
+            </div>
+            
+            <div class="algorithm-variants">
+              <h4>Key Decision Tree Algorithms</h4>
+              <ul>
+                <li><strong>ID3 (Iterative Dichotomiser 3):</strong> Uses Entropy and Information Gain, primarily for categorical attributes.</li>
+                <li><strong>C4.5:</strong> Improved ID3 handling continuous attributes, missing values, and pruning.</li>
+                <li><strong>CART (Classification and Regression Trees):</strong> Uses Gini Impurity for classification and variance reduction for regression.</li>
+                <li><strong>CHAID (Chi-square Automatic Interaction Detector):</strong> Uses chi-square tests for split selection, allowing multi-way splits.</li>
+                <li><strong>Conditional Inference Trees:</strong> Uses statistical significance tests for split selection to reduce bias.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

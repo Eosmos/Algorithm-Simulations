@@ -21,8 +21,8 @@ export const routes: Routes = [
     },
     { 
       path: 'decision-trees',
-      loadComponent: () => import('./algorithms/supervised/decision-tree/decision-tree.component')
-        .then(c => c.DecisionTreeComponent)
+      loadComponent: () => import('./algorithms/supervised/decision-tree/decision-tree-simulation.component')
+        .then(c => c.DecisionTreeSimulationComponent)
     },
     { 
       path: 'random-forests',
