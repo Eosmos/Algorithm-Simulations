@@ -1,0 +1,294 @@
+<div class="svm-simulation">
+    <header class="header">
+      <h1>Support Vector Machines</h1>
+      <div class="category-badge">Supervised Learning</div>
+      <p class="subtitle">An interactive exploration of SVM algorithms and decision boundaries</p>
+      <nav class="breadcrumb">
+        <span>Algorithm Explorer</span>
+        <span class="separator">›</span>
+        <span>Supervised Learning</span>
+        <span class="separator">›</span>
+        <span class="current">Support Vector Machines</span>
+      </nav>
+    </header>
+  
+    <div class="main-content">
+      <section class="visualization">
+        <div class="viz-container">
+          <div #d3Container class="d3-container"></div>
+          <div #threeContainer class="three-container" *ngIf="stage === 5"></div>
+        </div>
+        
+        <div class="controls">
+          <div class="control-group simulation-controls">
+            <h3>Simulation Controls</h3>
+            <div class="control-buttons">
+              <button (click)="previousStage()" [disabled]="stage === 0" class="btn btn-secondary">
+                <i class="fas fa-step-backward"></i> Previous
+              </button>
+              
+              <button (click)="playSimulation()" class="btn btn-primary" [ngClass]="{'active': animationState === 1}">
+                <i class="fas" [ngClass]="{'fa-play': animationState !== 1, 'fa-pause': animationState === 1}"></i>
+                {{ animationState === 1 ? 'Pause' : 'Play' }}
+              </button>
+              
+              <button (click)="nextStage()" [disabled]="stage === 6" class="btn btn-secondary">
+                <i class="fas fa-step-forward"></i> Next
+              </button>
+              
+              <button (click)="stopSimulation()" class="btn btn-secondary">
+                <i class="fas fa-stop"></i> Stop
+              </button>
+              
+              <button (click)="resetSimulation()" class="btn btn-danger">
+                <i class="fas fa-redo"></i> Reset
+              </button>
+            </div>
+            
+            <div class="speed-control">
+              <label for="sim-speed">Simulation Speed:</label>
+              <input id="sim-speed" type="range" min="1000" max="5000" step="500"
+                     [(ngModel)]="simSpeed" [disabled]="animationState === 1">
+              <span>{{simSpeed / 1000}}s</span>
+            </div>
+          </div>
+          
+          <div class="control-group model-params">
+            <h3>Model Parameters</h3>
+            
+            <div class="param-group">
+              <label for="dataset-select">Dataset:</label>
+              <select id="dataset-select" [(ngModel)]="selectedDataset" (change)="changeDataset(selectedDataset)">
+                <option *ngFor="let option of datasetOptions" [value]="option.value">
+                  {{option.label}}
+                </option>
+              </select>
+            </div>
+            
+            <div class="param-group">
+              <label for="kernel-select">Kernel:</label>
+              <select id="kernel-select" [(ngModel)]="model.kernelType" (change)="changeKernel(model.kernelType)">
+                <option *ngFor="let option of kernelOptions" [value]="option.value">
+                  {{option.label}}
+                </option>
+              </select>
+            </div>
+            
+            <div class="param-group">
+              <label for="c-param">C Parameter: {{model.C.toFixed(2)}}</label>
+              <input id="c-param" type="range" min="0.01" max="10" step="0.1"
+                     [(ngModel)]="model.C" (change)="changeParam('C', model.C)">
+            </div>
+            
+            <div class="param-group" *ngIf="model.kernelType === 'rbf'">
+              <label for="gamma-param">Gamma: {{model.gamma?.toFixed(3)}}</label>
+              <input id="gamma-param" type="range" min="0.01" max="1" step="0.01"
+                     [(ngModel)]="model.gamma" (change)="changeParam('gamma', model.gamma!)">
+            </div>
+            
+            <div class="param-group" *ngIf="model.kernelType === 'polynomial'">
+              <label for="degree-param">Degree: {{model.degree}}</label>
+              <input id="degree-param" type="range" min="1" max="6" step="1"
+                     [(ngModel)]="model.degree" (change)="changeParam('degree', model.degree!)">
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section class="info-panel">
+        <div class="tabs">
+          <div class="tab-buttons">
+            <button class="tab-btn" [ngClass]="{'active': selectedTab === 'explanation'}" (click)="selectTab('explanation')">Explanation</button>
+            <button class="tab-btn" [ngClass]="{'active': selectedTab === 'math'}" (click)="selectTab('math')">Mathematics</button>
+            <button class="tab-btn" [ngClass]="{'active': selectedTab === 'research'}" (click)="selectTab('research')">Research</button>
+            <button class="tab-btn" [ngClass]="{'active': selectedTab === 'applications'}" (click)="selectTab('applications')">Applications</button>
+          </div>
+          
+          <div class="tab-content">
+            <div class="tab-pane" [ngClass]="{'active': selectedTab === 'explanation'}" id="explanation">
+              <h3>{{ stageInfo[stage].title }}</h3>
+              <p>{{ stageInfo[stage].description }}</p>
+              
+              <div class="stage-details">
+                <ng-container [ngSwitch]="stage">
+                  <div *ngSwitchCase="0">
+                    <h4>SVM Overview</h4>
+                    <p>Support Vector Machine (SVM) is a powerful supervised learning algorithm primarily used for classification tasks. It works by finding the optimal hyperplane that best separates data points belonging to different classes.</p>
+                    
+                    <h4>Key Strengths</h4>
+                    <ul>
+                      <li>Effective in high-dimensional spaces</li>
+                      <li>Memory efficient (uses only support vectors)</li>
+                      <li>Versatile with different kernel functions</li>
+                      <li>Robust to noise with soft margin</li>
+                    </ul>
+                  </div>
+                  
+                  <div *ngSwitchCase="1">
+                    <h4>What is a Hyperplane?</h4>
+                    <p>In an n-dimensional space, a hyperplane is a flat subspace of dimension n-1. For binary classification in 2D, this is simply a line.</p>
+                    
+                    <h4>Decision Function</h4>
+                    <p>The hyperplane is defined by the equation: w<sup>T</sup>x + b = 0</p>
+                    <p>Where w is the weight vector (normal to the hyperplane) and b is the bias term.</p>
+                  </div>
+                  
+                  <div *ngSwitchCase="2">
+                    <h4>Margin Maximization</h4>
+                    <p>SVM aims to find the hyperplane with the maximum margin - the distance between the hyperplane and the closest data points from either class.</p>
+                    
+                    <h4>Why Maximize Margin?</h4>
+                    <p>A larger margin generally leads to better generalization and helps the model perform well on unseen data.</p>
+                  </div>
+                  
+                  <div *ngSwitchCase="3">
+                    <h4>Support Vectors</h4>
+                    <p>Support vectors are the data points that lie exactly on the margin boundaries or inside the margin (in soft margin cases).</p>
+                    
+                    <h4>Key Properties:</h4>
+                    <ul>
+                      <li>Only support vectors matter for defining the hyperplane</li>
+                      <li>Typically a small subset of the training data</li>
+                      <li>Makes prediction efficient</li>
+                    </ul>
+                  </div>
+                  
+                  <div *ngSwitchCase="4">
+                    <h4>Hard vs. Soft Margin</h4>
+                    <p>Hard margin: Requires perfect separation of data (no misclassifications allowed).</p>
+                    <p>Soft margin: Introduces slack variables (ξ) to allow some misclassifications.</p>
+                    
+                    <h4>The C Parameter</h4>
+                    <p>The C parameter controls the trade-off between margin width and misclassification penalty:</p>
+                    <ul>
+                      <li>Small C: Wider margin, more misclassifications allowed</li>
+                      <li>Large C: Narrower margin, fewer misclassifications allowed</li>
+                    </ul>
+                  </div>
+                  
+                  <div *ngSwitchCase="5">
+                    <h4>The Kernel Trick</h4>
+                    <p>The kernel trick allows SVM to handle non-linearly separable data by implicitly mapping it to a higher-dimensional space.</p>
+                    
+                    <h4>Common Kernel Functions:</h4>
+                    <ul>
+                      <li>Linear: K(x,y) = x<sup>T</sup>y</li>
+                      <li>Polynomial: K(x,y) = (γx<sup>T</sup>y + r)<sup>d</sup></li>
+                      <li>RBF (Gaussian): K(x,y) = exp(-γ||x-y||<sup>2</sup>)</li>
+                    </ul>
+                  </div>
+                  
+                  <div *ngSwitchCase="6">
+                    <h4>Making Predictions</h4>
+                    <p>For a new data point x, the classification is determined by:</p>
+                    <p>class = sign(w<sup>T</sup>x + b)</p>
+                    
+                    <h4>With Kernels:</h4>
+                    <p>class = sign(∑ α<sub>i</sub>y<sub>i</sub>K(x<sub>i</sub>,x) + b)</p>
+                    <p>Where the sum is only over the support vectors.</p>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+            
+            <div class="tab-pane" [ngClass]="{'active': selectedTab === 'math'}" id="math">
+              <h3>Mathematical Formulation</h3>
+              
+              <div class="math-content">
+                <h4>Primal Problem:</h4>
+                <p>minimize: ½||w||<sup>2</sup> + C∑ξ<sub>i</sub></p>
+                <p>subject to: y<sub>i</sub>(w<sup>T</sup>x<sub>i</sub> + b) ≥ 1 - ξ<sub>i</sub> and ξ<sub>i</sub> ≥ 0</p>
+                
+                <h4>Dual Problem:</h4>
+                <p>maximize: ∑α<sub>i</sub> - ½∑∑α<sub>i</sub>α<sub>j</sub>y<sub>i</sub>y<sub>j</sub>K(x<sub>i</sub>,x<sub>j</sub>)</p>
+                <p>subject to: 0 ≤ α<sub>i</sub> ≤ C and ∑α<sub>i</sub>y<sub>i</sub> = 0</p>
+                
+                <h4>Decision Function:</h4>
+                <div class="math-highlight">
+                  <p>{{ SVMEquation }}</p>
+                </div>
+                
+                <h4>Margin Width:</h4>
+                <p>The margin width is 2/||w||</p>
+                
+                <h4>Distance of a Point to the Hyperplane:</h4>
+                <p>d(x) = |w<sup>T</sup>x + b| / ||w||</p>
+              </div>
+            </div>
+            
+            <div class="tab-pane" [ngClass]="{'active': selectedTab === 'research'}" id="research">
+              <h3>Research Papers</h3>
+              
+              <div class="paper-list">
+                <div class="paper" *ngFor="let paper of researchPapers">
+                  <h4>"{{ paper.title }}" ({{ paper.year }})</h4>
+                  <p><strong>Authors:</strong> {{ paper.authors }}</p>
+                  <p><strong>Contribution:</strong> {{ paper.description }}</p>
+                </div>
+                
+                <div class="paper">
+                  <h4>"Statistical Learning Theory" (1998)</h4>
+                  <p><strong>Authors:</strong> Vapnik, V.</p>
+                  <p><strong>Contribution:</strong> Comprehensive theoretical foundation of SVM</p>
+                </div>
+                
+                <h3>Historical Context</h3>
+                <p>The concept of SVM was first introduced in the 1960s, but it wasn't until the 1990s that SVMs became practical with the introduction of the kernel trick and soft margin classifier.</p>
+                
+                <h3>Major Developments</h3>
+                <ul>
+                  <li><strong>1963:</strong> Initial linear classifier concept by Vapnik</li>
+                  <li><strong>1992:</strong> Kernel trick introduction making non-linear classification possible</li>
+                  <li><strong>1995:</strong> Soft margin formulation for handling overlapping classes</li>
+                  <li><strong>1998:</strong> Statistical Learning Theory formalization</li>
+                  <li><strong>2000s:</strong> Widespread adoption in many machine learning applications</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="tab-pane" [ngClass]="{'active': selectedTab === 'applications'}" id="applications">
+              <h3>SVM Applications</h3>
+              
+              <div class="applications-content">
+                <div class="application-group">
+                  <h4>Text & Document Classification</h4>
+                  <p>SVMs excel at text categorization, sentiment analysis, and spam detection due to their effectiveness in high-dimensional sparse feature spaces.</p>
+                </div>
+                
+                <div class="application-group">
+                  <h4>Image Classification</h4>
+                  <p>Before deep learning dominated, SVMs were widely used for image recognition, object detection, and face recognition.</p>
+                </div>
+                
+                <div class="application-group">
+                  <h4>Bioinformatics</h4>
+                  <p>Used for protein classification, gene expression analysis, and cancer classification from microarray data.</p>
+                </div>
+                
+                <div class="application-group">
+                  <h4>Handwriting Recognition</h4>
+                  <p>SVMs have been used effectively for digit and character recognition tasks.</p>
+                </div>
+                
+                <h4>When to Use SVMs</h4>
+                <ul>
+                  <li>When working with structured/semi-structured data</li>
+                  <li>When you have a clear margin of separation</li>
+                  <li>When the number of features exceeds the number of samples</li>
+                  <li>When high accuracy is required but interpretability is not a primary concern</li>
+                </ul>
+                
+                <h4>Limitations</h4>
+                <ul>
+                  <li>Not directly suitable for multi-class classification (requires strategies like one-vs-one or one-vs-rest)</li>
+                  <li>Can be memory-intensive for large datasets</li>
+                  <li>Selection of appropriate kernel and parameters can be challenging</li>
+                  <li>Less interpretable than models like decision trees</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>

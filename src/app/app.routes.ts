@@ -31,8 +31,8 @@ export const routes: Routes = [
     },
     { 
       path: 'svm',
-      loadComponent: () => import('./algorithms/supervised/svm-visualization/svm-visualization.component')
-        .then(c => c.SvmVisualizationComponent)
+      loadComponent: () => import('./algorithms/supervised/svm-visualization/svm-simulation.component')
+        .then(c => c.SvmSimulationComponent)
     },
     { 
       path: 'naive-bayes',
