@@ -1,0 +1,468 @@
+// Variables from the design system
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
+
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
+
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-bg: #2a4980;
+
+$light-gray: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+// Typography
+$font-family: 'Inter', 'Roboto', sans-serif;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Border radius
+$border-radius-lg: 12px;
+$border-radius-md: 8px;
+$border-radius-sm: 4px;
+
+// Shadows
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// Main component styles
+.rnn-simulation-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  background-color: $darkest-blue;
+  color: $light-gray;
+  font-family: $font-family;
+  overflow: hidden;
+}
+
+// Header styles
+.header {
+  padding: $spacing-md $spacing-xl;
+  background-color: $dark-blue-bg;
+  border-bottom: 1px solid $medium-blue;
+  
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: $white;
+  }
+  
+  .subtitle {
+    margin: $spacing-xs 0 0;
+    font-size: 14px;
+    color: $muted-blue;
+  }
+}
+
+// Main content layout
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  
+  @media (max-width: $breakpoint-lg) {
+    flex-direction: column;
+  }
+}
+
+// 3D Visualization panel
+.visualization-panel {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  background-color: $darkest-blue;
+  border-right: 1px solid $medium-blue;
+  
+  @media (max-width: $breakpoint-lg) {
+    flex: none;
+    height: 60vh;
+    border-right: none;
+    border-bottom: 1px solid $medium-blue;
+  }
+}
+
+.canvas-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+// Controls section
+.controls {
+  padding: $spacing-md;
+  background-color: $dark-blue-bg;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-md;
+  
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.control-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: $muted-blue;
+  margin-right: $spacing-sm;
+}
+
+.view-controls, .mode-controls {
+  display: flex;
+  align-items: center;
+  
+  .btn-group {
+    display: flex;
+  }
+  
+  button {
+    background-color: $medium-blue;
+    color: $light-gray;
+    border: none;
+    padding: $spacing-sm $spacing-md;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color $transition-fast;
+    
+    &:first-child {
+      border-top-left-radius: $border-radius-md;
+      border-bottom-left-radius: $border-radius-md;
+    }
+    
+    &:last-child {
+      border-top-right-radius: $border-radius-md;
+      border-bottom-right-radius: $border-radius-md;
+    }
+    
+    &:hover {
+      background-color: $light-blue-bg;
+    }
+    
+    &.active {
+      background-color: $primary-blue;
+      color: $white;
+    }
+  }
+}
+
+.animation-controls {
+  display: flex;
+  gap: $spacing-sm;
+  
+  .icon-btn {
+    background-color: $medium-blue;
+    color: $light-gray;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: $border-radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color $transition-fast;
+    
+    &:hover {
+      background-color: $light-blue-bg;
+    }
+    
+    i {
+      font-size: 16px;
+    }
+  }
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  
+  input[type="range"] {
+    width: 100px;
+    margin: 0 $spacing-sm;
+    
+    &::-webkit-slider-thumb {
+      background: $primary-blue;
+    }
+    
+    &::-moz-range-thumb {
+      background: $primary-blue;
+    }
+  }
+}
+
+.advanced-controls {
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    
+    input {
+      margin-right: $spacing-sm;
+    }
+  }
+}
+
+// Information Panel
+.info-panel {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  background-color: $dark-blue-bg;
+  overflow: hidden;
+  
+  @media (max-width: $breakpoint-lg) {
+    flex: none;
+    height: 40vh;
+  }
+}
+
+// Tabs
+.tabs {
+  display: flex;
+  background-color: $medium-blue;
+  
+  button {
+    padding: $spacing-md;
+    background: none;
+    border: none;
+    color: $muted-blue;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color $transition-fast;
+    
+    &:hover {
+      color: $light-gray;
+    }
+    
+    &.active {
+      color: $white;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: $primary-blue;
+      }
+    }
+  }
+}
+
+// Tab Content
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-md $spacing-xl;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $darkest-blue;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $medium-blue;
+    border-radius: $border-radius-sm;
+  }
+}
+
+.content-section {
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: $white;
+    margin-top: 0;
+    margin-bottom: $spacing-md;
+  }
+  
+  p {
+    line-height: 1.6;
+    margin-bottom: $spacing-md;
+  }
+  
+  strong {
+    color: $white;
+    font-weight: 600;
+  }
+}
+
+// Info Cards
+.info-card {
+  background-color: $medium-blue;
+  border-radius: $border-radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-sm;
+  
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $white;
+    margin-top: 0;
+    margin-bottom: $spacing-sm;
+  }
+  
+  ul, ol {
+    padding-left: $spacing-lg;
+    margin-bottom: $spacing-sm;
+    
+    li {
+      margin-bottom: $spacing-xs;
+    }
+  }
+  
+  .equation {
+    background-color: darken($medium-blue, 5%);
+    padding: $spacing-md;
+    border-radius: $border-radius-md;
+    margin: $spacing-md 0;
+    overflow-x: auto;
+    font-size: 18px;
+    text-align: center;
+  }
+}
+
+// Charts
+.chart-container {
+  height: 180px;
+  margin: $spacing-md 0;
+  background-color: darken($medium-blue, 5%);
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+    
+    text {
+      fill: $light-gray;
+    }
+    
+    .domain, .tick line {
+      stroke: $muted-blue;
+    }
+    
+    .tick text {
+      fill: $muted-blue;
+    }
+  }
+}
+
+.chart-tooltip {
+  font-size: 12px;
+  color: $muted-blue;
+  font-style: italic;
+  margin-top: 0;
+}
+
+// Applications List
+.applications-list {
+  list-style: none;
+  padding: 0;
+  
+  li {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: $spacing-md;
+    
+    strong {
+      color: $white;
+      margin-bottom: $spacing-xs;
+    }
+    
+    span {
+      color: $muted-blue;
+      font-size: 14px;
+    }
+  }
+}
+
+// Demo Container
+.demo-container {
+  background-color: darken($medium-blue, 5%);
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  margin: $spacing-md 0;
+  
+  .input-section, .output-section {
+    margin-bottom: $spacing-md;
+    
+    p {
+      margin: $spacing-xs 0;
+    }
+  }
+  
+  .output-section {
+    border-top: 1px solid $medium-blue;
+    padding-top: $spacing-md;
+  }
+}
+
+// Responsive Tweaks
+@media (max-width: $breakpoint-md) {
+  .header {
+    padding: $spacing-md;
+  }
+  
+  .tab-content {
+    padding: $spacing-md;
+  }
+  
+  .info-card {
+    padding: $spacing-md;
+  }
+  
+  .chart-container {
+    height: 150px;
+  }
+}

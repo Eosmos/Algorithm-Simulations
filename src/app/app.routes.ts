@@ -75,26 +75,26 @@ export const routes: Routes = [
       loadComponent: () => import('./algorithms/deep-learning/cnn/cnn-visualization.component')
         .then(c => c.CnnVisualizationComponent)
     },
-    // { 
-    //   path: 'rnn',
-    //   loadComponent: () => import('./algorithms/deep-learning/rnn/rnn.component')
-    //     .then(c => c.RnnComponent)
-    // },
-    // { 
-    //   path: 'lstm',
-    //   loadComponent: () => import('./algorithms/deep-learning/lstm/lstm.component')
-    //     .then(c => c.LstmComponent)
-    // },
-    // { 
-    //   path: 'gan',
-    //   loadComponent: () => import('./algorithms/deep-learning/gan/gan.component')
-    //     .then(c => c.GanComponent)
-    // },
-    // { 
-    //   path: 'transformers',
-    //   loadComponent: () => import('./algorithms/deep-learning/transformers/transformers.component')
-    //     .then(c => c.TransformersComponent)
-    // },
+    { 
+      path: 'rnn',
+      loadComponent: () => import('./algorithms/deep-learning/rnn/rnn-simulation.component')
+        .then(c => c.RnnSimulationComponent)
+    },
+    { 
+      path: 'lstm',
+      loadComponent: () => import('./algorithms/deep-learning/lstm/lstm-simulator.component')
+        .then(c => c.LstmSimulatorComponent)
+    },
+    { 
+      path: 'gan',
+      loadComponent: () => import('./algorithms/deep-learning/gan/gan-simulation.component')
+        .then(c => c.GanSimulationComponent)
+    },
+    { 
+      path: 'transformers',
+      loadComponent: () => import('./algorithms/deep-learning/transformers/transformer-network.component')
+        .then(c => c.TransformerNetworkComponent)
+    },
     
     // Wildcard route - redirect to dashboard if path doesn't match
     { path: '**', redirectTo: '/dashboard' }

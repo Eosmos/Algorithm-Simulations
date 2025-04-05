@@ -1,665 +1,675 @@
+// Variables from the design system guide
+$primary-blue: #4285f4;
+$light-blue: #8bb4fa;
+$dark-blue: #2c5cbd;
 
-  $primary-blue: #4285f4;
-  $light-blue: #8bb4fa;
-  $dark-blue: #2c5cbd;
-  
-  $purple: #7c4dff;
-  $light-purple: #ae94ff;
-  $dark-purple: #5c35cc;
-  
-  $cyan: #00c9ff;
-  $light-cyan: #6edfff;
-  $dark-cyan: #0099cc;
-  
-  $darkest-blue: #0c1428;
-  $dark-blue-bg: #162a4a;
-  $medium-blue: #1e3a66;
-  $light-blue-bg: #2a4980;
-  
-  $light-gray-text: #e1e7f5;
-  $muted-blue: #8a9ab0;
-  $white: #ffffff;
-  
-  $green: #24b47e;
-  $orange: #ff9d45;
-  $red: #ff6b6b;
-  $info-blue: #64b5f6;
-  
-  .processing-panel {
-    background-color: rgba($medium-blue, 0.5);
-    border: 2px solid $primary-blue;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-    
-    h3 {
-      font-size: 1.6rem;
-      color: $cyan;
-      margin-bottom: 1.2rem;
-      text-shadow: 0 0 10px rgba($cyan, 0.5);
-      position: relative;
-      
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 120px;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, $cyan, transparent);
-      }
-    }
-    
-    canvas {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-      border: 2px solid rgba($cyan, 0.3);
-      max-width: 100%;
-    }
-  }// Variables from the design system guide
+$purple: #7c4dff;
+$light-purple: #ae94ff;
+$dark-purple: #5c35cc;
 
-  // Mixins
-  @mixin card {
-    background-color: $dark-blue-bg;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    padding: 1.5rem;
-    overflow: hidden;
-  }
-  
-  @mixin primary-gradient {
+$cyan: #00c9ff;
+$light-cyan: #6edfff;
+$dark-cyan: #0099cc;
+
+$darkest-blue: #0c1428;
+$dark-blue-bg: #162a4a;
+$medium-blue: #1e3a66;
+$light-blue-bg: #2a4980;
+
+$light-gray-text: #e1e7f5;
+$muted-blue: #8a9ab0;
+$white: #ffffff;
+
+$green: #24b47e;
+$orange: #ff9d45;
+$red: #ff6b6b;
+$info-blue: #64b5f6;
+
+// Mixins
+@mixin card {
+  background-color: $dark-blue-bg;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+@mixin primary-gradient {
+  background: linear-gradient(135deg, $primary-blue, $purple);
+}
+
+// Global styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// Container styles
+.cnn-visualization-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: $darkest-blue;
+  color: $light-gray-text;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+// Title section
+.title-section {
+  text-align: center;
+  padding: 2rem 0;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $white;
+    margin-bottom: 0.5rem;
     background: linear-gradient(135deg, $primary-blue, $purple);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  
-  // Global styles
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+
+  .subtitle {
+    font-size: 1.25rem;
+    color: $muted-blue;
   }
-  
-  // Container styles
-  .cnn-visualization-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 2rem;
-    background-color: $darkest-blue;
-    color: $light-gray-text;
-    font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  
-  // Title section
-  .title-section {
-    text-align: center;
-    padding: 2rem 0;
-  
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: $white;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, $primary-blue, $purple);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-  
-    .subtitle {
-      font-size: 1.25rem;
-      color: $muted-blue;
-    }
-  }
-  
-  // Controls section
-  .controls-section {
-    @include card;
-    margin-bottom: 1rem;
-  }
-  
-  .operations-tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-  
-    button {
-      background-color: $medium-blue;
-      border: none;
-      border-radius: 8px;
-      color: $light-gray-text;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      padding: 0.75rem 1.25rem;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-  
-      &:hover {
-        background-color: $light-blue-bg;
-      }
-  
-      &.active {
-        background-color: $primary-blue;
-        color: $white;
-        font-weight: 600;
-      }
-    }
-  }
-  
-  .operation-description {
+}
+
+// Controls section
+.controls-section {
+  @include card;
+  margin-bottom: 1rem;
+}
+
+.operations-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+
+  button {
     background-color: $medium-blue;
+    border: none;
     border-radius: 8px;
-    padding: 1rem;
+    color: $light-gray-text;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: $light-blue-bg;
+    }
+
+    &.active {
+      background-color: $primary-blue;
+      color: $white;
+      font-weight: 600;
+    }
+  }
+}
+
+.operation-description {
+  background-color: $medium-blue;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  p {
+    color: $light-gray-text;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+.playback-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  .control-btn {
+    background-color: $medium-blue;
+    border: none;
+    border-radius: 50%;
+    color: $light-gray-text;
+    cursor: pointer;
+    font-size: 1rem;
+    height: 3rem;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: $light-blue-bg;
+      color: $white;
+    }
+
+    &.active {
+      background-color: $primary-blue;
+      color: $white;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &.play-btn {
+      background-color: $primary-blue;
+      color: $white;
+      font-size: 1.2rem;
+      height: 3.5rem;
+      width: 3.5rem;
+
+      &:hover {
+        background-color: $dark-blue;
+      }
+    }
+  }
+}
+
+.progress-bar {
+  background-color: $medium-blue;
+  border-radius: 4px;
+  height: 8px;
+  margin: 1rem 0;
+  overflow: hidden;
+  position: relative;
+
+  .progress-indicator {
+    background: linear-gradient(90deg, $primary-blue, $purple);
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+}
+
+.advanced-controls {
+  background-color: rgba($medium-blue, 0.5);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  animation: fadeIn 0.3s ease;
+  border: 2px solid $primary-blue;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 10;
+
+  &::before {
+    content: 'Advanced Controls';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background-color: $dark-blue-bg;
+    padding: 0 10px;
+    color: $primary-blue;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .speed-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 1rem;
+
+    label {
+      font-size: 0.9rem;
+      min-width: 120px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: $primary-blue;
+    }
+
+    span {
+      color: $muted-blue;
+      font-size: 0.9rem;
+      min-width: 50px;
+    }
+  }
+
+  .parameter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .param-group {
+      flex: 1;
+      min-width: 180px;
+
+      label {
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+          background-color: $medium-blue;
+          border: none;
+          border-radius: 6px;
+          color: $light-gray-text;
+          cursor: pointer;
+          flex: 1;
+          font-size: 0.85rem;
+          padding: 0.5rem;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: $light-blue-bg;
+          }
+
+          &.active {
+            background-color: $primary-blue;
+            color: $white;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Visualization section
+.visualization-section {
+  @include card;
+  padding: 1.5rem;
+  width: 100%;
+  overflow-x: hidden; // Prevent horizontal scrolling
+}
+
+.visualization-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
   
+  &.io-row {
+    margin-top: 1.5rem;
+  }
+}
+
+.visualization-column {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &.full-width {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+  
+  &.half-width {
+    flex: 1 1 45%;
+    min-width: 300px;
+    max-width: 45%;
+  }
+}
+
+.visualization-panel {
+  background-color: rgba($medium-blue, 0.5);
+  border-radius: 8px;
+  padding: 1rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+
+  h3 {
+    color: $white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  canvas {
+    border-radius: 8px;
+    background-color: rgba($darkest-blue, 0.3);
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .responsive-canvas {
+    max-width: 100%;
+    height: auto !important; // Override any inline height
+    object-fit: contain;
+  }
+}
+
+// Special styling for the processing panel
+.processing-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  // Increase the min-height to ensure content is visible
+  min-height: 580px;
+  
+  h3 {
+    font-size: 1.6rem;
+    color: $cyan;
+    margin-bottom: 1.2rem;
+    text-shadow: 0 0 10px rgba($cyan, 0.5);
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, $cyan, transparent);
+    }
+  }
+  
+  .processing-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    overflow: hidden; // Prevent overflow
+  }
+  
+  canvas {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba($cyan, 0.3);
+    max-width: 100%;
+  }
+  
+  .processing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    
+    .layer-labels {
+      display: flex;
+      justify-content: space-around;
+      position: absolute;
+      top: 10px;
+      left: 0;
+      width: 100%;
+      
+      .layer-label {
+        color: $white;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      }
+    }
+  }
+}
+
+// Explanation section
+.explanation-section {
+  @include card;
+
+  h2 {
+    color: $white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid $medium-blue;
+  }
+
+  .explanation-content {
+    p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    ul {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+
+      li {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+      }
+    }
+
+    strong {
+      color: $cyan;
+      font-weight: 600;
+    }
+  }
+}
+
+// Key points section
+.key-points-section {
+  @include card;
+
+  h2 {
+    color: $white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid $medium-blue;
+  }
+
+  .key-points-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .key-point {
+    background-color: rgba($medium-blue, 0.5);
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    h3 {
+      color: $primary-blue;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
     p {
       color: $light-gray-text;
       font-size: 0.95rem;
       line-height: 1.5;
     }
   }
-  
-  .playback-controls {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  
-    .control-btn {
-      background-color: $medium-blue;
-      border: none;
-      border-radius: 50%;
-      color: $light-gray-text;
-      cursor: pointer;
-      font-size: 1rem;
-      height: 3rem;
-      width: 3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-  
-      &:hover {
-        background-color: $light-blue-bg;
-        color: $white;
-      }
-  
-      &.active {
-        background-color: $primary-blue;
-        color: $white;
-      }
-  
-      &:active {
-        transform: scale(0.95);
-      }
-  
-      &.play-btn {
-        background-color: $primary-blue;
-        color: $white;
-        font-size: 1.2rem;
-        height: 3.5rem;
-        width: 3.5rem;
-  
-        &:hover {
-          background-color: $dark-blue;
-        }
-      }
-    }
-  }
-  
-  .progress-bar {
-    background-color: $medium-blue;
-    border-radius: 4px;
-    height: 8px;
-    margin: 1rem 0;
-    overflow: hidden;
-    position: relative;
-  
-    .progress-indicator {
-      background: linear-gradient(90deg, $primary-blue, $purple);
-      height: 100%;
-      transition: width 0.3s ease;
-    }
-  }
-  
-  .advanced-controls {
-    background-color: rgba($medium-blue, 0.5);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-top: 1rem;
-    animation: fadeIn 0.3s ease;
-    border: 2px solid $primary-blue;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    position: relative;
-    z-index: 10;
-  
-    &::before {
-      content: 'Advanced Controls';
-      position: absolute;
-      top: -10px;
-      left: 20px;
-      background-color: $dark-blue-bg;
-      padding: 0 10px;
-      color: $primary-blue;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-  
-    .speed-control {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
-  
-      label {
-        font-size: 0.9rem;
-        min-width: 120px;
-      }
-  
-      input[type="range"] {
-        flex: 1;
-        accent-color: $primary-blue;
-      }
-  
-      span {
-        color: $muted-blue;
-        font-size: 0.9rem;
-        min-width: 50px;
-      }
-    }
-  
-    .parameter-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-  
-      .param-group {
-        flex: 1;
-        min-width: 180px;
-  
-        label {
-          display: block;
-          font-size: 0.9rem;
-          margin-bottom: 0.5rem;
-        }
-  
-        .button-group {
-          display: flex;
-          gap: 0.5rem;
-  
-          button {
-            background-color: $medium-blue;
-            border: none;
-            border-radius: 6px;
-            color: $light-gray-text;
-            cursor: pointer;
-            flex: 1;
-            font-size: 0.85rem;
-            padding: 0.5rem;
-            transition: all 0.2s ease;
-  
-            &:hover {
-              background-color: $light-blue-bg;
-            }
-  
-            &.active {
-              background-color: $primary-blue;
-              color: $white;
-              font-weight: 600;
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  // Visualization section
-  .visualization-section {
-    @include card;
-    padding: 1.5rem;
-  }
-  
-  .visualization-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: center;
+}
+
+// Applications section
+.applications-section {
+  @include card;
+
+  h2 {
+    color: $white;
+    font-size: 1.5rem;
+    font-weight: 600;
     margin-bottom: 1.5rem;
-    
-    &.io-row {
-      margin-top: 1.5rem;
-    }
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid $medium-blue;
   }
-  
-  .visualization-column {
-    flex: 1;
-    min-width: 240px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  
-    &.full-width {
-      flex: 1 1 100%;
-      min-width: 100%;
-    }
-    
-    &.half-width {
-      flex: 1 1 45%;
-      min-width: 300px;
-      max-width: 45%;
-    }
+
+  .applications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
   }
-  
-  .visualization-panel {
+
+  .application {
     background-color: rgba($medium-blue, 0.5);
     border-radius: 8px;
-    padding: 1rem;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    position: relative;
-  
+    padding: 1.25rem;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    i {
+      color: $cyan;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
     h3 {
       color: $white;
       font-size: 1.1rem;
       font-weight: 600;
-      text-align: center;
-      margin-bottom: 0.5rem;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-      
-      // Make processing heading larger and more prominent
-      .visualization-column.large & {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        color: $cyan;
-        position: relative;
-        
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: -8px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 80px;
-          height: 3px;
-          background: linear-gradient(90deg, transparent, $cyan, transparent);
-        }
-      }
+      margin-bottom: 0.75rem;
     }
-  
-    canvas {
-      border-radius: 8px;
-      background-color: rgba($darkest-blue, 0.3);
-      margin: 0 auto;
-      max-width: 100%;
-      height: auto;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      
-      // Make the processing canvas stand out more
-      .visualization-column.large & {
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba($cyan, 0.3);
-      }
+
+    p {
+      color: $muted-blue;
+      font-size: 0.9rem;
+      line-height: 1.5;
     }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .visualization-row {
+    flex-direction: column;
+    align-items: center;
     
-    .processing-wrapper {
-      position: relative;
-      width: 100%;
-    }
-    
-    .processing-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      
-      .layer-labels {
-        display: flex;
-        justify-content: space-around;
-        position: absolute;
-        top: 10px;
-        left: 0;
-        width: 100%;
-        
-        .layer-label {
-          color: $white;
-          background-color: rgba(0, 0, 0, 0.6);
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 14px;
-          font-weight: 600;
-          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-        }
-      }
-    }
-  }
-  
-  // Explanation section
-  .explanation-section {
-    @include card;
-  
-    h2 {
-      color: $white;
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid $medium-blue;
-    }
-  
-    .explanation-content {
-      p {
-        margin-bottom: 1rem;
-        line-height: 1.6;
-        font-size: 1rem;
-      }
-  
-      ul {
-        margin-bottom: 1rem;
-        padding-left: 1.5rem;
-  
-        li {
-          margin-bottom: 0.5rem;
-          line-height: 1.5;
-        }
-      }
-  
-      strong {
-        color: $cyan;
-        font-weight: 600;
-      }
-    }
-  }
-  
-  // Key points section
-  .key-points-section {
-    @include card;
-  
-    h2 {
-      color: $white;
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid $medium-blue;
-    }
-  
-    .key-points-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-  
-    .key-point {
-      background-color: rgba($medium-blue, 0.5);
-      border-radius: 8px;
-      padding: 1.25rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-      }
-  
-      h3 {
-        color: $primary-blue;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-      }
-  
-      p {
-        color: $light-gray-text;
-        font-size: 0.95rem;
-        line-height: 1.5;
-      }
-    }
-  }
-  
-  // Applications section
-  .applications-section {
-    @include card;
-  
-    h2 {
-      color: $white;
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid $medium-blue;
-    }
-  
-    .applications-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }
-  
-    .application {
-      background-color: rgba($medium-blue, 0.5);
-      border-radius: 8px;
-      padding: 1.25rem;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-      }
-  
-      i {
-        color: $cyan;
-        font-size: 2rem;
-        margin-bottom: 1rem;
-      }
-  
-      h3 {
-        color: $white;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-      }
-  
-      p {
-        color: $muted-blue;
-        font-size: 0.9rem;
-        line-height: 1.5;
-      }
-    }
-  }
-  
-  // Animations
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  // Responsive adjustments
-  @media (max-width: 1200px) {
-    .visualization-row {
+    &.io-row {
       flex-direction: column;
-      align-items: center;
-      
-      &.io-row {
-        flex-direction: column;
-      }
     }
-    
-    .visualization-column {
-      &.half-width {
-        max-width: 100%;
-        min-width: 280px;
-      }
+  }
+  
+  .visualization-column {
+    &.half-width {
+      max-width: 100%;
+      min-width: 280px;
     }
-    
-    .processing-panel h3 {
+  }
+  
+  .processing-panel {
+    h3 {
       font-size: 1.25rem;
     }
+    
+    // Make sure processing panel has appropriate height on smaller screens
+    min-height: 520px;
   }
   
-  @media (max-width: 768px) {
-    .cnn-visualization-container {
-      padding: 1rem;
+  .processing-panel canvas {
+    height: auto !important;
+    max-height: 480px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cnn-visualization-container {
+    padding: 1rem;
+  }
+
+  .title-section {
+    padding: 1rem 0;
+
+    h1 {
+      font-size: 2rem;
     }
-  
-    .title-section {
-      padding: 1rem 0;
-  
-      h1 {
-        font-size: 2rem;
-      }
-  
-      .subtitle {
+
+    .subtitle {
+      font-size: 1rem;
+    }
+  }
+
+  .operations-tabs {
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      min-width: calc(50% - 0.25rem);
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  .playback-controls {
+    .control-btn {
+      height: 2.5rem;
+      width: 2.5rem;
+      font-size: 0.9rem;
+
+      &.play-btn {
+        height: 3rem;
+        width: 3rem;
         font-size: 1rem;
       }
     }
-  
-    .operations-tabs {
-      flex-wrap: wrap;
-  
-      button {
-        flex: 1;
-        min-width: calc(50% - 0.25rem);
-        padding: 0.6rem 1rem;
-        font-size: 0.85rem;
-      }
-    }
-  
-    .playback-controls {
-      .control-btn {
-        height: 2.5rem;
-        width: 2.5rem;
-        font-size: 0.9rem;
-  
-        &.play-btn {
-          height: 3rem;
-          width: 3rem;
-          font-size: 1rem;
-        }
-      }
-    }
-  
-    .visualization-column {
-      min-width: 100%;
-    }
-  
-    .applications-grid,
-    .key-points-grid {
-      grid-template-columns: 1fr;
-    }
+  }
+
+  .visualization-column {
+    min-width: 100%;
+  }
+
+  .applications-grid,
+  .key-points-grid {
+    grid-template-columns: 1fr;
   }
   
-  // Add Font Awesome icons (since we're using them in the HTML)
-  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+  .processing-panel {
+    // Further reduce height on mobile to prevent overflow
+    min-height: 400px;
+    
+    canvas {
+      max-height: 350px;
+    }
+  }
+}
+
+// Add Font Awesome icons (since we're using them in the HTML)
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');

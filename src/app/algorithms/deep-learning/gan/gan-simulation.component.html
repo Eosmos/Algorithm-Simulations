@@ -1,0 +1,262 @@
+<div class="gan-simulation-container">
+  <header class="header-section">
+    <div class="title-container">
+      <h1 class="title">Generative Adversarial Networks (GANs)</h1>
+      <span class="category-badge">Deep Learning</span>
+    </div>
+    <p class="description">
+      A class of AI algorithms used in unsupervised machine learning, implemented as two neural networks contesting with each other in a game-theoretic scenario.
+    </p>
+    <nav class="breadcrumb">
+      <span>Deep Learning</span> &gt; <span>Generative Models</span> &gt; <span>GANs</span>
+    </nav>
+  </header>
+
+  <!-- Loading indicator with progress -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p class="loading-message">{{loadingMessage}}</p>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="loadingProgress"></div>
+    </div>
+    <p class="progress-text">{{loadingProgress}}% complete</p>
+    <button *ngIf="loadingProgress > 0 && loadingProgress < 100" 
+            class="retry-button" 
+            (click)="retryLoading()">
+      Retry Loading
+    </button>
+  </div>
+
+  <div class="content-wrapper" *ngIf="!isLoading">
+    <!-- Visualization not ready message -->
+    <div class="visualization-not-ready" *ngIf="!visualizationReady">
+      <p>Preparing visualization components...</p>
+      <div class="spinner-small"></div>
+      <p class="timeout-message" *ngIf="initializationTimeExceeded">
+        Initialization is taking longer than expected.
+      </p>
+      <button class="continue-anyway-button" 
+              (click)="forceCompletionAndContinue()">
+        Continue Anyway
+      </button>
+    </div>
+    
+    <!-- Main visualization section - No *ngIf to ensure elements are always in DOM -->
+    <section class="visualization-section" [style.display]="visualizationReady ? 'block' : 'none'">
+      <div class="card">
+        <h2>GAN Architecture Visualization</h2>
+        <div class="visualization-container" #ganSimulation id="ganSimulation"></div>
+        
+        <div class="controls">
+          <div class="metrics">
+            <div class="metric">
+              <span class="metric-label">Epochs:</span>
+              <span class="metric-value">{{epochs}}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">D Loss:</span>
+              <span class="metric-value">{{discriminatorLoss | number: '1.3-3'}}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">G Loss:</span>
+              <span class="metric-value">{{generatorLoss | number: '1.3-3'}}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Quality:</span>
+              <span class="metric-value">{{generationQuality | number: '1.0-0'}}%</span>
+            </div>
+          </div>
+          
+          <div class="control-buttons">
+            <button (click)="play()" [disabled]="isPlaying || isLoading" class="play-button">
+              <span class="icon">▶</span> Play
+            </button>
+            <button (click)="pause()" [disabled]="!isPlaying || isLoading" class="pause-button">
+              <span class="icon">⏸</span> Pause
+            </button>
+            <button (click)="reset()" [disabled]="isLoading" class="reset-button">
+              <span class="icon">⟲</span> Reset
+            </button>
+          </div>
+          
+          <div class="sliders">
+            <div class="slider">
+              <label for="stepSlider">Training Progress:</label>
+              <input 
+                type="range" 
+                id="stepSlider" 
+                [min]="0" 
+                [max]="maxSteps" 
+                [ngModel]="currentStep" 
+                (input)="setStep(+$any($event.target).value)"
+              >
+            </div>
+            <div class="slider">
+              <label for="speedSlider">Animation Speed:</label>
+              <input 
+                type="range" 
+                id="speedSlider" 
+                [min]="100" 
+                [max]="1000" 
+                [value]="1100 - animationSpeed" 
+                (input)="onSpeedChange($event)"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Distribution and Training Progress - No *ngIf to ensure elements are always in DOM -->
+    <div class="dual-charts" [style.display]="visualizationReady ? 'grid' : 'none'">
+      <section class="chart-section">
+        <div class="card">
+          <h2>Data Distribution</h2>
+          <div class="chart-container" #ganDistribution id="ganDistribution"></div>
+        </div>
+      </section>
+      
+      <section class="chart-section">
+        <div class="card">
+          <h2>Training Progress</h2>
+          <div class="chart-container" #ganTrainingProgress id="ganTrainingProgress"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- GAN Core Concepts -->
+    <section class="concepts-section">
+      <div class="card">
+        <h2>Core Concepts</h2>
+        
+        <div class="concept">
+          <h3>Two-Network Architecture</h3>
+          <p>
+            GANs consist of two neural networks contesting with each other:
+          </p>
+          <ul>
+            <li>
+              <strong>Generator (G):</strong> Takes random noise as input and produces synthetic data samples. Its goal is to create data so realistic that the discriminator cannot distinguish it from real data.
+            </li>
+            <li>
+              <strong>Discriminator (D):</strong> Acts as a binary classifier that tries to distinguish between real data samples and fake samples created by the generator.
+            </li>
+          </ul>
+        </div>
+        
+        <div class="concept">
+          <h3>Adversarial Training</h3>
+          <p>
+            The two networks are trained simultaneously in a minimax game:
+          </p>
+          <div class="equation">
+            min<sub>G</sub> max<sub>D</sub> V(D,G) = 𝔼<sub>x~p<sub>data</sub>(x)</sub>[log D(x)] + 𝔼<sub>z~p<sub>z</sub>(z)</sub>[log(1 - D(G(z)))]
+          </div>
+          <p>
+            The discriminator tries to maximize this value function, while the generator tries to minimize it. This adversarial process drives both networks to improve until the generator produces data indistinguishable from real data.
+          </p>
+        </div>
+        
+        <div class="concept">
+          <h3>Training Process</h3>
+          <ol>
+            <li>Sample random noise as input for the generator</li>
+            <li>Generate fake samples with the generator</li>
+            <li>Train the discriminator on both real and fake samples</li>
+            <li>Train the generator to fool the discriminator</li>
+            <li>Repeat until convergence or a stopping criterion is met</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAN Applications -->
+    <section class="applications-section">
+      <div class="card">
+        <h2>Applications</h2>
+        
+        <div class="applications-grid">
+          <div class="application" *ngFor="let app of applications">
+            <h3>{{app.name}}</h3>
+            <p>{{app.description}}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Research Papers -->
+    <section class="papers-section">
+      <div class="card">
+        <h2>Research Papers</h2>
+        
+        <div class="papers-list">
+          <div class="paper" *ngFor="let paper of researchPapers" (click)="showPaperDetails(paper)">
+            <h3>{{paper.title}}</h3>
+            <div class="paper-meta">
+              <span class="paper-authors">{{paper.authors.split(',')[0] + (paper.authors.includes(',') ? ' et al.' : '')}}</span>
+              <span class="paper-year">{{paper.year}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Common Challenges -->
+    <section class="challenges-section">
+      <div class="card">
+        <h2>Common Challenges</h2>
+        
+        <div class="challenge">
+          <h3>Mode Collapse</h3>
+          <p>
+            When the generator produces only a limited variety of samples, ignoring the full diversity of the target distribution. This occurs when the generator finds a few outputs that consistently fool the discriminator.
+          </p>
+        </div>
+        
+        <div class="challenge">
+          <h3>Training Instability</h3>
+          <p>
+            GANs can be difficult to train due to the adversarial nature of the loss function. The training process may oscillate or fail to converge, leading to poor quality outputs or training failure.
+          </p>
+        </div>
+        
+        <div class="challenge">
+          <h3>Vanishing Gradients</h3>
+          <p>
+            If the discriminator becomes too good too quickly, it may provide near-zero gradients to the generator, stalling its learning process. This is particularly problematic early in training.
+          </p>
+        </div>
+        
+        <div class="challenge">
+          <h3>Evaluation Difficulty</h3>
+          <p>
+            Unlike supervised learning models, there's no single metric that definitively measures GAN performance. Researchers often use a combination of metrics like Inception Score (IS) and Fréchet Inception Distance (FID).
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Paper Details Modal -->
+  <div class="modal" [class.active]="selectedPaper">
+    <div class="modal-content" *ngIf="selectedPaper">
+      <div class="modal-header">
+        <h2>{{selectedPaper?.title}}</h2>
+        <button class="close-button" (click)="closePaperDetails()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="paper-meta">
+          <p class="paper-authors"><strong>Authors:</strong> {{selectedPaper?.authors}}</p>
+          <p class="paper-year"><strong>Year:</strong> {{selectedPaper?.year}}</p>
+        </div>
+        <div class="paper-description">
+          <p>{{selectedPaper?.description}}</p>
+        </div>
+        <div class="paper-citation">
+          <h3>Citation</h3>
+          <pre class="citation-text">{{selectedPaper?.authors}}. ({{selectedPaper?.year}}). {{selectedPaper?.title}}. Advances in Neural Information Processing Systems.</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

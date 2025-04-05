@@ -1,12 +1,15 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common'; // Import CommonModule for ngIf, ngFor, etc.
 import * as d3 from 'd3';
 
 @Component({
   selector: 'app-cnn-visualization',
   templateUrl: './cnn-visualization.component.html',
-  styleUrls: ['./cnn-visualization.component.scss']
+  styleUrls: ['./cnn-visualization.component.scss'],
+  standalone: true, // Make it a standalone component if using Angular 14+
+  imports: [CommonModule] // Import CommonModule here for standalone components
 })
-export class CnnVisualizationComponent implements OnInit {
+export class CnnVisualizationComponent implements OnInit, OnDestroy {
   @ViewChild('visualizationContainer', { static: true }) container!: ElementRef;
   @ViewChild('imageCanvas', { static: true }) imageCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('featureMapCanvas', { static: true }) featureMapCanvas!: ElementRef<HTMLCanvasElement>;
@@ -39,6 +42,7 @@ export class CnnVisualizationComponent implements OnInit {
   public sliderValue = 150; // For the speed slider
   public storyModeActive = false;
   private storyModeInterval: any;
+  private resizeListener: () => void;
   
   // Computed property for speed label
   public get speedLabel(): string {
@@ -113,12 +117,62 @@ export class CnnVisualizationComponent implements OnInit {
   // Example input image - simplified MNIST-like digit
   private inputImage: number[][] = [];
 
-  constructor() {}
+  constructor() {
+    // Initialize resize handler
+    this.resizeListener = this.resizeCanvasToFitContainer.bind(this);
+  }
 
   ngOnInit(): void {
     this.initializeInputImage();
     this.drawInputImage();
     this.generateFeatureMaps();
+    
+    // Initial resize of canvases
+    setTimeout(() => {
+      this.resizeCanvasToFitContainer();
+    }, 0);
+    
+    // Add resize event listener
+    window.addEventListener('resize', this.resizeListener);
+  }
+
+  /**
+   * Resizes the canvas elements to fit their containers while maintaining aspect ratio
+   */
+  private resizeCanvasToFitContainer(): void {
+    // Resize output canvas (processing window)
+    const outputCanvas = this.outputCanvas.nativeElement;
+    const processingPanel = outputCanvas.closest('.processing-panel');
+    
+    if (processingPanel) {
+      const panelWidth = processingPanel.clientWidth - 40; // Subtract padding
+      
+      // Set a proper height that ensures all content is visible
+      // Make sure this is tall enough for all visualization types
+      const aspectRatio = 520 / 900; // Original canvas aspect ratio
+      const newWidth = Math.min(900, panelWidth);
+      const newHeight = newWidth * aspectRatio;
+      
+      // Update canvas display size
+      outputCanvas.style.width = `${newWidth}px`;
+      outputCanvas.style.height = `${newHeight}px`;
+    }
+    
+    // Resize other canvases similarly
+    const imageCanvas = this.imageCanvas.nativeElement;
+    const featureMapCanvas = this.featureMapCanvas.nativeElement;
+    
+    [imageCanvas, featureMapCanvas].forEach(canvas => {
+      const panel = canvas.closest('.visualization-panel');
+      if (panel) {
+        const panelWidth = panel.clientWidth - 40;
+        const aspectRatio = 1; // Square canvases
+        const newSize = Math.min(240, panelWidth);
+        
+        canvas.style.width = `${newSize}px`;
+        canvas.style.height = `${newSize}px`;
+      }
+    });
   }
 
   // Initialize a sample input image (simplified digit)
@@ -1217,22 +1271,10 @@ export class CnnVisualizationComponent implements OnInit {
     this.updateVisualization();
   }
 
-  // Toggle advanced controls visibility
+  // Toggle advanced controls visibility - Fixed to work properly
   public toggleAdvancedControls(): void {
     this.showAdvancedControls = !this.showAdvancedControls;
-    console.log('Advanced controls toggled:', this.showAdvancedControls);
-    
-    // Add a slight delay to ensure DOM updates before we check
-    setTimeout(() => {
-      const advancedControlsElement = document.querySelector('.advanced-controls');
-      console.log('Advanced controls element:', advancedControlsElement);
-      console.log('Is visible:', this.showAdvancedControls);
-      
-      // Force repaint if needed
-      if (advancedControlsElement) {
-        (advancedControlsElement as HTMLElement).style.display = this.showAdvancedControls ? 'block' : 'none';
-      }
-    }, 100);
+    // Angular will handle the display through ngIf in the template
   }
   
   // Story mode - automatically walks through all operations
@@ -1274,5 +1316,8 @@ export class CnnVisualizationComponent implements OnInit {
     if (this.storyModeInterval) {
       clearInterval(this.storyModeInterval);
     }
+    
+    // Remove event listener to prevent memory leaks
+    window.removeEventListener('resize', this.resizeListener);
   }
 }

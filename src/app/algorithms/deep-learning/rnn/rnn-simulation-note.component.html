@@ -1,0 +1,87 @@
+<div class="visualization-guide">
+    <div class="guide-header">
+      <h3>
+        <i class="fa fa-info-circle"></i> 
+        RNN Visualization Guide
+        <button class="toggle-btn" (click)="toggleGuide()" title="Toggle guide">
+          <i class="fa" [class.fa-chevron-up]="isExpanded" [class.fa-chevron-down]="!isExpanded"></i>
+        </button>
+      </h3>
+    </div>
+    
+    @if (isExpanded) {
+    <div class="guide-content">
+      <div class="guide-section">
+        <h4>What You're Seeing:</h4>
+        <p>
+          This 3D visualization represents a Recurrent Neural Network (RNN) processing data over time. 
+          Each vertical column is a time step in the sequence, flowing from left to right.
+        </p>
+        
+        <div class="legend">
+          <div class="legend-item">
+            <div class="color-dot input-color"></div>
+            <span><strong>Blue neurons:</strong> Input layer receiving data at each time step</span>
+          </div>
+          <div class="legend-item">
+            <div class="color-dot hidden-color"></div>
+            <span><strong>Purple neurons:</strong> Hidden layer that maintains memory between time steps</span>
+          </div>
+          <div class="legend-item">
+            <div class="color-dot output-color"></div>
+            <span><strong>Cyan neurons:</strong> Output layer producing predictions at each time step</span>
+          </div>
+          <div class="legend-item">
+            <div class="color-dot recurrent-color"></div>
+            <span><strong>Orange connections:</strong> Recurrent connections carrying information across time steps</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="guide-section">
+        <h4>Key Concepts Visualized:</h4>
+        <ul>
+          <li><strong>Sequential Processing:</strong> Information flows through the network one time step at a time</li>
+          <li><strong>Hidden State Memory:</strong> The purple neurons maintain information between time steps</li>
+          <li><strong>Parameter Sharing:</strong> The same weights (connections) are reused at each time step</li>
+          <li><strong>Recurrent Connections:</strong> The orange curves show how information persists across time</li>
+        </ul>
+      </div>
+      
+      <div class="guide-section">
+        <h4>How to Use This Visualization:</h4>
+        <p>
+          Use the view controls to switch between different perspectives:
+        </p>
+        <ul>
+          <li><strong>Compact View:</strong> Shows a simplified single time step with a self-loop representing recurrence</li>
+          <li><strong>Unrolled View:</strong> Expands the network across time (the main view you see now)</li>
+          <li><strong>Gradient Flow:</strong> Demonstrates how gradients propagate backward during training</li>
+        </ul>
+        <p>
+          Use the playback controls to:
+        </p>
+        <ul>
+          <li>Play/pause the animation to see the network process data through time</li>
+          <li>Step forward/backward to examine individual time steps</li>
+          <li>Adjust the animation speed</li>
+        </ul>
+        <p>
+          The charts below the 3D view show the actual values in the hidden state and output layers at each time step.
+        </p>
+      </div>
+      
+      @if (currentView === 'gradient') {
+      <div class="guide-section gradient-note">
+        <h4>About Vanishing Gradients:</h4>
+        <p>
+          In the Gradient Flow view, notice how the gradient magnitudes (intensity of connections) 
+          diminish as they flow backward through time. This "vanishing gradient" phenomenon makes 
+          it difficult for RNNs to learn long-range dependencies, which is why more advanced 
+          architectures like LSTM and GRU were developed.
+        </p>
+      </div>
+      }
+    </div>
+    }
+  </div>

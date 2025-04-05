@@ -1,0 +1,484 @@
+<div class="transformer-container">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+      <div class="logo">
+        <h2>Transformer Network</h2>
+        <p>Interactive Simulation</p>
+      </div>
+      
+      <ul class="nav-list">
+        <li [class.active]="activeSection === 'overview'" (click)="showSection('overview')">
+          <span class="icon">📋</span>
+          <span class="text">Overview</span>
+        </li>
+        <li [class.active]="activeSection === 'architecture'" (click)="showSection('architecture')">
+          <span class="icon">🏗️</span>
+          <span class="text">Architecture</span>
+        </li>
+        <li [class.active]="activeSection === 'attention'" (click)="showSection('attention')">
+          <span class="icon">👁️</span>
+          <span class="text">Self-Attention</span>
+        </li>
+        <li [class.active]="activeSection === 'positional'" (click)="showSection('positional')">
+          <span class="icon">📍</span>
+          <span class="text">Positional Encoding</span>
+        </li>
+        <li [class.active]="activeSection === 'research'" (click)="showSection('research')">
+          <span class="icon">📚</span>
+          <span class="text">Research Papers</span>
+        </li>
+        <li [class.active]="activeSection === 'applications'" (click)="showSection('applications')">
+          <span class="icon">🛠️</span>
+          <span class="text">Applications</span>
+        </li>
+      </ul>
+      
+      <div class="sim-controls">
+        <h3>Simulation Controls</h3>
+        <div class="control-buttons">
+          <button class="btn" (click)="resetSimulation()" title="Reset">
+            <span class="icon">↺</span>
+          </button>
+          <button class="btn" (click)="prevStep()" title="Previous Step">
+            <span class="icon">◀</span>
+          </button>
+          <button class="btn play-btn" (click)="togglePlay()" [class.playing]="isPlaying" title="Play/Pause">
+            <span class="icon" [ngSwitch]="isPlaying">
+              <ng-container *ngSwitchCase="false">▶</ng-container>
+              <ng-container *ngSwitchCase="true">⏸</ng-container>
+            </span>
+          </button>
+          <button class="btn" (click)="nextStep()" title="Next Step">
+            <span class="icon">▶</span>
+          </button>
+        </div>
+        
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="progress-bar" [style.width.%]="(currentStep / (totalSteps - 1)) * 100"></div>
+          </div>
+          <div class="step-text">
+            Step {{ currentStep + 1 }} of {{ totalSteps }}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="content-area">
+      <!-- 3D Visualization -->
+      <div class="visualization-area" [class.fullscreen]="activeSection === 'architecture'">
+        <canvas #threeCanvas class="three-canvas"></canvas>
+        
+        <!-- Step Description -->
+        <div class="step-description">
+          <div class="step-content" [ngSwitch]="currentStep">
+            <div *ngSwitchCase="0">
+              <h3>Step 1: Input Embedding</h3>
+              <p>The input tokens are converted into dense vector representations (embeddings) that capture semantic meaning. Each token is mapped to a fixed-size vector through a learned embedding matrix.</p>
+            </div>
+            <div *ngSwitchCase="1">
+              <h3>Step 2: Positional Encoding</h3>
+              <p>Since the self-attention mechanism is permutation invariant, information about token positions in the sequence is added through positional encodings, which are then combined with the embeddings.</p>
+            </div>
+            <div *ngSwitchCase="2">
+              <h3>Step 3: Multi-Head Self-Attention</h3>
+              <p>The encoder applies self-attention where each token can attend to all other tokens. Multiple attention heads learn different relationship patterns in parallel.</p>
+            </div>
+            <div *ngSwitchCase="3">
+              <h3>Step 4: Feed-Forward Network</h3>
+              <p>Each position goes through a fully connected feed-forward network independently, applying the same set of weights to each token. This adds non-linearity and increases model capacity.</p>
+            </div>
+            <div *ngSwitchCase="4">
+              <h3>Step 5: Masked Self-Attention</h3>
+              <p>In the decoder, self-attention is masked to ensure that predictions for position i can only depend on known outputs at positions less than i, preventing information leakage.</p>
+            </div>
+            <div *ngSwitchCase="5">
+              <h3>Step 6: Encoder-Decoder Attention</h3>
+              <p>The decoder attends to the encoder outputs, allowing it to focus on relevant parts of the input sequence when generating each output token.</p>
+            </div>
+            <div *ngSwitchCase="6">
+              <h3>Step 7: Linear Layer</h3>
+              <p>The decoder output is projected through a linear layer to produce logits corresponding to the vocabulary size for each position.</p>
+            </div>
+            <div *ngSwitchCase="7">
+              <h3>Step 8: Softmax</h3>
+              <p>The logits are converted to probability distributions over the vocabulary, and the highest probability tokens are selected for the output sequence.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Information Sections -->
+      <div class="info-section" [hidden]="activeSection !== 'overview'">
+        <h2>Transformer Networks: Overview</h2>
+        <div class="info-content">
+          <h3>Purpose</h3>
+          <p>Transformer networks are a groundbreaking type of neural network architecture, introduced primarily for <strong>sequence-to-sequence tasks</strong>, especially in <strong>Natural Language Processing (NLP)</strong>. They were designed to overcome limitations of Recurrent Neural Networks (RNNs), particularly the difficulty in handling <strong>long-range dependencies</strong> and the inherent <strong>sequential computation bottleneck</strong> that prevents parallelization over the sequence length.</p>
+          
+          <h3>Key Applications</h3>
+          <div class="application-cards">
+            <div class="app-card">
+              <div class="app-icon">🌐</div>
+              <h4>Machine Translation</h4>
+              <p>Their original application, significantly improving translation quality.</p>
+            </div>
+            <div class="app-card">
+              <div class="app-icon">📝</div>
+              <h4>Text Generation</h4>
+              <p>Powering models like GPT series that can generate coherent and contextually relevant text.</p>
+            </div>
+            <div class="app-card">
+              <div class="app-icon">🔍</div>
+              <h4>Language Understanding</h4>
+              <p>Models like BERT excel at capturing contextual word meanings.</p>
+            </div>
+            <div class="app-card">
+              <div class="app-icon">🖼️</div>
+              <h4>Computer Vision</h4>
+              <p>Vision Transformers (ViT) have adapted the architecture for image processing tasks.</p>
+            </div>
+          </div>
+          
+          <h3>Core Innovation</h3>
+          <p>The core innovation is the <strong>self-attention mechanism</strong>, which allows the model to weigh the importance of different parts of the input sequence when processing a specific part, regardless of their distance.</p>
+          
+          <h3>Benefits Over RNNs</h3>
+          <ul class="benefits-list">
+            <li><strong>Parallelization:</strong> Allows training on longer sequences more efficiently</li>
+            <li><strong>Long-range dependencies:</strong> Direct connections between any positions with constant path length</li>
+            <li><strong>Contextual understanding:</strong> Better capture of relationships between tokens</li>
+            <li><strong>Transfer learning:</strong> Enables pre-training on large corpora and fine-tuning for specific tasks</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="info-section" [hidden]="activeSection !== 'architecture'">
+        <h2>Transformer Architecture</h2>
+        <div class="info-content">
+          <div class="architecture-diagram">
+            <!-- Embedded SVG instead of external file -->
+            <svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+              <!-- Encoder -->
+              <g transform="translate(100, 50)">
+                <rect x="0" y="0" width="200" height="400" rx="8" fill="#162a4a" stroke="#4285f4" stroke-width="2"/>
+                <text x="100" y="-20" text-anchor="middle" fill="#ffffff" font-size="18">Encoder</text>
+                
+                <!-- Encoder Layers -->
+                <rect x="20" y="30" width="160" height="70" rx="5" fill="#1e3a66" stroke="#8bb4fa" stroke-width="1"/>
+                <text x="100" y="55" text-anchor="middle" fill="#ffffff" font-size="14">Multi-Head</text>
+                <text x="100" y="75" text-anchor="middle" fill="#ffffff" font-size="14">Self-Attention</text>
+                
+                <rect x="20" y="110" width="160" height="50" rx="5" fill="#1e3a66" stroke="#7c4dff" stroke-width="1"/>
+                <text x="100" y="140" text-anchor="middle" fill="#ffffff" font-size="14">Feed Forward</text>
+                
+                <rect x="20" y="180" width="160" height="70" rx="5" fill="#1e3a66" stroke="#8bb4fa" stroke-width="1"/>
+                <text x="100" y="205" text-anchor="middle" fill="#ffffff" font-size="14">Multi-Head</text>
+                <text x="100" y="225" text-anchor="middle" fill="#ffffff" font-size="14">Self-Attention</text>
+                
+                <rect x="20" y="260" width="160" height="50" rx="5" fill="#1e3a66" stroke="#7c4dff" stroke-width="1"/>
+                <text x="100" y="290" text-anchor="middle" fill="#ffffff" font-size="14">Feed Forward</text>
+                
+                <text x="100" y="340" text-anchor="middle" fill="#ffffff" font-size="18">×N</text>
+                
+                <!-- Input Embeddings -->
+                <rect x="20" y="370" width="160" height="30" rx="5" fill="#1e3a66" stroke="#64b5f6" stroke-width="1"/>
+                <text x="100" y="390" text-anchor="middle" fill="#ffffff" font-size="12">Input Embeddings + Position</text>
+              </g>
+              
+              <!-- Decoder -->
+              <g transform="translate(500, 50)">
+                <rect x="0" y="0" width="200" height="400" rx="8" fill="#162a4a" stroke="#00c9ff" stroke-width="2"/>
+                <text x="100" y="-20" text-anchor="middle" fill="#ffffff" font-size="18">Decoder</text>
+                
+                <!-- Decoder Layers -->
+                <rect x="20" y="30" width="160" height="50" rx="5" fill="#1e3a66" stroke="#00c9ff" stroke-width="1"/>
+                <text x="100" y="60" text-anchor="middle" fill="#ffffff" font-size="14">Masked Self-Attention</text>
+                
+                <rect x="20" y="90" width="160" height="50" rx="5" fill="#1e3a66" stroke="#ff9d45" stroke-width="1"/>
+                <text x="100" y="120" text-anchor="middle" fill="#ffffff" font-size="14">Encoder-Decoder Attention</text>
+                
+                <rect x="20" y="150" width="160" height="50" rx="5" fill="#1e3a66" stroke="#7c4dff" stroke-width="1"/>
+                <text x="100" y="180" text-anchor="middle" fill="#ffffff" font-size="14">Feed Forward</text>
+                
+                <rect x="20" y="210" width="160" height="50" rx="5" fill="#1e3a66" stroke="#00c9ff" stroke-width="1"/>
+                <text x="100" y="240" text-anchor="middle" fill="#ffffff" font-size="14">Masked Self-Attention</text>
+                
+                <rect x="20" y="270" width="160" height="50" rx="5" fill="#1e3a66" stroke="#ff9d45" stroke-width="1"/>
+                <text x="100" y="300" text-anchor="middle" fill="#ffffff" font-size="14">Encoder-Decoder Attention</text>
+                
+                <text x="100" y="340" text-anchor="middle" fill="#ffffff" font-size="18">×N</text>
+                
+                <!-- Output Embeddings -->
+                <rect x="20" y="370" width="160" height="30" rx="5" fill="#1e3a66" stroke="#64b5f6" stroke-width="1"/>
+                <text x="100" y="390" text-anchor="middle" fill="#ffffff" font-size="12">Output Embeddings + Position</text>
+              </g>
+              
+              <!-- Output Linear and Softmax -->
+              <g transform="translate(500, 460)">
+                <rect x="20" y="0" width="160" height="30" rx="5" fill="#1e3a66" stroke="#24b47e" stroke-width="1"/>
+                <text x="100" y="20" text-anchor="middle" fill="#ffffff" font-size="14">Linear</text>
+                
+                <rect x="20" y="40" width="160" height="30" rx="5" fill="#1e3a66" stroke="#24b47e" stroke-width="1"/>
+                <text x="100" y="60" text-anchor="middle" fill="#ffffff" font-size="14">Softmax</text>
+              </g>
+              
+              <!-- Connections -->
+              <g stroke="#8bb4fa" stroke-width="2" stroke-dasharray="5,5" fill="none">
+                <!-- Encoder to Decoder connections -->
+                <path d="M300,115 L500,115" />
+                <path d="M300,295 L500,295" />
+                
+                <!-- Input to Output flow -->
+                <path d="M100,470 L100,550 L700,550 L700,470" />
+              </g>
+              
+              <!-- Labels -->
+              <g fill="#e1e7f5" font-size="14">
+                <text x="400" y="100" text-anchor="middle">Attention Weights</text>
+                <text x="400" y="280" text-anchor="middle">Attention Weights</text>
+                <text x="400" y="540" text-anchor="middle">Output Probabilities</text>
+              </g>
+            </svg>
+          </div>
+          
+          <h3>Encoder-Decoder Structure</h3>
+          <p>The original Transformer architecture follows an Encoder-Decoder structure designed for sequence-to-sequence tasks like translation.</p>
+          
+          <h3>Encoder</h3>
+          <p>The encoder consists of a stack of identical layers, each with two sub-layers:</p>
+          <ul>
+            <li><strong>Multi-Head Self-Attention:</strong> Attends to positions in the input sequence</li>
+            <li><strong>Position-wise Feed-Forward Network:</strong> Applies non-linear transformations</li>
+          </ul>
+          <p>Each sub-layer is wrapped with residual connections and layer normalization.</p>
+          
+          <h3>Decoder</h3>
+          <p>The decoder also consists of a stack of identical layers, but with three sub-layers:</p>
+          <ul>
+            <li><strong>Masked Multi-Head Self-Attention:</strong> Prevents positions from attending to future positions</li>
+            <li><strong>Multi-Head Encoder-Decoder Attention:</strong> Attends to the encoder output</li>
+            <li><strong>Position-wise Feed-Forward Network:</strong> Same as in the encoder</li>
+          </ul>
+          
+          <h3>Modern Variants</h3>
+          <p>Many modern NLP models use modified transformer architectures:</p>
+          <ul>
+            <li><strong>BERT:</strong> Uses only the encoder stack for bidirectional understanding</li>
+            <li><strong>GPT:</strong> Uses only the decoder stack for unidirectional text generation</li>
+            <li><strong>T5:</strong> Uses the full encoder-decoder structure with unified text-to-text approach</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="info-section" [hidden]="activeSection !== 'attention'">
+        <h2>Self-Attention Mechanism</h2>
+        <div class="info-content">
+          <div class="attention-container">
+            <div class="attention-text">
+              <h3>Scaled Dot-Product Attention</h3>
+              <p>Self-attention computes a representation for each element by attending to all elements in the sequence and taking their weighted average.</p>
+              
+              <div class="equation">
+                <span class="formula">Attention(Q, K, V) = softmax(QK<sup>T</sup>/√d<sub>k</sub>)V</span>
+              </div>
+              
+              <h4>Components:</h4>
+              <ul>
+                <li><strong>Queries (Q):</strong> Represents the element "asking" for relevant information</li>
+                <li><strong>Keys (K):</strong> Represents what information each element "offers"</li>
+                <li><strong>Values (V):</strong> Represents the actual content of each element</li>
+              </ul>
+              
+              <h4>Process:</h4>
+              <ol>
+                <li>Compute compatibility between queries and keys</li>
+                <li>Scale dot products by √d<sub>k</sub> to stabilize gradients</li>
+                <li>Apply softmax to get attention weights</li>
+                <li>Take weighted sum of value vectors</li>
+              </ol>
+              
+              <h3>Multi-Head Attention</h3>
+              <p>Instead of performing a single attention operation, the transformer uses multiple attention heads in parallel:</p>
+              <ul>
+                <li>Each head can focus on different aspects of the relationship between tokens</li>
+                <li>Enables the model to jointly attend to different representation subspaces</li>
+                <li>Outputs are concatenated and projected to obtain final values</li>
+              </ul>
+              
+              <div class="equation">
+                <span class="formula">MultiHead(Q,K,V) = Concat(head<sub>1</sub>,...,head<sub>h</sub>)W<sup>O</sup></span>
+              </div>
+            </div>
+            
+            <div #attentionCanvas class="attention-vis-container">
+              <!-- D3 visualization will be rendered here -->
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="info-section" [hidden]="activeSection !== 'positional'">
+        <h2>Positional Encoding</h2>
+        <div class="info-content">
+          <div class="positional-container">
+            <div class="positional-text">
+              <h3>Purpose</h3>
+              <p>Since self-attention treats inputs as a set of vectors with no inherent order, positional information must be explicitly added to the token embeddings.</p>
+              
+              <h3>Sine-Cosine Encoding</h3>
+              <p>The original transformer uses a fixed encoding pattern based on sine and cosine functions:</p>
+              
+              <div class="equation">
+                <div class="formula">PE<sub>(pos,2i)</sub> = sin(pos/10000<sup>2i/d<sub>model</sub></sup>)</div>
+                <div class="formula">PE<sub>(pos,2i+1)</sub> = cos(pos/10000<sup>2i/d<sub>model</sub></sup>)</div>
+              </div>
+              
+              <h4>Properties:</h4>
+              <ul>
+                <li>Unique encoding for each position up to a very large sequence length</li>
+                <li>Deterministic, allowing extrapolation to unseen sequence lengths</li>
+                <li>Enables the model to attend to relative positions through linear combinations</li>
+                <li>Each dimension corresponds to a different wavelength from 2π to 10000·2π</li>
+              </ul>
+              
+              <h3>Alternatives</h3>
+              <p>Modern transformers may use other positional encoding approaches:</p>
+              <ul>
+                <li><strong>Learned positional embeddings:</strong> Trainable parameters rather than fixed functions</li>
+                <li><strong>Relative positional encodings:</strong> Encode relative rather than absolute positions</li>
+                <li><strong>Rotary positional embeddings (RoPE):</strong> Apply rotation to embedding vectors</li>
+              </ul>
+            </div>
+            
+            <div #posEncodingCanvas class="positional-vis-container">
+              <!-- D3 visualization will be rendered here -->
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="info-section" [hidden]="activeSection !== 'research'">
+        <h2>Research Papers</h2>
+        <div class="info-content">
+          <p class="research-intro">The transformer architecture has sparked a revolution in NLP and beyond. Here are key research papers that have defined the field:</p>
+          
+          <div class="papers-container">
+            <div class="paper-card" *ngFor="let paper of researchPapers">
+              <h3 class="paper-title">{{ paper.title }}</h3>
+              <p class="paper-authors">{{ paper.authors }}</p>
+              <p class="paper-publication">{{ paper.publication }} ({{ paper.year }})</p>
+              <p class="paper-description">{{ paper.description }}</p>
+              <div class="paper-link">
+                <a [href]="paper.link" target="_blank" rel="noopener noreferrer">View Paper</a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="citation-info">
+            <h3>Citing the Original Paper</h3>
+            <div class="citation-formats">
+              <div class="citation-format">
+                <h4>APA</h4>
+                <p class="citation-text">Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., & Polosukhin, I. (2017). Attention is all you need. In Advances in neural information processing systems (pp. 5998-6008).</p>
+              </div>
+              <div class="citation-format">
+                <h4>BibTeX</h4>
+                <pre class="citation-text">&#64;inproceedings&#123;vaswani2017attention,
+    title=&#123;Attention is all you need&#125;,
+    author=&#123;Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and 
+      Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and 
+      Kaiser, &#123;\L&#125;ukasz and Polosukhin, Illia&#125;,
+    booktitle=&#123;Advances in neural information processing systems&#125;,
+    pages=&#123;5998--6008&#125;,
+    year=&#123;2017&#125;
+  &#125;</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="info-section" [hidden]="activeSection !== 'applications'">
+        <h2>Applications</h2>
+        <div class="info-content">
+          <div class="applications-grid">
+            <div class="application-block">
+              <div class="app-icon large">🔤</div>
+              <h3>Natural Language Processing</h3>
+              <ul>
+                <li><strong>Machine Translation:</strong> Models like Google's Transformer achieve state-of-the-art results in language translation tasks.</li>
+                <li><strong>Text Summarization:</strong> Transformers can generate concise summaries while preserving meaning.</li>
+                <li><strong>Question Answering:</strong> Models can understand questions and extract relevant answers from context.</li>
+                <li><strong>Text Generation:</strong> GPT models generate remarkably coherent and contextually relevant text.</li>
+              </ul>
+            </div>
+            
+            <div class="application-block">
+              <div class="app-icon large">🖼️</div>
+              <h3>Computer Vision</h3>
+              <ul>
+                <li><strong>Image Classification:</strong> Vision Transformers (ViT) approach or exceed CNN performance.</li>
+                <li><strong>Object Detection:</strong> DETR (DEtection TRansformer) simplifies the detection pipeline.</li>
+                <li><strong>Image Generation:</strong> Transformers are being used in models like DALL-E for text-to-image generation.</li>
+                <li><strong>Video Understanding:</strong> Processing sequence of frames for action recognition and prediction.</li>
+              </ul>
+            </div>
+            
+            <div class="application-block">
+              <div class="app-icon large">🧬</div>
+              <h3>Bioinformatics</h3>
+              <ul>
+                <li><strong>Protein Structure Prediction:</strong> AlphaFold 2 uses attention mechanisms for breakthrough results.</li>
+                <li><strong>Genomic Sequence Analysis:</strong> Modeling DNA/RNA sequences and their interactions.</li>
+                <li><strong>Drug Discovery:</strong> Predicting molecular properties and drug-target interactions.</li>
+              </ul>
+            </div>
+            
+            <div class="application-block">
+              <div class="app-icon large">🔊</div>
+              <h3>Audio Processing</h3>
+              <ul>
+                <li><strong>Speech Recognition:</strong> Transformers achieve high accuracy in converting speech to text.</li>
+                <li><strong>Voice Synthesis:</strong> Generating realistic human-like speech.</li>
+                <li><strong>Music Generation:</strong> Creating new musical compositions in specific styles.</li>
+                <li><strong>Audio Classification:</strong> Identifying sounds, music genres, and environmental audio.</li>
+              </ul>
+            </div>
+            
+            <div class="application-block">
+              <div class="app-icon large">🎮</div>
+              <h3>Reinforcement Learning</h3>
+              <ul>
+                <li><strong>Decision Transformer:</strong> Framing RL as a sequence modeling problem.</li>
+                <li><strong>Game Playing:</strong> Models that understand game states and choose optimal actions.</li>
+                <li><strong>Robotics:</strong> Controlling robot actions based on sensory input sequences.</li>
+              </ul>
+            </div>
+            
+            <div class="application-block">
+              <div class="app-icon large">📊</div>
+              <h3>Time Series Analysis</h3>
+              <ul>
+                <li><strong>Forecasting:</strong> Predicting future values based on historical data sequences.</li>
+                <li><strong>Anomaly Detection:</strong> Identifying unusual patterns in sequential data.</li>
+                <li><strong>Financial Modeling:</strong> Stock price prediction and market trend analysis.</li>
+                <li><strong>Weather Prediction:</strong> Modeling complex atmospheric patterns over time.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="future-applications">
+            <h3>Future Directions</h3>
+            <p>Transformer models continue to evolve in capabilities and efficiency:</p>
+            <ul>
+              <li><strong>Multimodal Transformers:</strong> Processing and generating content across text, images, audio, and video</li>
+              <li><strong>Efficient Transformers:</strong> Addressing the quadratic complexity issue for very long sequences</li>
+              <li><strong>Domain-Specific Architectures:</strong> Specialized transformer variants for particular applications</li>
+              <li><strong>Smaller, Distilled Models:</strong> Making transformers accessible for edge devices and real-time applications</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

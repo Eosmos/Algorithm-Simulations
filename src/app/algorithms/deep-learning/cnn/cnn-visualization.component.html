@@ -45,7 +45,8 @@
         <div class="progress-indicator" [style.width.%]="progress"></div>
       </div>
   
-      <div *ngIf="showAdvancedControls" class="advanced-controls" style="display: block;">
+      <!-- Fixed: Using *ngIf instead of style.display for Angular compatibility -->
+      <div *ngIf="showAdvancedControls" class="advanced-controls">
         <div class="speed-control">
           <label>Animation Speed:</label>
           <input type="range" min="10" max="200" [value]="sliderValue" (input)="handleSpeedInput($event)">
@@ -83,13 +84,14 @@
     </div>
   
     <div class="visualization-section" #visualizationContainer>
-      <!-- Processing window in its own row -->
+      <!-- Processing window in its own row with increased height -->
       <div class="visualization-row">
         <div class="visualization-column full-width">
           <div class="visualization-panel processing-panel">
             <h3>Processing</h3>
             <div class="processing-wrapper">
-              <canvas #outputCanvas width="900" height="520"></canvas>
+              <!-- Added class for responsive sizing -->
+              <canvas #outputCanvas width="900" height="520" class="responsive-canvas"></canvas>
               <div class="processing-overlay" *ngIf="currentPhase === 'hierarchical'">
                 <div class="layer-labels">
                   <div class="layer-label">Layer 1: Edges & Textures</div>
@@ -107,14 +109,14 @@
         <div class="visualization-column half-width">
           <div class="visualization-panel">
             <h3>Input</h3>
-            <canvas #imageCanvas width="240" height="240"></canvas>
+            <canvas #imageCanvas width="240" height="240" class="responsive-canvas"></canvas>
           </div>
         </div>
         
         <div class="visualization-column half-width">
           <div class="visualization-panel">
             <h3>Output</h3>
-            <canvas #featureMapCanvas width="240" height="240"></canvas>
+            <canvas #featureMapCanvas width="240" height="240" class="responsive-canvas"></canvas>
           </div>
         </div>
       </div>

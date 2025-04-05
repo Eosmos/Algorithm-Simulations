@@ -1,0 +1,361 @@
+<div class="lstm-simulator-container">
+    <div class="header">
+      <h1>Long Short-Term Memory Network Simulator</h1>
+      <p class="subtitle">Understanding how LSTMs manage long-range dependencies through gating mechanisms</p>
+    </div>
+    
+    <div class="controls">
+      <div class="button-group">
+        <button class="control-button" (click)="goToPrevStep()" [disabled]="currentStepIndex === 0">
+          <span class="material-icons">skip_previous</span>
+          Previous
+        </button>
+        
+        <button class="control-button play-button" (click)="togglePlayback()">
+          <span class="material-icons">{{ isPlaying ? 'pause' : 'play_arrow' }}</span>
+          {{ isPlaying ? 'Pause' : 'Play' }}
+        </button>
+        
+        <button class="control-button" (click)="goToNextStep()" [disabled]="currentStepIndex === timeSteps.length - 1">
+          <span class="material-icons">skip_next</span>
+          Next
+        </button>
+        
+        <button class="control-button reset-button" (click)="resetSimulation()">
+          <span class="material-icons">refresh</span>
+          Reset
+        </button>
+      </div>
+      
+      <div class="speed-controls">
+        <span>Speed:</span>
+        <div class="speed-buttons">
+          <button class="speed-button" [class.active]="playbackSpeed === 0.5" (click)="setPlaybackSpeed(0.5)">0.5×</button>
+          <button class="speed-button" [class.active]="playbackSpeed === 1" (click)="setPlaybackSpeed(1)">1×</button>
+          <button class="speed-button" [class.active]="playbackSpeed === 2" (click)="setPlaybackSpeed(2)">2×</button>
+        </div>
+      </div>
+      
+      <div class="view-toggle">
+        <label class="toggle-label">
+          <input type="checkbox" [checked]="showAdvancedView" (change)="toggleAdvancedView()">
+          <span class="toggle-text">Advanced View</span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-label">Step: {{ currentStepIndex + 1 }} of {{ timeSteps.length }}</div>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="(currentStepIndex + 1) / timeSteps.length * 100"></div>
+      </div>
+    </div>
+    
+    <div class="simulation-view" #simulationContainer></div>
+    
+    <div class="info-section">
+      <div class="info-tabs">
+        <button class="tab-button" [class.active]="activeTab === 'concepts'" (click)="setActiveTab('concepts')">LSTM Concepts</button>
+        <button class="tab-button" [class.active]="activeTab === 'applications'" (click)="setActiveTab('applications')">Applications</button>
+        <button class="tab-button" [class.active]="activeTab === 'advantages'" (click)="setActiveTab('advantages')">Advantages</button>
+        <button class="tab-button" [class.active]="activeTab === 'research'" (click)="setActiveTab('research')">Research Papers</button>
+        <button class="tab-button" [class.active]="activeTab === 'code'" (click)="setActiveTab('code')">Code Examples</button>
+        <button class="tab-button" [class.active]="activeTab === 'resources'" (click)="setActiveTab('resources')">Resources</button>
+      </div>
+      
+      <div class="tab-content">
+        <!-- LSTM Concepts Tab -->
+        <div class="lstm-concepts" *ngIf="activeTab === 'concepts'">
+          <h2>LSTM Cell Architecture</h2>
+          <p>{{ explanationText }}</p>
+          
+          <div class="gate-explanations">
+            <div class="gate">
+              <div class="gate-icon" style="background-color: #ff9d45;">
+                <span class="material-icons">filter_alt</span>
+              </div>
+              <div class="gate-details">
+                <h3>Forget Gate</h3>
+                <p>Controls what information to discard from the previous cell state. Values close to 1 keep information, while values close to 0 forget it.</p>
+                <div class="formula">{{ mathFormulas.forgetGate }}</div>
+              </div>
+            </div>
+            
+            <div class="gate">
+              <div class="gate-icon" style="background-color: #00c9ff;">
+                <span class="material-icons">add_circle</span>
+              </div>
+              <div class="gate-details">
+                <h3>Input Gate</h3>
+                <p>Decides which new information to store in the cell state by controlling how much of the candidate values get added.</p>
+                <div class="formula">{{ mathFormulas.inputGate }}</div>
+              </div>
+            </div>
+            
+            <div class="gate">
+              <div class="gate-icon" style="background-color: #7c4dff;">
+                <span class="material-icons">output</span>
+              </div>
+              <div class="gate-details">
+                <h3>Output Gate</h3>
+                <p>Determines what parts of the cell state should be exposed as the output (hidden state) for this time step.</p>
+                <div class="formula">{{ mathFormulas.outputGate }}</div>
+              </div>
+            </div>
+            
+            <div class="gate">
+              <div class="gate-icon" style="background-color: #2c5cbd;">
+                <span class="material-icons">memory</span>
+              </div>
+              <div class="gate-details">
+                <h3>Cell State</h3>
+                <p>Acts as a "memory highway" that runs through the entire sequence, allowing information to flow with minimal changes. This is the key to handling long-range dependencies.</p>
+                <div class="formula">{{ mathFormulas.cellState }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="learning-section">
+            <h3>Key Mathematics</h3>
+            <p>The LSTM architecture uses these key equations to process sequential data:</p>
+            <ul class="math-equations">
+              <li><strong>Forget Gate:</strong> {{ mathFormulas.forgetGate }}</li>
+              <li><strong>Input Gate:</strong> {{ mathFormulas.inputGate }}</li>
+              <li><strong>Candidate Values:</strong> {{ mathFormulas.candidateState }}</li>
+              <li><strong>Cell State Update:</strong> {{ mathFormulas.cellState }}</li>
+              <li><strong>Output Gate:</strong> {{ mathFormulas.outputGate }}</li>
+              <li><strong>Hidden State:</strong> {{ mathFormulas.hiddenState }}</li>
+            </ul>
+            <p>Where σ is the sigmoid function, tanh is the hyperbolic tangent function, and ⊙ represents element-wise multiplication.</p>
+          </div>
+        </div>
+  
+        <!-- Applications Tab -->
+        <div class="applications-content" *ngIf="activeTab === 'applications'">
+          <h2>LSTM Applications</h2>
+          <p>LSTMs excel at tasks involving sequential data with long-range dependencies. Some key applications include:</p>
+          
+          <div class="applications-grid">
+            <div class="application-card" *ngFor="let app of applications">
+              <div class="app-icon" [style.background-color]="app.color">
+                <span class="material-icons">{{ app.icon }}</span>
+              </div>
+              <div class="app-details">
+                <h3>{{ app.name }}</h3>
+                <p>{{ app.description }}</p>
+              </div>
+            </div>
+          </div>
+  
+          <div class="lstm-variants">
+            <h3>LSTM Variants</h3>
+            <div class="variant-grid">
+              <div class="variant-card">
+                <h4>Bidirectional LSTM</h4>
+                <p>Processes sequences in both forward and backward directions to capture context from both past and future states.</p>
+              </div>
+              <div class="variant-card">
+                <h4>Gated Recurrent Unit (GRU)</h4>
+                <p>A simplified version with fewer parameters that combines the forget and input gates into a single "update gate".</p>
+              </div>
+              <div class="variant-card">
+                <h4>Peephole LSTM</h4>
+                <p>Allows gate layers to "peek" at the cell state, providing more precise control over memory contents.</p>
+              </div>
+              <div class="variant-card">
+                <h4>Cell-LSTM</h4>
+                <p>Uses separate memory cells for different time scales to better handle both short and long-term dependencies.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Advantages Tab -->
+        <div class="advantages-content" *ngIf="activeTab === 'advantages'">
+          <h2>LSTM Advantages</h2>
+          <p>LSTMs offer significant improvements over traditional RNNs and other sequence models:</p>
+          
+          <div class="advantages-list">
+            <div class="advantage" *ngFor="let adv of advantages">
+              <div class="advantage-header">
+                <div class="advantage-icon" [style.background-color]="adv.color">
+                  <span class="material-icons">{{ adv.icon }}</span>
+                </div>
+                <h3>{{ adv.name }}</h3>
+              </div>
+              <p>{{ adv.description }}</p>
+            </div>
+          </div>
+  
+          <div class="comparison-section">
+            <h3>LSTM vs. Traditional RNN</h3>
+            <div class="comparison-table">
+              <div class="comparison-row header">
+                <div class="comparison-cell">Feature</div>
+                <div class="comparison-cell">Traditional RNN</div>
+                <div class="comparison-cell">LSTM</div>
+              </div>
+              <div class="comparison-row">
+                <div class="comparison-cell">Long-range Dependencies</div>
+                <div class="comparison-cell">Poor (vanishing gradient)</div>
+                <div class="comparison-cell">Excellent</div>
+              </div>
+              <div class="comparison-row">
+                <div class="comparison-cell">Memory Control</div>
+                <div class="comparison-cell">Limited</div>
+                <div class="comparison-cell">Fine-grained (gates)</div>
+              </div>
+              <div class="comparison-row">
+                <div class="comparison-cell">Parameter Count</div>
+                <div class="comparison-cell">Lower</div>
+                <div class="comparison-cell">Higher</div>
+              </div>
+              <div class="comparison-row">
+                <div class="comparison-cell">Training Stability</div>
+                <div class="comparison-cell">Unstable</div>
+                <div class="comparison-cell">More stable</div>
+              </div>
+              <div class="comparison-row">
+                <div class="comparison-cell">Computational Cost</div>
+                <div class="comparison-cell">Lower</div>
+                <div class="comparison-cell">Higher</div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Research Papers Tab -->
+        <div class="research-content" *ngIf="activeTab === 'research'">
+          <h2>Seminal Research Papers</h2>
+          <p>LSTM networks have evolved through influential research. These key papers established the foundation and improvements of LSTM architecture:</p>
+          
+          <div class="papers-list">
+            <div class="paper-card" *ngFor="let paper of researchPapers">
+              <div class="paper-header">
+                <h3>{{ paper.title }}</h3>
+                <div class="paper-meta">{{ paper.authors }} ({{ paper.year }})</div>
+                <div class="paper-journal">{{ paper.journal }}</div>
+              </div>
+              <p>{{ paper.description }}</p>
+              <a href="{{ paper.url }}" target="_blank" class="paper-link">Read Paper</a>
+            </div>
+          </div>
+  
+          <div class="timeline">
+            <h3>LSTM Research Timeline</h3>
+            <div class="timeline-container">
+              <div class="timeline-item">
+                <div class="timeline-marker" style="background-color: #4285f4;"></div>
+                <div class="timeline-year">1997</div>
+                <div class="timeline-content">Original LSTM paper published</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-marker" style="background-color: #00c9ff;"></div>
+                <div class="timeline-year">2000</div>
+                <div class="timeline-content">Forget gate added to LSTM</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-marker" style="background-color: #7c4dff;"></div>
+                <div class="timeline-year">2005</div>
+                <div class="timeline-content">Peephole connections introduced</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-marker" style="background-color: #ff9d45;"></div>
+                <div class="timeline-year">2014</div>
+                <div class="timeline-content">GRU (simplified LSTM) introduced</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-marker" style="background-color: #24b47e;"></div>
+                <div class="timeline-year">2017</div>
+                <div class="timeline-content">Comprehensive analysis of LSTM variants</div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Code Examples Tab -->
+        <div class="code-content" *ngIf="activeTab === 'code'">
+          <h2>LSTM Implementation Examples</h2>
+          <p>Below are basic implementations of LSTM networks in popular deep learning frameworks:</p>
+          
+          <div class="code-tabs">
+            <button class="code-tab-button" [class.active]="activeFramework === 'tensorflow'" (click)="showFramework('tensorflow')">TensorFlow/Keras</button>
+            <button class="code-tab-button" [class.active]="activeFramework === 'pytorch'" (click)="showFramework('pytorch')">PyTorch</button>
+          </div>
+          
+          <div class="framework-code" *ngIf="activeFramework === 'tensorflow'">
+            <h3>TensorFlow/Keras LSTM Implementation</h3>
+            <pre><code class="language-python">{{ codeExamples.tensorflow }}</code></pre>
+            <p class="code-explanation">This example shows how to create a simple LSTM network for sequence classification with TensorFlow/Keras. It uses an embedding layer followed by a single LSTM layer and a dense output layer with softmax activation.</p>
+          </div>
+          
+          <div class="framework-code" *ngIf="activeFramework === 'pytorch'">
+            <h3>PyTorch LSTM Implementation</h3>
+            <pre><code class="language-python">{{ codeExamples.pytorch }}</code></pre>
+            <p class="code-explanation">This example demonstrates a PyTorch implementation of an LSTM model class. It creates a configurable LSTM that can be adjusted by setting the input size, hidden size, number of layers, and output classes.</p>
+          </div>
+  
+          <div class="implementation-tips">
+            <h3>Implementation Tips</h3>
+            <ul>
+              <li><strong>Sequence Padding:</strong> Ensure input sequences are padded to the same length for batch processing.</li>
+              <li><strong>Gradient Clipping:</strong> Use gradient clipping to prevent exploding gradients during training.</li>
+              <li><strong>Dropout:</strong> Apply dropout for regularization, both on inputs and recurrent connections.</li>
+              <li><strong>Bidirectional:</strong> Consider bidirectional LSTMs for tasks where future context is available.</li>
+              <li><strong>Stacking:</strong> Multiple LSTM layers can improve learning complex patterns.</li>
+            </ul>
+          </div>
+        </div>
+  
+        <!-- Learning Resources Tab -->
+        <div class="resources-content" *ngIf="activeTab === 'resources'">
+          <h2>Learning Resources</h2>
+          <p>Expand your understanding of LSTM networks with these comprehensive resources:</p>
+          
+          <div class="resources-list">
+            <div class="resource-card" *ngFor="let resource of learningResources">
+              <div class="resource-icon" [ngClass]="resource.type.toLowerCase().replace(' ', '-')">
+                <span class="material-icons">{{ 
+                  resource.type === 'Blog Post' ? 'article' : 
+                  resource.type === 'Book Chapter' ? 'menu_book' : 
+                  resource.type === 'Course Material' ? 'school' : 'link'
+                }}</span>
+              </div>
+              <div class="resource-details">
+                <h3>{{ resource.title }}</h3>
+                <div class="resource-meta">{{ resource.author }} • {{ resource.type }}</div>
+                <p>{{ resource.description }}</p>
+                <a href="{{ resource.url }}" target="_blank" class="resource-link">Visit Resource</a>
+              </div>
+            </div>
+          </div>
+  
+          <div class="additional-tools">
+            <h3>Tools & Libraries</h3>
+            <div class="tools-grid">
+              <div class="tool-card">
+                <h4>TensorFlow</h4>
+                <p>Provides robust LSTM implementations through both the Keras API and low-level operations.</p>
+                <a href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/LSTM" target="_blank">Documentation</a>
+              </div>
+              <div class="tool-card">
+                <h4>PyTorch</h4>
+                <p>Offers flexible LSTM modules that can be customized for various applications.</p>
+                <a href="https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html" target="_blank">Documentation</a>
+              </div>
+              <div class="tool-card">
+                <h4>NLTK</h4>
+                <p>Natural Language Toolkit that can be used alongside LSTMs for text processing tasks.</p>
+                <a href="https://www.nltk.org/" target="_blank">Documentation</a>
+              </div>
+              <div class="tool-card">
+                <h4>Hugging Face</h4>
+                <p>Provides pre-trained models that incorporate LSTM architectures for NLP tasks.</p>
+                <a href="https://huggingface.co/" target="_blank">Documentation</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

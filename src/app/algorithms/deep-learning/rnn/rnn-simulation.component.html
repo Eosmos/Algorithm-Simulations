@@ -1,0 +1,241 @@
+<div class="rnn-simulation-container">
+    <div class="header">
+      <h1>Recurrent Neural Networks (RNNs)</h1>
+      <p class="subtitle">Interactive 3D Visualization & Simulation</p>
+    </div>
+  
+    <div class="content">
+      <div class="visualization-panel">
+        <div class="canvas-container">
+          <canvas #threeCanvas></canvas>
+          <app-rnn-visualization-guide [currentView]="selectedView"></app-rnn-visualization-guide>
+        </div>
+  
+        <div class="controls">
+          <div class="view-controls">
+            <span class="control-label">View:</span>
+            <div class="btn-group">
+              @for (option of viewOptions; track option.id) {
+                <button [class]="selectedView === option.id ? 'active' : ''" (click)="changeView(option.id)">{{ option.label }}</button>
+              }
+            </div>
+          </div>
+  
+          <div class="animation-controls">
+            <button class="icon-btn" title="Step Backward" (click)="stepBackward()">
+              <i class="fa fa-step-backward"></i>
+            </button>
+            <button class="icon-btn" title="Play/Pause" (click)="togglePlayPause()">
+              <i [class]="isPlaying ? 'fa fa-pause' : 'fa fa-play'"></i>
+            </button>
+            <button class="icon-btn" title="Step Forward" (click)="stepForward()">
+              <i class="fa fa-step-forward"></i>
+            </button>
+            <button class="icon-btn" title="Restart" (click)="restart()">
+              <i class="fa fa-refresh"></i>
+            </button>
+          </div>
+  
+          <div class="speed-control">
+            <span class="control-label">Speed:</span>
+            <input type="range" min="0.5" max="3" step="0.5" [value]="animationSpeed" (input)="changeSpeed($any($event.target).value)"/>
+          </div>
+  
+          <div class="mode-controls">
+            <span class="control-label">Simulation:</span>
+            <div class="btn-group">
+              @for (mode of simulationModes; track mode.id) {
+                <button [class]="selectedMode === mode.id ? 'active' : ''" (click)="changeMode(mode.id)">{{ mode.label }}</button>
+              }
+            </div>
+          </div>
+  
+          @if (selectedView === 'gradient') {
+            <div class="advanced-controls">
+              <label class="checkbox-container">
+                <input type="checkbox" [checked]="showVanishingGradient" (change)="toggleVanishingGradient()"/>
+                <span>Show Vanishing Gradient Effect</span>
+              </label>
+            </div>
+          }
+        </div>
+      </div>
+  
+      <div class="info-panel">
+        <div class="tabs">
+          <button [class]="activeTab === 'concept' ? 'active' : ''" (click)="changeTab('concept')">Concept</button>
+          <button [class]="activeTab === 'mechanism' ? 'active' : ''" (click)="changeTab('mechanism')">Mechanism</button>
+          <button [class]="activeTab === 'math' ? 'active' : ''" (click)="changeTab('math')">Equations</button>
+          <button [class]="activeTab === 'applications' ? 'active' : ''" (click)="changeTab('applications')">Applications</button>
+        </div>
+  
+        <div class="tab-content">
+          @if (activeTab === 'concept') {
+            <div class="content-section">
+              <h2>What are Recurrent Neural Networks?</h2>
+              <p>
+                Recurrent Neural Networks (RNNs) are neural networks designed to handle <strong>sequential data</strong> or <strong>time-series data</strong>. 
+                Unlike standard feedforward networks, RNNs have <strong>internal memory</strong> which allows them to persist information from previous inputs in the sequence to influence current and future outputs.
+              </p>
+              
+              <div class="info-card">
+                <h3>Key Characteristics</h3>
+                <ul>
+                  <li><strong>Recurrent Connections:</strong> Loops that allow information to persist from one time step to the next</li>
+                  <li><strong>Hidden State:</strong> Maintains a "memory" of previous inputs in the sequence</li>
+                  <li><strong>Parameter Sharing:</strong> The same weights are used across all time steps</li>
+                  <li><strong>Sequence Processing:</strong> Can handle variable-length sequences</li>
+                </ul>
+              </div>
+              
+              <p>
+                The 3D visualization shows how an RNN processes information over time. Each column represents a time step, with the sequence flowing from left to right. The purple neurons represent the hidden state that carries information between time steps.
+              </p>
+            </div>
+          }
+  
+          @if (activeTab === 'mechanism') {
+            <div class="content-section">
+              <h2>How RNNs Work</h2>
+              <p>
+                At each time step, the RNN:
+              </p>
+              <ol>
+                <li>Takes the current input (blue neurons)</li>
+                <li>Combines it with the previous hidden state (purple neurons)</li>
+                <li>Produces a new hidden state and output (cyan neurons)</li>
+              </ol>
+              
+              <div class="info-card">
+                <h3>Forward Pass (Unrolled Through Time)</h3>
+                <p>
+                  The animation shows the RNN "unrolled" through time, where each column is a copy of the network processing one element in the sequence. The orange connections between hidden states show how information flows across time steps.
+                </p>
+              </div>
+              
+              <div class="info-card">
+                <h3>Hidden State Visualization</h3>
+                <p>The chart below shows the values in the hidden state vector at the current time step:</p>
+                <div #hiddenStateChart class="chart-container"></div>
+                <p class="chart-tooltip">Hidden state acts as the network's memory</p>
+              </div>
+              
+              <div class="info-card">
+                <h3>Output Probabilities</h3>
+                <p>The chart below shows the output probabilities at the current time step:</p>
+                <div #outputChart class="chart-container"></div>
+                <p class="chart-tooltip">Output layer produces predictions based on the current hidden state</p>
+              </div>
+            </div>
+          }
+  
+          @if (activeTab === 'math') {
+            <div class="content-section">
+              <h2>RNN Equations</h2>
+              
+              <div class="info-card">
+                <h3>Hidden State Update</h3>
+                <app-equation-display type="hiddenState"></app-equation-display>
+                <p>
+                  <strong>Where:</strong>
+                </p>
+                <ul>
+                  <li><strong>x<sub>t</sub></strong>: Input vector at time step t</li>
+                  <li><strong>h<sub>t-1</sub></strong>: Hidden state from the previous time step</li>
+                  <li><strong>h<sub>t</sub></strong>: New hidden state for the current time step</li>
+                  <li><strong>W<sub>xh</sub></strong>: Weight matrix for input-to-hidden connections</li>
+                  <li><strong>W<sub>hh</sub></strong>: Weight matrix for hidden-to-hidden connections</li>
+                  <li><strong>b<sub>h</sub></strong>: Bias vector for hidden state</li>
+                  <li><strong>tanh</strong>: Hyperbolic tangent activation function</li>
+                </ul>
+              </div>
+              
+              <div class="info-card">
+                <h3>Output Calculation</h3>
+                <app-equation-display type="output"></app-equation-display>
+                <p>
+                  <strong>Where:</strong>
+                </p>
+                <ul>
+                  <li><strong>y<sub>t</sub></strong>: Output vector at time step t</li>
+                  <li><strong>W<sub>hy</sub></strong>: Weight matrix for hidden-to-output connections</li>
+                  <li><strong>b<sub>y</sub></strong>: Bias vector for output</li>
+                  <li><strong>softmax</strong>: Converts output to probabilities</li>
+                </ul>
+              </div>
+              
+              @if (selectedView === 'gradient') {
+                <div class="info-card">
+                  <h3>Vanishing Gradient Problem</h3>
+                  <p>
+                    During backpropagation through time (BPTT), gradients can diminish exponentially as they flow backward through time steps. This makes it difficult for the network to learn long-range dependencies.
+                  </p>
+                  <div #gradientChart class="chart-container"></div>
+                  <p class="chart-tooltip">Gradients can vanish when learning long sequences</p>
+                </div>
+              }
+            </div>
+          }
+  
+          @if (activeTab === 'applications') {
+            <div class="content-section">
+              <h2>RNN Applications</h2>
+              
+              <div class="info-card">
+                <h3>Text Generation</h3>
+                <p>
+                  RNNs can generate text by predicting one character or word at a time. The network is trained on text data and learns to predict the next element in a sequence based on previous elements.
+                </p>
+                @if (selectedMode === 'text-gen') {
+                  <div class="demo-container">
+                    <div class="input-section">
+                      <p><strong>Input Seed:</strong> {{ inputSequence }}</p>
+                    </div>
+                    <div class="output-section">
+                      <p><strong>Generated Output:</strong> {{ outputSequence }}</p>
+                      <p><strong>Epoch:</strong> {{ epoch }} | <strong>Loss:</strong> {{ loss.toFixed(4) }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+              
+              <div class="info-card">
+                <h3>Other Applications</h3>
+                <ul class="applications-list">
+                  <li>
+                    <strong>Natural Language Processing (NLP):</strong>
+                    <span>Language modeling, machine translation, sentiment analysis</span>
+                  </li>
+                  <li>
+                    <strong>Time Series Prediction:</strong>
+                    <span>Forecasting stock prices, weather patterns, energy consumption</span>
+                  </li>
+                  <li>
+                    <strong>Music Generation:</strong>
+                    <span>Composing sequences of musical notes based on patterns</span>
+                  </li>
+                  <li>
+                    <strong>Video Analysis:</strong>
+                    <span>Processing sequences of frames for action recognition</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div class="info-card">
+                <h3>Advanced RNN Variants</h3>
+                <p>
+                  Due to limitations like the vanishing gradient problem, more sophisticated RNN architectures have been developed:
+                </p>
+                <ul>
+                  <li><strong>Long Short-Term Memory (LSTM):</strong> Introduces gating mechanisms to better control information flow</li>
+                  <li><strong>Gated Recurrent Unit (GRU):</strong> A simplified version of LSTM with fewer parameters</li>
+                  <li><strong>Bidirectional RNNs:</strong> Process sequences in both forward and backward directions</li>
+                  <li><strong>Deep RNNs:</strong> Stack multiple recurrent layers for more complex representations</li>
+                </ul>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
