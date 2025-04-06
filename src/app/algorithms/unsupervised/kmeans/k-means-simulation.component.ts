@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, CommonModule } from '@angular/common';
 import * as d3 from 'd3';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -31,12 +31,12 @@ interface Dataset {
   templateUrl: './k-means-simulation.component.html',
   styleUrls: ['./k-means-simulation.component.scss'],
   standalone: true,
-  imports: [NgFor, NgIf]
+  imports: [CommonModule, NgFor, NgIf]
 })
 export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('visualizationContainer') visualizationContainer!: ElementRef;
-  @ViewChild('elbowChart') elbowChartRef!: ElementRef;
-  @ViewChild('canvas3d') canvas3dRef!: ElementRef;
+  @ViewChild('visualizationContainer') visualizationContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('elbowChart') elbowChartRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('canvas3d') canvas3dRef!: ElementRef<HTMLCanvasElement>;
 
   // Simulation parameters
   k: number = 3;
@@ -71,17 +71,17 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
   private yScale!: d3.ScaleLinear<number, number>;
   
   // THREE.js elements
-  private scene!: THREE.Scene;
-  private camera!: THREE.PerspectiveCamera;
-  private renderer!: THREE.WebGLRenderer;
-  private controls!: OrbitControls;
+  private scene?: THREE.Scene;
+  private camera?: THREE.PerspectiveCamera;
+  private renderer?: THREE.WebGLRenderer;
+  private controls?: OrbitControls;
   private pointMeshes: THREE.Mesh[] = [];
   private centroidMeshes: THREE.Mesh[] = [];
   private lineMeshes: THREE.Line[] = [];
   
   // Animation timers
-  private animationTimer: any;
-  private renderTimer: any;
+  private animationTimer: number | null = null;
+  private renderTimer: number | null = null;
 
   // Color schemes based on design guide
   readonly COLORS = {
@@ -131,15 +131,15 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
   ngAfterViewInit(): void {
     // Use a small timeout to ensure elements are rendered
     setTimeout(() => {
-      if (this.visualizationContainer) {
+      if (this.visualizationContainer?.nativeElement) {
         this.initializeVisualization();
       }
       
-      if (this.elbowChartRef) {
+      if (this.elbowChartRef?.nativeElement) {
         this.initializeElbowChart();
       }
       
-      if (this.canvas3dRef) {
+      if (this.canvas3dRef?.nativeElement) {
         this.initialize3DVisualization();
       }
       
@@ -150,24 +150,47 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
 
   ngOnDestroy(): void {
     this.stopAnimation();
-    if (this.renderTimer) {
+    if (this.renderTimer !== null) {
       cancelAnimationFrame(this.renderTimer);
+      this.renderTimer = null;
     }
+    
     // Clean up THREE.js resources
     if (this.renderer) {
       this.renderer.dispose();
     }
+    
     this.pointMeshes.forEach(mesh => {
-      mesh.geometry.dispose();
-      (mesh.material as THREE.Material).dispose();
+      if (mesh.geometry) mesh.geometry.dispose();
+      if (mesh.material) {
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach(material => material.dispose());
+        } else {
+          (mesh.material as THREE.Material).dispose();
+        }
+      }
     });
+    
     this.centroidMeshes.forEach(mesh => {
-      mesh.geometry.dispose();
-      (mesh.material as THREE.Material).dispose();
+      if (mesh.geometry) mesh.geometry.dispose();
+      if (mesh.material) {
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach(material => material.dispose());
+        } else {
+          (mesh.material as THREE.Material).dispose();
+        }
+      }
     });
+    
     this.lineMeshes.forEach(line => {
-      line.geometry.dispose();
-      (line.material as THREE.Material).dispose();
+      if (line.geometry) line.geometry.dispose();
+      if (line.material) {
+        if (Array.isArray(line.material)) {
+          line.material.forEach(material => material.dispose());
+        } else {
+          (line.material as THREE.Material).dispose();
+        }
+      }
     });
   }
 
@@ -199,9 +222,11 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private initializeVisualization(): void {
+    if (!this.visualizationContainer) return;
+    
     const container = this.visualizationContainer.nativeElement;
-    this.width = container.clientWidth;
-    this.height = container.clientHeight;
+    this.width = container.clientWidth || 600;
+    this.height = container.clientHeight || 500;
 
     // Remove existing SVG if present
     d3.select(container).select('svg').remove();
@@ -211,7 +236,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       .append('svg')
       .attr('width', this.width)
       .attr('height', this.height)
-      .attr('viewBox', [0, 0, this.width, this.height])
+      .attr('viewBox', `0 0 ${this.width} ${this.height}`)
       .style('background-color', this.COLORS.cardBackground);
 
     // Create scales
@@ -230,20 +255,20 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     this.svg.append('g')
       .attr('transform', `translate(0, ${this.height - 50})`)
       .attr('color', this.COLORS.textSecondary)
-      .call(xAxis as any);
+      .call(xAxis);
 
     this.svg.append('g')
       .attr('transform', `translate(50, 0)`)
       .attr('color', this.COLORS.textSecondary)
-      .call(yAxis as any);
+      .call(yAxis);
   }
 
   private initializeElbowChart(): void {
-    if (!this.elbowChartRef) return;
+    if (!this.elbowChartRef?.nativeElement) return;
     
     const container = this.elbowChartRef.nativeElement;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 600;
+    const height = container.clientHeight || 350;
 
     // Remove existing SVG if present
     d3.select(container).select('svg').remove();
@@ -253,7 +278,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       .append('svg')
       .attr('width', width)
       .attr('height', height)
-      .attr('viewBox', [0, 0, width, height])
+      .attr('viewBox', `0 0 ${width} ${height}`)
       .style('background-color', this.COLORS.cardBackground);
 
     // Add title
@@ -293,7 +318,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private initialize3DVisualization(): void {
-    if (!this.canvas3dRef || !this.canvas3dRef.nativeElement) {
+    if (!this.canvas3dRef?.nativeElement) {
       console.error('3D canvas reference not available');
       return;
     }
@@ -302,6 +327,11 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       const canvas = this.canvas3dRef.nativeElement;
       // Get computed dimensions from the element's parent container
       const parentElement = canvas.parentElement;
+      if (!parentElement) {
+        console.error('Canvas parent element not found');
+        return;
+      }
+      
       const width = parentElement.clientWidth || 600;
       const height = parentElement.clientHeight || 500;
       
@@ -312,15 +342,33 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
         this.renderer.dispose();
         this.pointMeshes.forEach(mesh => {
           if (mesh.geometry) mesh.geometry.dispose();
-          if (mesh.material) (mesh.material as THREE.Material).dispose();
+          if (mesh.material) {
+            if (Array.isArray(mesh.material)) {
+              mesh.material.forEach(material => material.dispose());
+            } else {
+              (mesh.material as THREE.Material).dispose();
+            }
+          }
         });
         this.centroidMeshes.forEach(mesh => {
           if (mesh.geometry) mesh.geometry.dispose();
-          if (mesh.material) (mesh.material as THREE.Material).dispose();
+          if (mesh.material) {
+            if (Array.isArray(mesh.material)) {
+              mesh.material.forEach(material => material.dispose());
+            } else {
+              (mesh.material as THREE.Material).dispose();
+            }
+          }
         });
         this.lineMeshes.forEach(line => {
           if (line.geometry) line.geometry.dispose();
-          if (line.material) (line.material as THREE.Material).dispose();
+          if (line.material) {
+            if (Array.isArray(line.material)) {
+              line.material.forEach(material => material.dispose());
+            } else {
+              (line.material as THREE.Material).dispose();
+            }
+          }
         });
       }
 
@@ -371,7 +419,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       this.scene.add(gridHelperXZ);
 
       // Start animation loop
-      if (this.renderTimer) {
+      if (this.renderTimer !== null) {
         cancelAnimationFrame(this.renderTimer);
       }
       this.animate3D();
@@ -771,6 +819,8 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
 
   // Visualization methods
   private updateVisualization(): void {
+    if (!this.svg) return;
+
     // Clear previous elements
     this.svg.selectAll('.data-point').remove();
     this.svg.selectAll('.centroid').remove();
@@ -786,11 +836,13 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
         .attr('x1', d => this.xScale(d.x))
         .attr('y1', d => this.yScale(d.y))
         .attr('x2', d => {
-          const centroid = this.centroids[d.cluster];
+          const centroid = d.cluster >= 0 && d.cluster < this.centroids.length ? 
+            this.centroids[d.cluster] : null;
           return centroid ? this.xScale(centroid.x) : this.xScale(d.x);
         })
         .attr('y2', d => {
-          const centroid = this.centroids[d.cluster];
+          const centroid = d.cluster >= 0 && d.cluster < this.centroids.length ? 
+            this.centroids[d.cluster] : null;
           return centroid ? this.yScale(centroid.y) : this.yScale(d.y);
         })
         .attr('stroke', d => d.cluster >= 0 ? this.COLORS.clusterColors[d.cluster % this.COLORS.clusterColors.length] : '#ffffff')
@@ -827,7 +879,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private updateElbowChart(): void {
-    if (!this.elbowChartRef || !this.elbowData.length) return;
+    if (!this.elbowChartRef?.nativeElement || !this.elbowData.length) return;
     
     const container = this.elbowChartRef.nativeElement;
     const width = container.clientWidth || 600;
@@ -853,7 +905,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       .append('svg')
       .attr('width', width)
       .attr('height', height)
-      .attr('viewBox', [0, 0, width, height])
+      .attr('viewBox', `0 0 ${width} ${height}`)
       .style('background-color', this.COLORS.cardBackground);
     
     // Add title
@@ -872,13 +924,13 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
       .attr('class', 'x-axis')
       .attr('transform', `translate(0, ${height - 50})`)
       .attr('color', this.COLORS.textSecondary)
-      .call(xAxis as any);
+      .call(xAxis);
     
     svg.append('g')
       .attr('class', 'y-axis')
       .attr('transform', `translate(50, 0)`)
       .attr('color', this.COLORS.textSecondary)
-      .call(yAxis as any);
+      .call(yAxis);
     
     // Add axis labels
     svg.append('text')
@@ -986,9 +1038,9 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     console.log('Updating 3D visualization with points:', this.points.length);
 
     // Clear previous objects
-    this.pointMeshes.forEach(mesh => this.scene.remove(mesh));
-    this.centroidMeshes.forEach(mesh => this.scene.remove(mesh));
-    this.lineMeshes.forEach(line => this.scene.remove(line));
+    this.pointMeshes.forEach(mesh => this.scene?.remove(mesh));
+    this.centroidMeshes.forEach(mesh => this.scene?.remove(mesh));
+    this.lineMeshes.forEach(line => this.scene?.remove(line));
     
     this.pointMeshes = [];
     this.centroidMeshes = [];
@@ -1005,7 +1057,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     // This ensures points keep their Z position throughout the simulation for consistency
     
     // If we haven't assigned 3D positions yet, create them
-    if (!this.points[0].hasOwnProperty('zPos')) {
+    if (!this.points[0]?.hasOwnProperty('zPos')) {
       console.log('Generating 3D positions for points');
       
       // Create a new property on each point for its z position
@@ -1076,7 +1128,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
         
         centroidPositions[i] = mesh.position.clone();
         
-        this.scene.add(mesh);
+        this.scene?.add(mesh);
         this.centroidMeshes.push(mesh);
       } catch (error) {
         console.error('Error creating 3D centroid:', error);
@@ -1105,11 +1157,11 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
           (point.zPos ?? 0) * scaleZ // Use nullish coalescing to handle undefined
         );
         
-        this.scene.add(mesh);
+        this.scene?.add(mesh);
         this.pointMeshes.push(mesh);
         
         // Add assignment lines in assign step
-        if (this.currentStep === 'assign' && point.cluster >= 0) {
+        if (this.currentStep === 'assign' && point.cluster >= 0 && point.cluster < this.centroids.length) {
           const centroidPos = centroidPositions[point.cluster];
           
           if (centroidPos) {
@@ -1130,7 +1182,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
             });
             
             const line = new THREE.Line(lineGeometry, lineMaterial);
-            this.scene.add(line);
+            this.scene?.add(line);
             this.lineMeshes.push(line);
           }
         }
@@ -1166,8 +1218,9 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     } catch (error) {
       console.error('Error in 3D animation loop:', error);
       // Cancel animation frame to stop the loop if there's an error
-      if (this.renderTimer) {
+      if (this.renderTimer !== null) {
         cancelAnimationFrame(this.renderTimer);
+        this.renderTimer = null;
       }
     }
   }
@@ -1224,7 +1277,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
           // Regenerate all z-positions if in 3D view to ensure proper visualization
           if (this.iterations % 5 === 0) { // Regenerate occasionally for visual interest
             this.points.forEach(point => {
-              point.zPos = undefined;
+              if (point) delete (point as any).zPos;
             });
           }
           this.update3DVisualization();
@@ -1266,8 +1319,9 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
 
   stopAnimation(): void {
     this.isPlaying = false;
-    if (this.animationTimer) {
+    if (this.animationTimer !== null) {
       clearTimeout(this.animationTimer);
+      this.animationTimer = null;
     }
   }
 
@@ -1276,7 +1330,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     
     this.nextStep();
     
-    this.animationTimer = setTimeout(() => {
+    this.animationTimer = window.setTimeout(() => {
       if (this.isPlaying) {
         this.runAnimationStep();
       }
@@ -1292,19 +1346,20 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
-  changeK(newK: number): void {
+  changeK(newK: string | number): void {
     // Ensure k is a number and within reasonable bounds
-    newK = Math.max(1, Math.min(parseInt(newK as any) || 2, Math.min(10, Math.floor(this.points.length / 5))));
+    const kValue = typeof newK === 'string' ? parseInt(newK, 10) : newK;
+    const validK = Math.max(1, Math.min(kValue || 2, Math.min(10, Math.floor(this.points.length / 5))));
     
     // Only update if the value actually changed
-    if (this.k !== newK) {
-      console.log(`Changing k from ${this.k} to ${newK}`);
-      this.k = newK;
+    if (this.k !== validK) {
+      console.log(`Changing k from ${this.k} to ${validK}`);
+      this.k = validK;
       
       // Reset 3D positions when changing k if in 3D view
       if (this.show3D) {
         this.points.forEach(point => {
-          point.zPos = undefined;
+          if (point) delete (point as any).zPos;
         });
       }
       
@@ -1312,17 +1367,20 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
-  changeDataset(index: number): void {
-    this.selectedDatasetIndex = index;
-    this.points = [...this.datasets[index].points];
-    
-    // When changing datasets, clear any existing 3D positions 
-    // to regenerate them for the new dataset
-    this.points.forEach(point => {
-      point.zPos = undefined;
-    });
-    
-    this.resetSimulation();
+  changeDataset(index: number | string): void {
+    const datasetIndex = typeof index === 'string' ? parseInt(index, 10) : index;
+    if (datasetIndex >= 0 && datasetIndex < this.datasets.length) {
+      this.selectedDatasetIndex = datasetIndex;
+      this.points = [...this.datasets[datasetIndex].points];
+      
+      // When changing datasets, clear any existing 3D positions 
+      // to regenerate them for the new dataset
+      this.points.forEach(point => {
+        if (point) delete (point as any).zPos;
+      });
+      
+      this.resetSimulation();
+    }
   }
 
   changeInitMethod(method: 'random' | 'kmeansplusplus'): void {
@@ -1331,7 +1389,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
     // Reset 3D positions when changing initialization method if in 3D view
     if (this.show3D) {
       this.points.forEach(point => {
-        point.zPos = undefined;
+        if (point) delete (point as any).zPos;
       });
     }
     
@@ -1453,7 +1511,7 @@ export class KMeansSimulationComponent implements OnInit, AfterViewInit, OnDestr
         
         // Clear existing 3D coordinates to force regeneration
         this.points.forEach(point => {
-          point.zPos = undefined;
+          if (point) delete (point as any).zPos;
         });
         
         // Re-initialize the 3D view when toggling to ensure proper setup

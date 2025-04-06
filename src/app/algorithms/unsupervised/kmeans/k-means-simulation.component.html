@@ -26,14 +26,14 @@
         <div class="step-controls">
           <div class="animation-controls">
             <button class="btn" (click)="resetSimulation()" [disabled]="animationInProgress">
-              <span class="material-icons">restart_alt</span> Reset
+              ↺ Reset
             </button>
             <button class="btn" (click)="togglePlayPause()" [disabled]="animationInProgress">
-              <span class="material-icons">{{ isPlaying ? 'pause' : 'play_arrow' }}</span>
+              {{ isPlaying ? '⏸' : '▶' }}
               {{ isPlaying ? 'Pause' : 'Play' }}
             </button>
             <button class="btn" (click)="nextStep()" [disabled]="isPlaying || animationInProgress">
-              <span class="material-icons">skip_next</span> Step
+              ⏭ Step
             </button>
           </div>
 
@@ -41,9 +41,9 @@
             <label>Animation Speed:</label>
             <div class="speed-selector">
               <span>Slow</span>
-              <input type="range" min="100" max="2000" step="100" 
+              <input #speedInput type="range" min="100" max="2000" step="100" 
                      [value]="2100 - animationSpeed" 
-                     (input)="changeAnimationSpeed(2100 - $any($event.target).value)">
+                     (input)="changeAnimationSpeed(2100 - +speedInput.value)">
               <span>Fast</span>
             </div>
           </div>
@@ -53,7 +53,8 @@
           <div class="parameter">
             <label for="k-value">Number of Clusters (k):</label>
             <div class="parameter-input">
-              <input type="range" id="k-value" min="2" [max]="maxK" [value]="k" (change)="changeK($any($event.target).value)">
+              <input #kInput type="range" id="k-value" min="2" [max]="maxK" [value]="k" 
+                    (change)="changeK(kInput.value)">
               <span class="parameter-value">{{ k }}</span>
             </div>
           </div>
@@ -71,7 +72,7 @@
           <div class="parameter">
             <label>Dataset:</label>
             <div class="dataset-selector">
-              <select (change)="changeDataset($any($event.target).value)">
+              <select #datasetSelect (change)="changeDataset(datasetSelect.value)">
                 <option *ngFor="let dataset of datasets; let i = index" [value]="i" [selected]="i === selectedDatasetIndex">
                   {{ dataset.name }}
                 </option>
