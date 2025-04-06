@@ -43,18 +43,29 @@ $shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
 $shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
 $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
 
+// Media breakpoints
+$breakpoint-xs: 480px;
+$breakpoint-sm: 768px;
+$breakpoint-md: 992px;
+$breakpoint-lg: 1200px;
+$breakpoint-xl: 1400px;
+
 // Apply global styles
 .random-forest-container {
   font-family: 'Inter', 'Roboto', sans-serif;
   color: $light-gray;
   background-color: $darkest-blue;
-  padding: $spacing-xl;
+  padding: $spacing-md;
   width: 100%;
-  min-height: 100vh;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
+  overflow-x: hidden;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: $spacing-xl;
+  }
 }
 
 // Header styles
@@ -63,31 +74,70 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
   margin-bottom: $spacing-xl;
 
   h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     margin-bottom: $spacing-md;
     background: linear-gradient(135deg, $primary-blue, $purple);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 2.5rem;
+    }
   }
 
   .description {
-    font-size: 1.2rem;
-    max-width: 800px;
-    margin: 0 auto;
+    font-size: 1rem;
+    max-width: 90%;
+    margin: 0 auto $spacing-md auto;
     color: $muted-blue;
+    line-height: 1.6;
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 1.2rem;
+      max-width: 800px;
+    }
+  }
+  
+  .view-mode-toggle {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-md;
+    margin-top: $spacing-lg;
+    
+    button {
+      background-color: $medium-blue;
+      color: $light-gray;
+      border: none;
+      border-radius: $radius-sm;
+      padding: $spacing-sm $spacing-lg;
+      cursor: pointer;
+      transition: all $transition-fast;
+      font-weight: 500;
+      
+      &:hover {
+        background-color: $light-blue-hover;
+      }
+      
+      &.active {
+        background-color: $primary-blue;
+        box-shadow: $shadow-sm;
+      }
+    }
   }
 }
 
 // Controls container
 .controls-container {
   display: flex;
+  flex-direction: column;
   gap: $spacing-xl;
   margin-bottom: $spacing-xl;
 
-  @media (max-width: 1200px) {
-    flex-direction: column;
+  @media (min-width: $breakpoint-md) {
+    flex-direction: row;
   }
 }
 
@@ -95,18 +145,38 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
 .control-panel {
   background-color: $dark-blue-bg;
   border-radius: $radius-md;
-  padding: $spacing-lg;
+  padding: $spacing-md;
   box-shadow: $shadow-md;
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
   flex: 1;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
 
   h3 {
     margin-top: 0;
     margin-bottom: $spacing-md;
     color: $white;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    position: relative;
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 1.3rem;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-blue, $purple);
+      border-radius: 3px;
+    }
   }
 }
 
@@ -120,6 +190,11 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-wrap: wrap;
     gap: $spacing-sm;
+    justify-content: center;
+    
+    @media (min-width: $breakpoint-sm) {
+      justify-content: flex-start;
+    }
   }
 
   .control-btn {
@@ -134,6 +209,13 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
     align-items: center;
     gap: $spacing-xs;
     font-weight: 500;
+    flex-grow: 1;
+    justify-content: center;
+    max-width: 100px;
+    
+    @media (min-width: $breakpoint-sm) {
+      flex-grow: 0;
+    }
 
     &:hover:not(:disabled) {
       background-color: $light-blue-hover;
@@ -152,11 +234,20 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
   .speed-control {
     display: flex;
     align-items: center;
-    gap: $spacing-md;
+    gap: $spacing-sm;
     margin-top: $spacing-sm;
+    
+    @media (min-width: $breakpoint-sm) {
+      gap: $spacing-md;
+    }
 
     label {
-      min-width: 120px;
+      min-width: 50px;
+      white-space: nowrap;
+      
+      @media (min-width: $breakpoint-sm) {
+        min-width: 60px;
+      }
     }
 
     input[type="range"] {
@@ -196,10 +287,21 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
     gap: $spacing-md;
 
     label {
-      min-width: 120px;
+      min-width: 70px;
       display: flex;
       align-items: center;
       gap: $spacing-xs;
+      
+      @media (min-width: $breakpoint-sm) {
+        min-width: 80px;
+      }
+    }
+
+    &.checkbox-group {
+      label {
+        min-width: auto;
+        margin-right: $spacing-xs;
+      }
     }
 
     input[type="range"] {
@@ -224,11 +326,41 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
       width: 18px;
       height: 18px;
       accent-color: $primary-blue;
+      margin-right: $spacing-xs;
     }
 
     span {
       min-width: 30px;
       text-align: right;
+    }
+    
+    .tooltip {
+      color: $info-blue;
+      font-size: 0.9rem;
+      cursor: help;
+      position: relative;
+      
+      &:hover::before {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: $dark-blue-bg;
+        color: $light-gray;
+        padding: $spacing-sm $spacing-md;
+        border-radius: $radius-sm;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        width: max-content;
+        max-width: 200px;
+        box-shadow: $shadow-md;
+        z-index: 10;
+        
+        @media (min-width: $breakpoint-sm) {
+          white-space: normal;
+        }
+      }
     }
   }
 }
@@ -237,21 +369,74 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
 .explanation-panel {
   background-color: $dark-blue-bg;
   border-radius: $radius-md;
-  padding: $spacing-lg;
+  padding: $spacing-md;
   box-shadow: $shadow-md;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
 
   h3 {
     margin-top: 0;
     margin-bottom: $spacing-md;
     color: $white;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    position: relative;
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 1.3rem;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-blue, $purple);
+      border-radius: 3px;
+    }
   }
 
   .explanation-content {
     line-height: 1.6;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: $light-gray;
+    flex: 1;
+    margin-bottom: $spacing-lg;
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .simulation-progress {
+    margin-top: auto;
+    
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background-color: $medium-blue;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: $spacing-sm;
+      
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, $cyan, $primary-blue);
+        transition: width $transition-normal;
+      }
+    }
+    
+    .step-indicator {
+      text-align: right;
+      font-size: 0.9rem;
+      color: $muted-blue;
+    }
   }
 }
 
@@ -260,13 +445,21 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .visualization-row {
   display: flex;
+  flex-direction: column;
   gap: $spacing-xl;
-
-  @media (max-width: 1200px) {
+  width: 100%;
+  
+  @media (min-width: $breakpoint-md) {
+    flex-direction: row;
+  }
+  
+  &.single-row {
     flex-direction: column;
   }
 }
@@ -274,18 +467,42 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
 .visualization-card {
   background-color: $dark-blue-bg;
   border-radius: $radius-md;
-  padding: $spacing-lg;
+  padding: $spacing-md;
   box-shadow: $shadow-md;
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
 
   h3 {
     margin-top: 0;
     margin-bottom: $spacing-md;
     color: $white;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     text-align: center;
+    position: relative;
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 1.3rem;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-blue, $purple);
+      border-radius: 3px;
+    }
   }
 
   .visualization-content {
@@ -295,6 +512,24 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
     justify-content: center;
     align-items: center;
     position: relative;
+    overflow: hidden;
+    
+    @media (min-width: $breakpoint-sm) {
+      min-height: 300px;
+    }
+  }
+  
+  .viz-tooltip {
+    position: absolute;
+    bottom: $spacing-sm;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: $info-blue;
+    background-color: rgba($darkest-blue, 0.8);
+    padding: $spacing-xs $spacing-md;
+    border-radius: $radius-sm;
+    white-space: nowrap;
   }
 }
 
@@ -302,49 +537,214 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
 .visualization-3d-container {
   background-color: $dark-blue-bg;
   border-radius: $radius-md;
-  padding: $spacing-lg;
+  padding: $spacing-md;
   box-shadow: $shadow-md;
   margin-top: $spacing-xl;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
 
   h2 {
     margin-top: 0;
     margin-bottom: $spacing-lg;
     color: $white;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     text-align: center;
+    position: relative;
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 1.5rem;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-blue, $purple);
+      border-radius: 3px;
+    }
   }
 
   .canvas-3d {
     width: 100%;
-    height: 400px;
+    height: 300px;
     border-radius: $radius-sm;
     background-color: $darkest-blue;
+    cursor: grab;
+    
+    @media (min-width: $breakpoint-sm) {
+      height: 400px;
+    }
+    
+    &:active {
+      cursor: grabbing;
+    }
+  }
+  
+  .canvas-instruction {
+    position: absolute;
+    bottom: $spacing-md;
+    right: $spacing-md;
+    font-size: 0.8rem;
+    color: $muted-blue;
+    background-color: rgba($darkest-blue, 0.8);
+    padding: $spacing-xs $spacing-md;
+    border-radius: $radius-sm;
+  }
+}
+
+// Research section
+.research-section {
+  background-color: $dark-blue-bg;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  box-shadow: $shadow-md;
+  margin-top: $spacing-xl;
+  width: 100%;
+  box-sizing: border-box;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
+  
+  h2 {
+    margin-top: 0;
+    margin-bottom: $spacing-lg;
+    color: $white;
+    font-size: 1.3rem;
+    text-align: center;
+    position: relative;
+    
+    @media (min-width: $breakpoint-sm) {
+      font-size: 1.5rem;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-blue, $purple);
+      border-radius: 3px;
+    }
+  }
+  
+  .paper-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-lg;
+    justify-content: center;
+    
+    .paper-card {
+      background-color: $medium-blue;
+      border-radius: $radius-sm;
+      padding: $spacing-md;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: $shadow-sm;
+      
+      @media (min-width: $breakpoint-sm) {
+        width: calc(50% - #{$spacing-lg});
+      }
+      
+      @media (min-width: $breakpoint-lg) {
+        width: 300px;
+      }
+      
+      h3 {
+        margin-top: 0;
+        margin-bottom: $spacing-md;
+        font-size: 1.1rem;
+        color: $white;
+        
+        @media (min-width: $breakpoint-sm) {
+          font-size: 1.2rem;
+        }
+      }
+      
+      p {
+        margin: $spacing-sm 0;
+        font-size: 0.9rem;
+        color: $light-gray;
+        
+        &.paper-author {
+          color: $info-blue;
+          font-weight: 500;
+        }
+        
+        &.paper-journal {
+          font-style: italic;
+        }
+        
+        &.paper-doi {
+          color: $muted-blue;
+          font-size: 0.8rem;
+        }
+      }
+      
+      .paper-link {
+        display: inline-block;
+        margin-top: $spacing-md;
+        background-color: $primary-blue;
+        color: $white;
+        text-decoration: none;
+        padding: $spacing-sm $spacing-md;
+        border-radius: $radius-sm;
+        font-size: 0.9rem;
+        transition: background-color $transition-fast;
+        
+        &:hover {
+          background-color: $dark-blue;
+        }
+      }
+    }
   }
 }
 
 // Info section
 .info-section {
   display: flex;
+  flex-direction: column;
   gap: $spacing-xl;
   margin-top: $spacing-xl;
-
-  @media (max-width: 900px) {
-    flex-direction: column;
+  width: 100%;
+  
+  @media (min-width: $breakpoint-md) {
+    flex-direction: row;
   }
 
   .info-card {
     background-color: $dark-blue-bg;
     border-radius: $radius-md;
-    padding: $spacing-lg;
+    padding: $spacing-md;
     box-shadow: $shadow-md;
     flex: 1;
+    
+    @media (min-width: $breakpoint-sm) {
+      padding: $spacing-lg;
+    }
 
     h3 {
       margin-top: 0;
       margin-bottom: $spacing-md;
       color: $white;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       position: relative;
+      
+      @media (min-width: $breakpoint-sm) {
+        font-size: 1.3rem;
+      }
       
       &::after {
         content: '';
@@ -361,6 +761,11 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
     p {
       line-height: 1.6;
       color: $light-gray;
+      font-size: 0.95rem;
+      
+      @media (min-width: $breakpoint-sm) {
+        font-size: 1rem;
+      }
     }
 
     ul {
@@ -371,6 +776,11 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
         margin-bottom: $spacing-sm;
         color: $light-gray;
         line-height: 1.6;
+        font-size: 0.95rem;
+        
+        @media (min-width: $breakpoint-sm) {
+          font-size: 1rem;
+        }
         
         strong {
           color: $white;
@@ -386,26 +796,26 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
     width: 100%;
     height: 100%;
   }
+  
+  cursor: pointer;
 }
 
-.tree-viz {
+.tree-viz,
+.forest-viz,
+.prediction-viz,
+.feature-importance-viz,
+.oob-error-viz,
+.comparison-viz {
   svg {
     width: 100%;
     height: 100%;
-  }
-}
-
-.forest-viz {
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.prediction-viz {
-  svg {
-    width: 100%;
-    height: 100%;
+    
+    // Fix for preserve aspect ratio
+    &[preserveAspectRatio="xMidYMid meet"] {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
   }
 }
 
@@ -429,21 +839,31 @@ $shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.5s ease-in;
 }
 
-// Add responsive adjustments
-@media (max-width: 768px) {
+// Print styles to ensure PDFs/printing looks good
+@media print {
   .random-forest-container {
-    padding: $spacing-md;
+    background-color: white;
+    color: black;
+    padding: 20px;
   }
-
-  .header h1 {
-    font-size: 2rem;
+  
+  .visualization-card, 
+  .control-panel, 
+  .explanation-panel,
+  .visualization-3d-container,
+  .research-section,
+  .info-card {
+    background-color: white;
+    color: black;
+    box-shadow: none;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
-
-  .visualization-content {
-    min-height: 200px;
-  }
-
-  .canvas-3d {
-    height: 300px;
+  
+  .canvas-3d,
+  .button-group,
+  .view-mode-toggle {
+    display: none;
   }
 }

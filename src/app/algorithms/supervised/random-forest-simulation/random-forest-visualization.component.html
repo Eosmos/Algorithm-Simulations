@@ -1,163 +1,247 @@
 <div class="random-forest-container">
-    <!-- Header Section -->
-    <div class="header">
-      <h1>Random Forest Algorithm Visualization</h1>
-      <p class="description">
-        Explore how Random Forests combine multiple decision trees to improve prediction accuracy and reduce overfitting.
-      </p>
+  <!-- Header Section -->
+  <div class="header">
+    <h1>Random Forest Algorithm Visualization</h1>
+    <p class="description">
+      Explore how Random Forests combine multiple decision trees to improve prediction accuracy and reduce overfitting.
+    </p>
+    <div class="view-mode-toggle">
+      <button [class.active]="viewMode === 'basic'" (click)="onViewModeChange('basic')">Basic View</button>
+      <button [class.active]="viewMode === 'advanced'" (click)="onViewModeChange('advanced')">Advanced View</button>
     </div>
-  
-    <!-- Controls Section -->
-    <div class="controls-container">
-      <div class="control-panel">
-        <div class="simulation-controls">
-          <h3>Simulation Controls</h3>
-          <div class="button-group">
-            <button class="control-btn" (click)="startSimulation()" [disabled]="simulationState === 'playing'">
-              <i class="fas fa-play"></i> Play
-            </button>
-            <button class="control-btn" (click)="pauseSimulation()" [disabled]="simulationState !== 'playing'">
-              <i class="fas fa-pause"></i> Pause
-            </button>
-            <button class="control-btn" (click)="stopSimulation()" [disabled]="simulationState === 'stopped'">
-              <i class="fas fa-stop"></i> Reset
-            </button>
-            <button class="control-btn" (click)="previousStep()" [disabled]="currentStepIndex === 0">
-              <i class="fas fa-step-backward"></i> Previous
-            </button>
-            <button class="control-btn" (click)="nextStep()">
-              <i class="fas fa-step-forward"></i> Next
-            </button>
-          </div>
-          <div class="speed-control">
-            <label for="simulation-speed">Simulation Speed:</label>
+  </div>
+
+  <!-- Controls Section -->
+  <div class="controls-container">
+    <div class="control-panel">
+      <div class="simulation-controls">
+        <h3>Simulation Controls</h3>
+        <div class="button-group">
+          <button class="control-btn" (click)="startSimulation()" [disabled]="simulationState === 'playing'" title="Start the simulation">
+            <i class="fas fa-play"></i> Play
+          </button>
+          <button class="control-btn" (click)="pauseSimulation()" [disabled]="simulationState !== 'playing'" title="Pause the simulation">
+            <i class="fas fa-pause"></i> Pause
+          </button>
+          <button class="control-btn" (click)="stopSimulation()" [disabled]="simulationState === 'stopped'" title="Reset the simulation">
+            <i class="fas fa-stop"></i> Reset
+          </button>
+          <button class="control-btn" (click)="previousStep()" [disabled]="currentStepIndex === 0" title="Go to previous step">
+            <i class="fas fa-step-backward"></i> Previous
+          </button>
+          <button class="control-btn" (click)="nextStep()" title="Go to next step">
+            <i class="fas fa-step-forward"></i> Next
+          </button>
+        </div>
+        <div class="speed-control">
+          <label for="simulation-speed">Speed:</label>
+          <input 
+            type="range" 
+            id="simulation-speed" 
+            min="500" 
+            max="5000" 
+            step="500" 
+            [value]="simulationSpeed" 
+            (change)="onSimulationSpeedChange($event)">
+          <span>{{ simulationSpeed / 1000 }}s</span>
+        </div>
+      </div>
+      <div class="parameter-controls">
+        <h3>Algorithm Parameters</h3>
+        <div class="parameter-group">
+          <label for="num-trees">Trees:</label>
+          <input 
+            type="range" 
+            id="num-trees" 
+            min="1" 
+            max="10" 
+            step="1" 
+            [value]="numTrees" 
+            (change)="onNumTreesChange($event)">
+          <span>{{ numTrees }}</span>
+        </div>
+        <div class="parameter-group">
+          <label for="max-depth">Depth:</label>
+          <input 
+            type="range" 
+            id="max-depth" 
+            min="1" 
+            max="5" 
+            step="1" 
+            [value]="maxDepth" 
+            (change)="onMaxDepthChange($event)">
+          <span>{{ maxDepth }}</span>
+        </div>
+        <div class="parameter-group">
+          <label for="num-samples">Samples:</label>
+          <input 
+            type="range" 
+            id="num-samples" 
+            min="50" 
+            max="200" 
+            step="10" 
+            [value]="numSamples" 
+            (change)="onNumSamplesChange($event)">
+          <span>{{ numSamples }}</span>
+        </div>
+        <div class="parameter-group checkbox-group">
+          <label for="feature-randomness">
             <input 
-              type="range" 
-              id="simulation-speed" 
-              min="500" 
-              max="5000" 
-              step="500" 
-              [value]="simulationSpeed" 
-              (change)="onSimulationSpeedChange($event)">
-            <span>{{ simulationSpeed / 1000 }}s</span>
-          </div>
+              type="checkbox" 
+              id="feature-randomness" 
+              [checked]="featureRandomness" 
+              (change)="onFeatureRandomnessChange($event)">
+            Feature Randomness
+          </label>
+          <span class="tooltip" title="When enabled, each tree will use only a random subset of features at each split, creating more diverse trees.">ⓘ</span>
         </div>
-        <div class="parameter-controls">
-          <h3>Algorithm Parameters</h3>
-          <div class="parameter-group">
-            <label for="num-trees">Number of Trees:</label>
+        <div class="parameter-group checkbox-group">
+          <label for="show-test-sample">
             <input 
-              type="range" 
-              id="num-trees" 
-              min="1" 
-              max="10" 
-              step="1" 
-              [value]="numTrees" 
-              (change)="onNumTreesChange($event)">
-            <span>{{ numTrees }}</span>
-          </div>
-          <div class="parameter-group">
-            <label for="max-depth">Max Tree Depth:</label>
+              type="checkbox" 
+              id="show-test-sample" 
+              [checked]="showTestSample" 
+              (change)="onShowTestSampleChange($event)">
+            Show Test Sample
+          </label>
+          <span class="tooltip" title="When enabled, a test sample will be shown that you can position by clicking in the dataset visualization.">ⓘ</span>
+        </div>
+        <div class="parameter-group checkbox-group" *ngIf="viewMode === 'advanced'">
+          <label for="show-oob-samples">
             <input 
-              type="range" 
-              id="max-depth" 
-              min="1" 
-              max="5" 
-              step="1" 
-              [value]="maxDepth" 
-              (change)="onMaxDepthChange($event)">
-            <span>{{ maxDepth }}</span>
-          </div>
-          <div class="parameter-group">
-            <label for="feature-randomness">
-              <input 
-                type="checkbox" 
-                id="feature-randomness" 
-                [checked]="featureRandomness" 
-                (change)="onFeatureRandomnessChange($event)">
-              Feature Randomness
-            </label>
-          </div>
-          <div class="parameter-group">
-            <label for="show-test-sample">
-              <input 
-                type="checkbox" 
-                id="show-test-sample" 
-                [checked]="showTestSample" 
-                (change)="onShowTestSampleChange($event)">
-              Show Test Sample
-            </label>
-          </div>
+              type="checkbox" 
+              id="show-oob-samples" 
+              [checked]="showOobSamples" 
+              (change)="onShowOobSamplesChange($event)">
+            OOB Samples
+          </label>
+          <span class="tooltip" title="When enabled, out-of-bag samples (not used in bootstrap sample) will be highlighted.">ⓘ</span>
         </div>
-      </div>
-  
-      <!-- Explanation Panel -->
-      <div class="explanation-panel">
-        <h3>Explanation</h3>
-        <div class="explanation-content">
-          {{ currentExplanation }}
+        <div class="parameter-group checkbox-group" *ngIf="viewMode === 'advanced'">
+          <label for="show-single-tree">
+            <input 
+              type="checkbox" 
+              id="show-single-tree" 
+              [checked]="showSingleTree" 
+              (change)="onShowSingleTreeChange($event)">
+            Single Tree
+          </label>
+          <span class="tooltip" title="When enabled, shows a single decision tree for comparison with the Random Forest.">ⓘ</span>
         </div>
       </div>
     </div>
-  
-    <!-- Visualization Section -->
-    <div class="visualization-container">
-      <div class="visualization-row">
-        <div class="visualization-card">
-          <h3>Dataset</h3>
-          <div #datasetContainer class="visualization-content dataset-viz"></div>
-        </div>
-        <div class="visualization-card">
-          <h3>Decision Tree</h3>
-          <div #treeContainer class="visualization-content tree-viz"></div>
-        </div>
+
+    <!-- Explanation Panel -->
+    <div class="explanation-panel">
+      <h3>Explanation</h3>
+      <div class="explanation-content">
+        {{ currentExplanation }}
       </div>
-      <div class="visualization-row">
-        <div class="visualization-card">
-          <h3>Random Forest</h3>
-          <div #forestContainer class="visualization-content forest-viz"></div>
+      <div class="simulation-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="(currentStepIndex / getStepsLength()) * 100"></div>
         </div>
-        <div class="visualization-card">
-          <h3>Prediction</h3>
-          <div #predictionContainer class="visualization-content prediction-viz"></div>
-        </div>
-      </div>
-    </div>
-  
-    <!-- 3D Visualization -->
-    <div class="visualization-3d-container">
-      <h2>3D Forest Visualization</h2>
-      <canvas #canvas3d class="canvas-3d"></canvas>
-    </div>
-  
-    <!-- Info Section -->
-    <div class="info-section">
-      <div class="info-card">
-        <h3>What are Random Forests?</h3>
-        <p>
-          Random Forests are an ensemble learning method that combines multiple decision trees to improve 
-          prediction accuracy and reduce overfitting. Each tree is trained on a random subset of the data 
-          (bootstrapping) and considers only a random subset of features at each split.
-        </p>
-      </div>
-      <div class="info-card">
-        <h3>Key Components</h3>
-        <ul>
-          <li><strong>Bootstrapping:</strong> Random sampling with replacement creates diverse training sets</li>
-          <li><strong>Feature Randomness:</strong> Only considering a subset of features at each split adds diversity</li>
-          <li><strong>Decision Trees:</strong> Simple models that make decisions based on feature thresholds</li>
-          <li><strong>Aggregation:</strong> Combining predictions through voting (classification) or averaging (regression)</li>
-        </ul>
-      </div>
-      <div class="info-card">
-        <h3>Advantages</h3>
-        <ul>
-          <li>Reduces overfitting compared to single decision trees</li>
-          <li>Handles high-dimensional data well</li>
-          <li>Provides feature importance metrics</li>
-          <li>Robust to outliers and noise</li>
-          <li>Works well for both classification and regression</li>
-        </ul>
+        <div class="step-indicator">Step {{ currentStepIndex + 1 }} of {{ getStepsLength() }}</div>
       </div>
     </div>
   </div>
+
+  <!-- Visualization Section -->
+  <div class="visualization-container">
+    <div class="visualization-row">
+      <div class="visualization-card">
+        <h3>Dataset</h3>
+        <div #datasetContainer class="visualization-content dataset-viz" (click)="setTestSamplePosition($event)"></div>
+        <div class="viz-tooltip" *ngIf="showTestSample">Click to position test sample</div>
+      </div>
+      <div class="visualization-card">
+        <h3>Decision Tree</h3>
+        <div #treeContainer class="visualization-content tree-viz"></div>
+      </div>
+    </div>
+    <div class="visualization-row">
+      <div class="visualization-card">
+        <h3>Random Forest</h3>
+        <div #forestContainer class="visualization-content forest-viz"></div>
+      </div>
+      <div class="visualization-card">
+        <h3>Prediction</h3>
+        <div #predictionContainer class="visualization-content prediction-viz"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Visualizations (Only shown in advanced mode) -->
+  <div class="visualization-container" *ngIf="viewMode === 'advanced'">
+    <div class="visualization-row">
+      <div class="visualization-card">
+        <h3>Feature Importance</h3>
+        <div #featureImportanceContainer class="visualization-content feature-importance-viz"></div>
+      </div>
+      <div class="visualization-card">
+        <h3>Out-of-Bag Error</h3>
+        <div #oobErrorContainer class="visualization-content oob-error-viz"></div>
+      </div>
+    </div>
+    <div class="visualization-row single-row">
+      <div class="visualization-card">
+        <h3>Single Tree vs Random Forest Comparison</h3>
+        <div #comparisonContainer class="visualization-content comparison-viz"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D Visualization -->
+  <div class="visualization-3d-container">
+    <h2>3D Forest Visualization</h2>
+    <canvas #canvas3d class="canvas-3d"></canvas>
+    <div class="canvas-instruction">Drag to rotate, scroll to zoom</div>
+  </div>
+
+  <!-- Research Papers Section -->
+  <div class="research-section" *ngIf="viewMode === 'advanced'">
+    <h2>Research Papers</h2>
+    <div class="paper-cards">
+      <div class="paper-card" *ngFor="let paper of researchReferences">
+        <h3>{{ paper.title }}</h3>
+        <p class="paper-author">{{ paper.author }} ({{ paper.year }})</p>
+        <p class="paper-journal">{{ paper.journal }}, {{ paper.volume }}, pages {{ paper.pages }}</p>
+        <p class="paper-doi">DOI: {{ paper.doi }}</p>
+        <a [href]="paper.link" target="_blank" class="paper-link">View Paper</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Section -->
+  <div class="info-section">
+    <div class="info-card">
+      <h3>What are Random Forests?</h3>
+      <p>
+        Random Forests are an ensemble learning method that combines multiple decision trees to improve 
+        prediction accuracy and reduce overfitting. Each tree is trained on a random subset of the data 
+        (bootstrapping) and considers only a random subset of features at each split.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Key Components</h3>
+      <ul>
+        <li><strong>Bootstrapping:</strong> Random sampling with replacement creates diverse training sets</li>
+        <li><strong>Feature Randomness:</strong> Only considering a subset of features at each split adds diversity</li>
+        <li><strong>Decision Trees:</strong> Simple models that make decisions based on feature thresholds</li>
+        <li><strong>Aggregation:</strong> Combining predictions through voting (classification) or averaging (regression)</li>
+        <li><strong>Out-of-Bag Estimation:</strong> Using samples not in bootstrap to estimate generalization error</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3>Advantages</h3>
+      <ul>
+        <li>Reduces overfitting compared to single decision trees</li>
+        <li>Handles high-dimensional data well without feature selection</li>
+        <li>Provides reliable feature importance metrics</li>
+        <li>Robust to outliers and noise in the data</li>
+        <li>Works well for both classification and regression tasks</li>
+        <li>Maintains accuracy when a large proportion of data is missing</li>
+      </ul>
+    </div>
+  </div>
+</div>
