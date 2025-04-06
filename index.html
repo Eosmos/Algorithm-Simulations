@@ -13,5 +13,19 @@
 <body>
   <app-root></app-root>
 <link rel="modulepreload" href="chunk-LEANEOT7.js"><link rel="modulepreload" href="chunk-7EKIJKTV.js"><link rel="modulepreload" href="chunk-CS32D7W3.js"><script src="polyfills-FFHMD2TL.js" type="module"></script><script src="main-2TANST7S.js" type="module"></script></body>
-
+<script>
+  // Check if we need to redirect
+  (function() {
+    const redirect = sessionStorage.getItem('redirect');
+    if (redirect) {
+      // Remove the redirect item
+      sessionStorage.removeItem('redirect');
+      // Redirect to the stored path
+      const path = redirect.replace('/your-repository-name', '');
+      if (path !== '/') {
+        window.history.replaceState(null, null, path);
+      }
+    }
+  })();
+</script>
 </html>
