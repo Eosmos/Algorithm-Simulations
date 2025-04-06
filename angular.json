@@ -17,6 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "baseHref": "/Algorithm-Simulations/",
             "outputPath": "dist/algorithm-simulations",
             "index": "src/index.html",
             "browser": "src/main.ts",
