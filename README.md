@@ -1,59 +1,158 @@
-# AlgorithmSimulations
+# AI Algorithm Explorer
+<img src="src/assets/app-logo.svg" alt="AI Algorithm Explorer Logo" width="360" />
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.1.
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-## Development server
+An interactive Angular application for exploring, visualizing, and simulating machine learning and deep learning algorithms. This modern, visually appealing interface categorizes AI algorithms and provides interactive simulations for each one.
 
-To start a local development server, run:
+## AI Development Experiment
 
-```bash
-ng serve
+> This application is an experiment to determine if I could create a complete application using AI without writing any code myself. Note that while I have 7+ years of development experience, I didn't directly write any code - I only used copy-paste for error messages and guided the AI to generate the solution.
+
+## Features
+
+- **Interactive Algorithm Simulations**: Each algorithm has its own dedicated simulation/visualization component
+- **Intuitive Category Structure**: Hierarchical organization of algorithms by type (Machine Learning, Deep Learning) and subcategories
+- **Interactive UI**: Expandable/collapsible sections with smooth animations
+- **Algorithm Cards**: Detailed cards with descriptions, complexity levels, and popularity indicators
+- **Real-time Search**: Instantly filter algorithms as you type
+- **Visual Indicators**: Color coding and icons to distinguish algorithm types
+- **Responsive Design**: Adapts to different screen sizes
+- **Statistics Display**: Quick overview of the number of algorithms, categories, and learning types
+- **Lazy Loading**: All algorithm simulations are loaded on demand for optimal performance
+
+## Screenshots
+
+### Main Dashboard
+![Main Dashboard](src/assets/screenshots/dashboard.png)
+*The algorithm dashboard showing categories, subcategories, and algorithm cards*
+
+### Linear Regression Simulator
+![Linear Regression](src/assets/screenshots/linear-regression.png)
+*Interactive visualization of linear regression with adjustable parameters*
+
+### K-means Clustering
+![K-means Clustering](src/assets/screenshots/kmeans.png)
+*Dynamic K-means clustering simulation showing centroid movement*
+
+### Convolutional Neural Network
+![CNN Visualization](src/assets/screenshots/cnn.png)
+*Layer-by-layer visualization of a convolutional neural network*
+
+### Q-Learning Simulation
+![Q-Learning](src/assets/screenshots/qlearning.png)
+*Reinforcement learning environment with real-time Q-table updates*
+
+## Technologies Used
+
+- **Angular**: Framework for building the client-side application
+- **TypeScript**: For type-safe code
+- **SCSS**: For advanced styling with variables and nested rules
+- **Font Awesome**: For iconography
+- **Standalone Components**: Modern Angular architecture with standalone components
+- **Lazy Loading**: Routes configured for efficient code-splitting
+- **Router**: Angular router for navigation between algorithm simulations
+
+## Installation
+
+1. Ensure you have Node.js (14+) and npm installed
+2. Clone this repository
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Run the development server:
+   ```bash
+   ng serve
+   ```
+5. Navigate to `http://localhost:4200/` in your browser
+
+## Usage
+
+- Browse the main dashboard to view all available algorithms
+- Expand categories by clicking on the category headers
+- Use the search bar to find specific algorithms
+- Click on an algorithm card to navigate to its simulation page
+- Each algorithm simulation provides interactive controls and visualizations
+- Return to the dashboard using the navigation links
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── algorithm-dashboard/
+│   │   ├── algorithm-dashboard.component.ts    # Main dashboard logic
+│   │   ├── algorithm-dashboard.component.html  # Dashboard template
+│   │   └── algorithm-dashboard.component.scss  # Dashboard styles
+│   ├── algorithms/
+│   │   ├── supervised/                         # Supervised learning algorithms
+│   │   │   ├── linear-regression/
+│   │   │   ├── logistic-regression-simulation/
+│   │   │   └── ...
+│   │   ├── unsupervised/                       # Unsupervised learning algorithms
+│   │   │   ├── kmeans/
+│   │   │   ├── pca/
+│   │   │   └── ...
+│   │   ├── reinforcement/                      # Reinforcement learning algorithms
+│   │   │   ├── qlearning/
+│   │   │   └── ...
+│   │   └── deep-learning/                      # Deep learning algorithms
+│   │       ├── cnn/
+│   │       ├── rnn/
+│   │       └── ...
+│   ├── app.component.ts                        # Main app component
+│   ├── app.component.html                      # Main app template
+│   ├── app.component.scss                      # Main app styles
+│   ├── app.routes.ts                           # Application routes
+│   └── app.config.ts                           # App configuration
+├── assets/
+└── ...
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Algorithm Simulations
 
-## Code scaffolding
+The application includes interactive simulations for the following algorithms:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Machine Learning Algorithms
+- **Supervised Learning**:
+  - Linear Regression: Visualize the line of best fit
+  - Logistic Regression: Observe the sigmoid function and decision boundary
+  - Decision Trees: Explore hierarchical split visualization
+  - Random Forests: See ensemble methods in action
+  - Support Vector Machines: Visualize hyperplanes and margins
+  - Naive Bayes: Understand probabilistic classification
 
-```bash
-ng generate component component-name
-```
+- **Unsupervised Learning**:
+  - K-means Clustering: Watch centroids and clusters form dynamically
+  - Principal Component Analysis: Visualize dimensionality reduction
+  - Autoencoders: See neural compression in action
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- **Reinforcement Learning**:
+  - Q-learning: Observe agents learning optimal policies
+  - Policy Gradient Methods: Watch continuous policy optimization
 
-```bash
-ng generate --help
-```
+### Deep Learning Algorithms
+- **Neural Network Models**:
+  - Convolutional Neural Networks: Visualize filters and feature maps
+  - Recurrent Neural Networks: See sequential data processing
+  - Long Short-Term Memory Networks: Understand gates and memory cells
+  - Generative Adversarial Networks: Watch the generator and discriminator compete
+  - Transformers: Explore attention mechanisms and NLP applications
 
-## Building
+## Future Enhancements
 
-To build the project run:
+- Add downloadable code examples for each algorithm
+- Implement user authentication to save simulation configurations
+- Add dark/light theme toggle
+- Enable sharing of simulation results
+- Create a comparison tool to analyze multiple algorithms side-by-side
+- Add interactive tutorials explaining each algorithm step-by-step
 
-```bash
-ng build
-```
+## Contributing
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Running unit tests
+## License
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
