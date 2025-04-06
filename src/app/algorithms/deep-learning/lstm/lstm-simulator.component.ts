@@ -1,11 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, OnDestroy, HostListener, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'app-lstm-simulator',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './lstm-simulator.component.html',
   styleUrls: ['./lstm-simulator.component.scss']
 })
@@ -22,7 +23,9 @@ export class LstmSimulatorComponent implements OnInit, AfterViewInit, OnDestroy 
   private animationInterval: any;
   
   // LSTM data
-  private sequence = ['The', 'clouds', 'are', 'in', 'the', 'sky'];
+  private defaultSequence = ['The', 'clouds', 'are', 'in', 'the', 'sky'];
+  public sequence: string[] = [...this.defaultSequence];
+  public customSequence = '';
   public timeSteps: LstmTimeStep[] = [];
   
   // D3 elements
@@ -35,6 +38,7 @@ export class LstmSimulatorComponent implements OnInit, AfterViewInit, OnDestroy 
   playbackSpeed = 1;
   showAdvancedView = false;
   activeTab = 'concepts';
+  showCustomInput = false;
   
   // Explanation text
   explanationText = "Long Short-Term Memory (LSTM) networks are specialized RNNs designed to address the vanishing gradient problem, allowing them to effectively learn and remember information over long sequences. LSTMs use gate mechanisms to control information flow, making them powerful for tasks involving long-range dependencies.";
@@ -74,6 +78,14 @@ export class LstmSimulatorComponent implements OnInit, AfterViewInit, OnDestroy 
       journal: "IEEE Transactions on Neural Networks and Learning Systems 28(10): 2222-2232",
       url: "https://arxiv.org/abs/1503.04069",
       description: "A comprehensive analysis of LSTM variants and their performance."
+    },
+    {
+      title: "Sequence to Sequence Learning with Neural Networks",
+      authors: "Ilya Sutskever, Oriol Vinyals, Quoc V. Le",
+      year: 2014,
+      journal: "Advances in Neural Information Processing Systems 27",
+      url: "https://arxiv.org/abs/1409.3215",
+      description: "Applied LSTMs to sequence-to-sequence problems, particularly machine translation."
     }
   ];
   
@@ -114,6 +126,18 @@ export class LstmSimulatorComponent implements OnInit, AfterViewInit, OnDestroy 
       icon: "music_note",
       color: "#ae94ff",
       description: "LSTMs can learn musical patterns and generate new compositions by capturing temporal structures in musical sequences."
+    },
+    {
+      name: "Healthcare",
+      icon: "medical_services",
+      color: "#ff6b6b",
+      description: "LSTMs analyze medical time series data like ECG signals, predict disease progression, and assist in clinical decision making."
+    },
+    {
+      name: "Video Analysis",
+      icon: "videocam",
+      color: "#64b5f6",
+      description: "LSTMs process frame sequences to understand activities, detect anomalies, and track objects across time in video content."
     }
   ];
   
@@ -197,6 +221,46 @@ class LSTMModel(nn.Module):
 model = LSTMModel(input_size, hidden_size, num_layers, num_classes)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+`,
+    javascript: `
+// TensorFlow.js implementation of an LSTM
+import * as tf from '@tensorflow/tfjs';
+
+// Create an LSTM model for text generation
+function createModel(vocabSize, embeddingDim, lstmUnits) {
+  const model = tf.sequential();
+  
+  // Add embedding layer
+  model.add(tf.layers.embedding({
+    inputDim: vocabSize,
+    outputDim: embeddingDim,
+    inputLength: 1
+  }));
+  
+  // Add LSTM layer
+  model.add(tf.layers.lstm({
+    units: lstmUnits,
+    returnSequences: false
+  }));
+  
+  // Add output layer
+  model.add(tf.layers.dense({
+    units: vocabSize,
+    activation: 'softmax'
+  }));
+  
+  // Compile model
+  model.compile({
+    optimizer: tf.train.adam(),
+    loss: 'categoricalCrossentropy',
+    metrics: ['accuracy']
+  });
+  
+  return model;
+}
+
+// Usage
+const model = createModel(vocabSize, 128, 256);
 `
   };
   
@@ -222,19 +286,57 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
       url: "http://cs231n.stanford.edu/",
       type: "Course Material",
       description: "Stanford's course materials on RNN, LSTM, and applications to visual recognition."
+    },
+    {
+      title: "Illustrated Guide to LSTM's and GRU's",
+      author: "Michael Phi",
+      url: "https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21",
+      type: "Tutorial",
+      description: "A step-by-step visual guide to understanding LSTM and GRU architectures."
+    },
+    {
+      title: "A Gentle Introduction to LSTM Networks",
+      author: "Jason Brownlee",
+      url: "https://machinelearningmastery.com/gentle-introduction-long-short-term-memory-networks-experts/",
+      type: "Tutorial",
+      description: "Beginner-friendly introduction to LSTM concepts and implementation."
     }
   ];
   
-  constructor() { }
+  // Real-world examples
+  realWorldExamples = [
+    {
+      name: "Google Translate",
+      description: "Uses LSTM-based sequence-to-sequence models to translate between languages, handling complex grammar and context."
+    },
+    {
+      name: "Apple Siri",
+      description: "Employs LSTMs for speech recognition and natural language understanding to process user commands."
+    },
+    {
+      name: "Netflix Recommendations",
+      description: "Uses LSTMs to analyze viewing patterns over time to make personalized content recommendations."
+    },
+    {
+      name: "Financial Forecasting",
+      description: "Investment firms use LSTMs to predict stock prices by analyzing historical market data and trends."
+    }
+  ];
+  
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   ngOnInit(): void {
-    this.initializeTimeSteps();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeTimeSteps();
+    }
   }
 
   ngAfterViewInit(): void {
-    this.initializeVisualization();
-    // Set up window resize handler
-    window.addEventListener('resize', this.handleResize.bind(this));
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.initializeVisualization();
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -242,17 +344,27 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     if (this.animationInterval) {
       clearInterval(this.animationInterval);
     }
-    window.removeEventListener('resize', this.handleResize.bind(this));
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.handleResize();
   }
 
   private handleResize(): void {
-    // Redraw visualization on window resize
-    this.updateVisualizationSize();
-    this.drawLstmCell(this.timeSteps[this.currentStepIndex]);
+    if (this.svg) {
+      // Redraw visualization on window resize
+      this.updateVisualizationSize();
+      this.drawLstmCell(this.timeSteps[this.currentStepIndex]);
+    }
   }
 
   private updateVisualizationSize(): void {
+    if (!this.simulationContainer) return;
+    
     const container = this.simulationContainer.nativeElement;
+    if (!container) return;
+    
     const containerWidth = container.clientWidth;
     
     // Update SVG size
@@ -263,6 +375,49 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     
     // Update width
     this.width = containerWidth;
+  }
+
+  // Apply custom input sequence
+  applyCustomSequence(): void {
+    if (!this.customSequence.trim()) {
+      return;
+    }
+    
+    // Parse the input string into words
+    const words = this.customSequence
+      .split(/\s+/)
+      .filter(word => word.trim().length > 0)
+      .slice(0, 10); // Limit to 10 words for visualization clarity
+    
+    if (words.length < 2) {
+      alert('Please enter at least 2 words for the sequence.');
+      return;
+    }
+    
+    // Reset and reinitialize with new sequence
+    this.pauseAnimation();
+    this.sequence = words;
+    this.timeSteps = [];
+    this.currentStepIndex = 0;
+    this.initializeTimeSteps();
+    
+    if (this.svg) {
+      this.drawLstmCell(this.timeSteps[0]);
+    }
+  }
+
+  // Reset to default sequence
+  resetToDefaultSequence(): void {
+    this.pauseAnimation();
+    this.sequence = [...this.defaultSequence];
+    this.customSequence = '';
+    this.timeSteps = [];
+    this.currentStepIndex = 0;
+    this.initializeTimeSteps();
+    
+    if (this.svg) {
+      this.drawLstmCell(this.timeSteps[0]);
+    }
   }
 
   // Initialize LSTM time steps with sample data
@@ -316,12 +471,17 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Convert word to vector (simplified for visualization)
   private wordToVector(word: string): number[] {
-    return [
-      word.length / 10,  // Length feature
-      word.charCodeAt(0) % 100 / 100,  // First character feature
-      (word === 'clouds' || word === 'sky') ? 0.9 : 0.2,  // Semantic feature
-      word.includes('e') ? 0.8 : 0.3  // Letter feature
-    ];
+    // Basic features based on the word properties
+    const length = Math.min(word.length / 10, 1);  // Normalized length
+    const firstChar = word.length > 0 ? word.toLowerCase().charCodeAt(0) % 100 / 100 : 0;
+    
+    // Simple semantic features - can be customized based on the sequence
+    const isKeyword = ['clouds', 'sky', 'rain', 'sun', 'mountain', 'river'].includes(word.toLowerCase()) ? 0.9 : 0.2;
+    
+    // Character-based feature
+    const hasCommonLetter = word.toLowerCase().includes('e') ? 0.8 : 0.3;
+    
+    return [length, firstChar, isKeyword, hasCommonLetter];
   }
 
   // Calculate gate values (simplified for visualization)
@@ -333,18 +493,18 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
       // Add semantic understanding for visualization purposes
       if (gateType === 'forget') {
         // Forget gate should be high when we need to remember context
-        if (word === 'clouds' && i === 2) return 0.95;  // Remember "clouds" in semantic dimension
+        if (word.toLowerCase() === 'clouds' && i === 2) return 0.95;  // Remember "clouds" in semantic dimension
         return this.sigmoid(baseValue * 1.5 + 0.3);
       } else if (gateType === 'input') {
         // Input gate should be high for important information
-        if ((word === 'clouds' || word === 'sky') && i === 2) return 0.9;
+        if (['clouds', 'sky', 'rain', 'sun'].includes(word.toLowerCase()) && i === 2) return 0.9;
         return this.sigmoid(baseValue * 1.2);
       } else {
         // Output gate controls what to expose
-        if (word === 'sky' && i === 2) return 0.95;
+        if (word.toLowerCase() === 'sky' && i === 2) return 0.95;
         
         // Fix the specific values to match the expected visualization
-        if (word === 'The') {
+        if (word === 'The' || word === 'the') {
           if (i === 0) return 0.57;
           if (i === 1) return 0.64;
           if (i === 2) return 0.58;
@@ -372,7 +532,15 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Initialize the D3 visualization
   private initializeVisualization(): void {
+    if (!this.simulationContainer || !this.simulationContainer.nativeElement) {
+      console.error('Simulation container not found');
+      return;
+    }
+    
     const element = this.simulationContainer.nativeElement;
+    
+    // Clear any existing SVG
+    d3.select(element).selectAll('svg').remove();
     
     // Create SVG
     this.svg = d3.select(element)
@@ -400,11 +568,17 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
     
     // Draw initial state
-    this.drawLstmCell(this.timeSteps[0]);
+    if (this.timeSteps.length > 0) {
+      this.drawLstmCell(this.timeSteps[0]);
+    } else {
+      console.error('No time steps available to visualize');
+    }
   }
 
   // Draw the LSTM cell for a specific time step
   private drawLstmCell(timeStep: LstmTimeStep): void {
+    if (!this.mainGroup) return;
+    
     // Clear previous drawing
     this.mainGroup.selectAll('*').remove();
     
@@ -457,7 +631,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
       cellHeight / 2, 
       timeStep.input, 
       'Input Vector', 
-      primaryBlue
+      primaryBlue,
+      ['Length', '1st Char', 'Semantic', 'Letter "e"']
     );
     
     // Draw gates
@@ -549,6 +724,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Draw formula legend
   private drawFormulaLegend(cellWidth: number, cellHeight: number): void {
+    if (!this.mainGroup) return;
+    
     const legendGroup = this.mainGroup.append('g')
       .attr('transform', `translate(${cellWidth - 330}, ${50})`);
     
@@ -594,6 +771,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Draw the sequence context
   private drawSequenceContext(width: number, y: number, currentIndex: number): void {
+    if (!this.mainGroup) return;
+    
     const group = this.mainGroup.append('g')
       .attr('transform', `translate(0, ${y})`);
     
@@ -626,10 +805,63 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         .attr('font-weight', index === currentIndex ? 'bold' : 'normal')
         .text(word);
     });
+    
+    // Add tooltip to explain this part
+    group.append('rect')
+      .attr('x', width - 20)
+      .attr('y', -5)
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('fill', '#7c4dff')
+      .attr('rx', 10)
+      .attr('ry', 10)
+      .attr('cursor', 'pointer')
+      .on('mouseover', (event: MouseEvent) => {
+        const tooltip = this.mainGroup.append('g')
+          .attr('class', 'tooltip')
+          .attr('transform', `translate(${width - 200}, ${y - 50})`);
+          
+        tooltip.append('rect')
+          .attr('width', 180)
+          .attr('height', 40)
+          .attr('fill', '#1e3a66')
+          .attr('rx', 5)
+          .attr('ry', 5)
+          .attr('opacity', 0.9);
+          
+        tooltip.append('text')
+          .attr('x', 10)
+          .attr('y', 25)
+          .attr('fill', '#ffffff')
+          .attr('font-size', '12px')
+          .text('Input sequence processed one word at a time');
+      })
+      .on('mouseout', (event: MouseEvent) => {
+        this.mainGroup.selectAll('.tooltip').remove();
+      });
+      
+    group.append('text')
+      .attr('x', width - 10)
+      .attr('y', 7)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('fill', '#ffffff')
+      .attr('font-size', '14px')
+      .attr('font-weight', 'bold')
+      .text('?');
   }
 
   // Draw a vector as a series of cells
-  private drawVector(x: number, y: number, values: number[], label: string, color: string): void {
+  private drawVector(
+    x: number, 
+    y: number, 
+    values: number[], 
+    label: string, 
+    color: string,
+    featureLabels?: string[]
+  ): void {
+    if (!this.mainGroup) return;
+    
     const cellSize = 50;
     const spacing = 15;
     
@@ -671,19 +903,31 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         .attr('font-size', '16px')
         .text(value.toFixed(2));
       
-      // Index indicator (0-3)
+      // Index indicator (0-3) or feature label if provided
+      const labelText = featureLabels && featureLabels[i] ? featureLabels[i] : `[${i}]`;
+      
       group.append('text')
         .attr('x', i * (cellSize + spacing) + cellSize / 2)
         .attr('y', cellSize + 15)
         .attr('text-anchor', 'middle')
         .attr('fill', '#8a9ab0')
         .attr('font-size', '12px')
-        .text(`[${i}]`);
+        .text(labelText);
     });
   }
 
   // Draw a gate with sigmoid activation visualization
-  private drawGate(x: number, y: number, values: number[], label: string, color: string, impactValues?: number[], fixAlignment: boolean = false): void {
+  private drawGate(
+    x: number, 
+    y: number, 
+    values: number[], 
+    label: string, 
+    color: string, 
+    impactValues?: number[], 
+    fixAlignment: boolean = false
+  ): void {
+    if (!this.mainGroup) return;
+    
     const cellSize = 50;
     const spacing = 15;
     
@@ -804,6 +1048,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     label: string, 
     color: string
   ): void {
+    if (!this.mainGroup) return;
+    
     const cellSize = 50;
     const spacing = 15;
     const laneHeight = 110;
@@ -906,6 +1152,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Draw hidden state
   private drawState(x: number, y: number, prevValues: number[], newValues: number[], label: string, color: string): void {
+    if (!this.mainGroup) return;
+    
     const cellSize = 50;
     const spacing = 15;
     
@@ -979,6 +1227,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     stateAreaWidth: number,
     timeStep: LstmTimeStep
   ): void {
+    if (!this.mainGroup) return;
+    
     // Clear any previous lines to prevent visual artifacts
     this.mainGroup.selectAll('.connection-line').remove();
     
@@ -1100,6 +1350,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Animate connection to show data flow
   private animateConnection(line: any, color: string): void {
+    if (!line) return;
+    
     line.attr('stroke-dasharray', '5,5')
       .attr('stroke-dashoffset', 0)
       .transition()
@@ -1111,6 +1363,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Draw explanation text for current step
   private drawStepExplanation(timeStep: LstmTimeStep, cellWidth: number, cellHeight: number): void {
+    if (!this.mainGroup) return;
+    
     // Calculate average gate activations for explanation
     const forgetGateAvg = d3.mean(timeStep.forgetGate) || 0;
     const inputGateAvg = d3.mean(timeStep.inputGate) || 0;
@@ -1119,18 +1373,19 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     // Generate explanation based on time step
     let explanation = '';
     
-    if (timeStep.word === 'The') {
+    if (timeStep.word === 'The' || timeStep.word === 'the') {
       explanation = `Starting to process the sentence. The forget gate is moderately active (${(forgetGateAvg * 100).toFixed(0)}%), since there's no previous context to forget yet. The input gate is adding new information about "The" to the cell state.`;
-    } else if (timeStep.word === 'clouds') {
+    } else if (timeStep.word.toLowerCase() === 'clouds') {
       explanation = `Processing "clouds" - an important semantic word. The forget gate remains high (${(forgetGateAvg * 100).toFixed(0)}%), preserving context. The input gate is highly active (${(inputGateAvg * 100).toFixed(0)}%) as this word contains key information that will be needed later to predict related words like "sky".`;
-    } else if (timeStep.word === 'are') {
+    } else if (timeStep.word.toLowerCase() === 'are') {
       explanation = `For "are", the gates show moderate activity. The cell state maintains information about "clouds" from the previous step, demonstrating how LSTMs preserve important context over multiple time steps.`;
-    } else if (timeStep.word === 'in') {
+    } else if (timeStep.word.toLowerCase() === 'in') {
       explanation = `For the preposition "in", the gates show typical behavior for a connecting word. Notice how the information about "clouds" is still preserved in the cell state vectors.`;
-    } else if (timeStep.word === 'the') {
-      explanation = `Processing another article "the". The output gate has moderate activation (${(outputGateAvg * 100).toFixed(0)}%), as the network prepares for an important upcoming word.`;
-    } else if (timeStep.word === 'sky') {
+    } else if (timeStep.word.toLowerCase() === 'sky') {
       explanation = `For "sky", the output gate is highly active (${(outputGateAvg * 100).toFixed(0)}%), as this is a key word. Notice the semantic relationship between "clouds" and "sky" - the LSTM's cell state maintained the semantic information about "clouds" through several time steps, enabling it to properly handle this long-range dependency.`;
+    } else {
+      // Generic explanation for custom inputs
+      explanation = `Processing "${timeStep.word}". The forget gate activity is ${(forgetGateAvg * 100).toFixed(0)}%, the input gate is ${(inputGateAvg * 100).toFixed(0)}% active, and the output gate is ${(outputGateAvg * 100).toFixed(0)}% active. Watch how information flows through the cell state and affects the hidden state output.`;
     }
     
     // Add explanation text panel
@@ -1159,6 +1414,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
   // Helper to wrap text
   private wrapText(selection: any, text: string, x: number, y: number, width: number, lineHeight: number): void {
+    if (!selection) return;
+    
     const words = text.split(/\s+/).reverse();
     let word;
     let line: string[] = [];
@@ -1172,19 +1429,20 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
       .attr('x', x)
       .attr('y', y);
     
-    while (word = words.pop()) {
+    while ((word = words.pop())) {
       line.push(word);
       tspan.text(line.join(' '));
       if (tspan.node().getComputedTextLength() > width) {
         line.pop();
         tspan.text(line.join(' '));
         line = [word];
+        lineNumber++;
         tspan = selection.append('text')
           .attr('x', x)
           .attr('y', y)
           .attr('fill', '#e1e7f5')
           .attr('font-size', '14px')
-          .attr('dy', ++lineNumber * lineHeight)
+          .attr('dy', lineNumber * lineHeight)
           .append('tspan')
           .attr('x', x)
           .text(word);
@@ -1266,6 +1524,11 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     this.drawLstmCell(this.timeSteps[this.currentStepIndex]);
   }
   
+  // Toggle custom input section
+  toggleCustomInput(): void {
+    this.showCustomInput = !this.showCustomInput;
+  }
+  
   // Set active tab
   setActiveTab(tab: string): void {
     this.activeTab = tab;
@@ -1284,6 +1547,30 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     this.pauseAnimation();
     this.currentStepIndex = 0;
     this.drawLstmCell(this.timeSteps[this.currentStepIndex]);
+  }
+  
+  // Download current view as SVG
+  downloadSVG(): void {
+    if (!this.svg || !isPlatformBrowser(this.platformId)) return;
+    
+    try {
+      // Get SVG content
+      const svgElement = this.svg.node();
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svgElement);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.setAttribute('href', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString));
+      link.setAttribute('download', `lstm-step-${this.currentStepIndex + 1}.svg`);
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading SVG:', error);
+    }
   }
 }
 
