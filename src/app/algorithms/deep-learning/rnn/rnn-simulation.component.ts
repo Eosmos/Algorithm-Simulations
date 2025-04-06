@@ -5,7 +5,6 @@ import * as d3 from 'd3';
 import { RnnVisualizationGuideComponent } from './rnn-simulation-note.component';
 import { EquationDisplayComponent } from './equation-display.component';
 
-// Angular 19 compatible import for OrbitControls
 // Make sure to install @types/three package if not already installed
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
@@ -87,6 +86,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit(): void {
+    if (!this.canvasRef?.nativeElement) {
+      console.error('Canvas element not found');
+      return;
+    }
+    
     this.initThreeJS();
     this.createRNNModel();
     this.updateView();
@@ -106,12 +110,15 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
 
   @HostListener('window:resize')
   onWindowResize(): void {
-    if (this.camera && this.renderer) {
-      const canvas = this.canvasRef.nativeElement;
-      this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    if (!this.camera || !this.renderer || !this.canvasRef?.nativeElement) {
+      return;
     }
+    
+    const canvas = this.canvasRef.nativeElement;
+    this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    
     // Redraw D3 charts
     this.renderHiddenStateChart();
     this.renderOutputChart();
@@ -119,6 +126,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private initThreeJS(): void {
+    if (!this.canvasRef?.nativeElement) {
+      console.error('Canvas element not found');
+      return;
+    }
+    
     const canvas = this.canvasRef.nativeElement;
     
     // Scene setup
@@ -158,6 +170,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private createRNNModel(): void {
+    if (!this.scene) {
+      console.error('Scene not initialized');
+      return;
+    }
+    
     // Clear existing model
     this.neurons = [];
     this.connections = [];
@@ -180,6 +197,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private createNeurons(): void {
+    if (!this.scene) {
+      console.error('Scene not initialized');
+      return;
+    }
+    
     // Materials
     const inputMaterial = new THREE.MeshPhongMaterial({ color: '#4285f4' }); // Primary Blue
     const hiddenMaterial = new THREE.MeshPhongMaterial({ color: '#7c4dff' }); // Purple
@@ -223,6 +245,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private createConnections(): void {
+    if (!this.scene) {
+      console.error('Scene not initialized');
+      return;
+    }
+    
     // Material for connections
     const feedforwardMaterial = new THREE.LineBasicMaterial({ color: '#8bb4fa', transparent: true, opacity: 0.5 }); // Light Blue
     const recurrentMaterial = new THREE.LineBasicMaterial({ color: '#ff9d45', transparent: true, opacity: 0.7 }); // Orange
@@ -302,6 +329,10 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private getNeuronByName(name: string): THREE.Object3D | null {
+    if (!this.neurons || this.neurons.length === 0) {
+      return null;
+    }
+    
     for (const group of this.neurons) {
       const neuron = group.children.find(child => child.name === name);
       if (neuron) {
@@ -313,6 +344,10 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private animate(): void {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
+    
+    if (!this.clock || !this.renderer || !this.scene || !this.camera || !this.controls) {
+      return;
+    }
     
     const delta = this.clock.getDelta();
     
@@ -358,11 +393,16 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private animateDataFlow(delta: number): void {
+    if (!this.connections || !this.clock) {
+      return;
+    }
+    
     const timeStep = Math.floor(this.currentTimeStep);
-    const timeFraction = this.currentTimeStep - timeStep;
     
     // Animate data flowing through connections
     this.connections.forEach(connection => {
+      if (!connection) return;
+      
       const material = connection.material as THREE.LineBasicMaterial;
       const name = connection.name;
       
@@ -383,17 +423,23 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private updateNeuronActivations(): void {
+    if (!this.neurons || this.neurons.length === 0) {
+      return;
+    }
+    
     const timeStep = Math.floor(this.currentTimeStep);
-    const fraction = this.currentTimeStep - timeStep;
     
     // Update neuron colors and sizes based on activation
     for (let t = 0; t < this.timeSteps; t++) {
       const group = this.neurons[t];
+      if (!group) continue;
       
       // Emphasize current time step and fade others
       const opacity = t === timeStep ? 1.0 : 0.3;
       
       group.children.forEach(child => {
+        if (!child) return;
+        
         const mesh = child as THREE.Mesh;
         const material = mesh.material as THREE.MeshPhongMaterial;
         
@@ -402,7 +448,7 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
         
         if (child.name.startsWith('hidden_')) {
           const hiddenIndex = parseInt(child.name.split('_')[2]);
-          if (t <= timeStep) {
+          if (t <= timeStep && this.hiddenStates[t] && this.hiddenStates[t][hiddenIndex] !== undefined) {
             // Get activation value from stored hidden states
             const activation = this.hiddenStates[t][hiddenIndex];
             
@@ -416,7 +462,7 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
           }
         } else if (child.name.startsWith('output_')) {
           const outputIndex = parseInt(child.name.split('_')[2]);
-          if (t <= timeStep) {
+          if (t <= timeStep && this.outputs[t] && this.outputs[t][outputIndex] !== undefined) {
             // Get activation value from stored outputs
             const activation = this.outputs[t][outputIndex];
             
@@ -434,10 +480,16 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private updateConnectionStrengths(): void {
+    if (!this.connections || this.connections.length === 0) {
+      return;
+    }
+    
     const timeStep = Math.floor(this.currentTimeStep);
     
     // Update connection opacity and thickness based on weights and gradient flow
     for (const connection of this.connections) {
+      if (!connection) continue;
+      
       const name = connection.name;
       
       if (name.includes(`_${timeStep}_`)) {
@@ -447,6 +499,8 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
       } else if (this.selectedView === 'gradient' && name.includes('recurrent')) {
         // Show gradient flow in recurrent connections
         const parts = name.split('_');
+        if (parts.length < 4) continue;
+        
         const fromTimeStep = parseInt(parts[2]);
         const toTimeStep = parseInt(parts[3]);
         
@@ -468,6 +522,8 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
       } else if (name.includes('recurrent')) {
         // Recurrent connections
         const parts = name.split('_');
+        if (parts.length < 4) continue;
+        
         const fromTimeStep = parseInt(parts[2]);
         const toTimeStep = parseInt(parts[3]);
         
@@ -495,6 +551,10 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private setupCompactView(): void {
+    if (!this.camera || !this.controls || !this.neurons || this.neurons.length === 0 || !this.connections) {
+      return;
+    }
+    
     // Reset camera position
     this.camera.position.set(0, 0, 15);
     this.controls.update();
@@ -502,6 +562,8 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     // Show only one time step
     for (let t = 0; t < this.timeSteps; t++) {
       const group = this.neurons[t];
+      if (!group) continue;
+      
       group.visible = t === 0;
       
       // Position the visible group at the center
@@ -512,6 +574,8 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     
     // Show only connections for the visible time step
     for (const connection of this.connections) {
+      if (!connection) continue;
+      
       const name = connection.name;
       connection.visible = name.includes('_0_');
     }
@@ -521,6 +585,10 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private setupUnrolledView(): void {
+    if (!this.camera || !this.controls || !this.neurons || this.neurons.length === 0 || !this.connections) {
+      return;
+    }
+    
     // Calculate center of the model
     const centerX = ((this.timeSteps - 1) * 5) / 2;
     
@@ -532,12 +600,15 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     // Show all time steps
     for (let t = 0; t < this.timeSteps; t++) {
       const group = this.neurons[t];
+      if (!group) continue;
+      
       group.visible = true;
       group.position.set(0, 0, 0);
     }
     
     // Show all connections
     for (const connection of this.connections) {
+      if (!connection) continue;
       connection.visible = true;
     }
     
@@ -549,12 +620,16 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
   
   private fitCameraToModel(): void {
+    if (!this.camera || !this.controls || !this.neurons) {
+      return;
+    }
+    
     // Create a bounding box encompassing all neurons
     const bbox = new THREE.Box3();
     
     // Add all visible objects to the bounding box
     this.neurons.forEach(group => {
-      if (group.visible) {
+      if (group && group.visible) {
         bbox.expandByObject(group);
       }
     });
@@ -590,6 +665,10 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private addRecurrentSelfLoop(): void {
+    if (!this.scene) {
+      return;
+    }
+    
     // Check if self-loop already exists
     if (this.scene.getObjectByName('recurrent_self_loop')) {
       return;
@@ -618,6 +697,10 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private removeRecurrentSelfLoop(): void {
+    if (!this.scene) {
+      return;
+    }
+    
     const selfLoop = this.scene.getObjectByName('recurrent_self_loop');
     if (selfLoop) {
       this.scene.remove(selfLoop);
@@ -661,6 +744,10 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private disposeThreeJSResources(): void {
+    if (!this.scene || !this.renderer) {
+      return;
+    }
+    
     // Dispose of geometries, materials, textures, etc.
     this.scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
@@ -668,6 +755,21 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
           object.geometry.dispose();
         }
         
+        if (object.material) {
+          if (Array.isArray(object.material)) {
+            object.material.forEach(material => {
+              if (material.map) material.map.dispose();
+              material.dispose();
+            });
+          } else {
+            if (object.material.map) object.material.map.dispose();
+            object.material.dispose();
+          }
+        }
+      } else if (object instanceof THREE.Line) {
+        if (object.geometry) {
+          object.geometry.dispose();
+        }
         if (object.material) {
           if (Array.isArray(object.material)) {
             object.material.forEach(material => material.dispose());
@@ -678,12 +780,26 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
       }
     });
     
+    // Clear arrays
+    this.neurons = [];
+    this.connections = [];
+    
+    // Clear scene
+    this.scene.clear();
+    
     // Dispose of the renderer
     this.renderer.dispose();
+    
+    // Release references
+    if (this.controls) {
+      this.controls.dispose();
+    }
   }
 
   private renderHiddenStateChart(): void {
-    if (!this.hiddenStateChartRef) return;
+    if (!this.hiddenStateChartRef || !this.hiddenStateChartRef.nativeElement) {
+      return;
+    }
     
     const container = this.hiddenStateChartRef.nativeElement;
     container.innerHTML = '';
@@ -691,6 +807,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const width = container.clientWidth - margin.left - margin.right;
     const height = container.clientHeight - margin.top - margin.bottom;
+    
+    // Check dimensions
+    if (width <= 0 || height <= 0) {
+      return;
+    }
     
     const svg = d3.select(container)
       .append('svg')
@@ -702,7 +823,9 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     // Current time step rounded down
     const timeStep = Math.floor(this.currentTimeStep);
     
-    if (timeStep >= this.hiddenStates.length) return;
+    if (timeStep >= this.hiddenStates.length || !this.hiddenStates[timeStep]) {
+      return;
+    }
     
     const data = this.hiddenStates[timeStep].map((value, index) => ({
       unit: index,
@@ -723,7 +846,7 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
       .enter()
       .append('rect')
       .attr('class', 'bar')
-      .attr('x', d => x(d.unit.toString()) as number)
+      .attr('x', d => x(d.unit.toString()) || 0)
       .attr('width', x.bandwidth())
       .attr('y', d => y(d.value))
       .attr('height', d => height - y(d.value))
@@ -748,7 +871,9 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private renderOutputChart(): void {
-    if (!this.outputChartRef) return;
+    if (!this.outputChartRef || !this.outputChartRef.nativeElement) {
+      return;
+    }
     
     const container = this.outputChartRef.nativeElement;
     container.innerHTML = '';
@@ -756,6 +881,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const width = container.clientWidth - margin.left - margin.right;
     const height = container.clientHeight - margin.top - margin.bottom;
+    
+    // Check dimensions
+    if (width <= 0 || height <= 0) {
+      return;
+    }
     
     const svg = d3.select(container)
       .append('svg')
@@ -767,7 +897,9 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     // Current time step rounded down
     const timeStep = Math.floor(this.currentTimeStep);
     
-    if (timeStep >= this.outputs.length) return;
+    if (timeStep >= this.outputs.length || !this.outputs[timeStep]) {
+      return;
+    }
     
     const data = this.outputs[timeStep].map((value, index) => ({
       unit: index,
@@ -788,7 +920,7 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
       .enter()
       .append('rect')
       .attr('class', 'bar')
-      .attr('x', d => x(d.unit.toString()) as number)
+      .attr('x', d => x(d.unit.toString()) || 0)
       .attr('width', x.bandwidth())
       .attr('y', d => y(d.value))
       .attr('height', d => height - y(d.value))
@@ -813,7 +945,9 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private renderGradientChart(): void {
-    if (!this.gradientChartRef || this.selectedView !== 'gradient') return;
+    if (!this.gradientChartRef || !this.gradientChartRef.nativeElement || this.selectedView !== 'gradient') {
+      return;
+    }
     
     const container = this.gradientChartRef.nativeElement;
     container.innerHTML = '';
@@ -822,6 +956,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     const width = container.clientWidth - margin.left - margin.right;
     const height = container.clientHeight - margin.top - margin.bottom;
     
+    // Check dimensions
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+    
     const svg = d3.select(container)
       .append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -829,9 +968,15 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
     
+    if (!this.gradients || this.gradients.length === 0) {
+      return;
+    }
+    
     // Create data for line chart showing gradient magnitudes over time
-    const data = [];
+    const data: { timeStep: number, gradient: number }[] = [];
     for (let t = 0; t < this.timeSteps; t++) {
+      if (!this.gradients[t]) continue;
+      
       // Calculate average gradient magnitude for this time step
       const avgGradient = this.gradients[t].reduce((sum, val) => sum + val, 0) / this.gradients[t].length;
       data.push({
@@ -840,12 +985,17 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
       });
     }
     
+    if (data.length === 0) {
+      return;
+    }
+    
     const x = d3.scaleLinear()
       .domain([0, this.timeSteps - 1])
       .range([0, width]);
     
+    const maxGradient = d3.max(data, d => d.gradient);
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.gradient) as number])
+      .domain([0, maxGradient !== undefined ? maxGradient : 1])
       .range([height, 0]);
     
     // Add line
@@ -899,6 +1049,11 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
     for (let i = 0; i < 5; i++) {
       // Get a random output from our simulation
       const timeStep = Math.min(i, this.timeSteps - 1);
+      
+      if (!this.outputs[timeStep]) {
+        continue;
+      }
+      
       const outputProbs = this.outputs[timeStep];
       
       // Pick a character based on the output probabilities
@@ -910,7 +1065,7 @@ export class RnnSimulationComponent implements OnInit, AfterViewInit, OnDestroy 
         if (r <= sum) {
           // Map to a character (simplified)
           const charIndex = Math.floor(j * (chars.length / outputProbs.length));
-          output += chars[charIndex];
+          output += chars[charIndex % chars.length]; // Ensure within bounds
           break;
         }
       }

@@ -1,6 +1,5 @@
 import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Import CommonModule for ngIf, ngFor, etc.
-import * as d3 from 'd3';
 
 @Component({
   selector: 'app-cnn-visualization',

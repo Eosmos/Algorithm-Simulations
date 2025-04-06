@@ -40,6 +40,8 @@ export class MathEquationComponent implements AfterViewInit, OnChanges {
   @ViewChild('mathContainer') mathContainer!: ElementRef<HTMLDivElement>;
   
   private hasRendered = false;
+  private renderRetryCount = 0;
+  private maxRetries = 5;
   
   constructor(
     private mathService: MathRenderingService,
@@ -54,6 +56,7 @@ export class MathEquationComponent implements AfterViewInit, OnChanges {
     if (changes['equation'] || changes['display']) {
       // Only re-render if view is already initialized
       if (this.mathContainer?.nativeElement) {
+        this.renderRetryCount = 0;
         setTimeout(() => this.renderEquation(), 0);
       }
     }
@@ -74,12 +77,38 @@ export class MathEquationComponent implements AfterViewInit, OnChanges {
     // Add a small delay to ensure the DOM is updated
     setTimeout(() => {
       this.ngZone.runOutsideAngular(() => {
-        this.mathService.render(container);
+        try {
+          this.mathService.render(container)
+            .then(() => {
+              this.hasRendered = true;
+              this.renderRetryCount = 0;
+            })
+            .catch((error) => {
+              console.error('Error rendering equation:', error);
+              this.handleRenderError();
+            });
+        } catch (error) {
+          console.error('Error initiating equation rendering:', error);
+          this.handleRenderError();
+        }
       });
     }, 100);
   }
   
+  private handleRenderError(): void {
+    if (this.renderRetryCount < this.maxRetries) {
+      this.renderRetryCount++;
+      const delay = 300 * this.renderRetryCount;
+      console.log(`Retrying equation render (attempt ${this.renderRetryCount}) in ${delay}ms`);
+      setTimeout(() => this.renderEquation(), delay);
+    } else {
+      console.error(`Failed to render equation after ${this.maxRetries} attempts:`, this.equation);
+    }
+  }
+  
   private formatEquation(equation: string): string {
+    if (!equation) return '';
+    
     // Clean up any problematic characters
     let cleanEquation = equation.trim()
       .replace(/\\{/g, '\\lbrace')

@@ -17,15 +17,25 @@ export class RnnVisualizationGuideComponent implements OnInit {
 
   ngOnInit(): void {
     // Check if the user has previously closed the guide
-    const guideState = localStorage.getItem('rnnGuideExpanded');
-    if (guideState !== null) {
-      this.isExpanded = guideState === 'true';
+    try {
+      const guideState = localStorage.getItem('rnnGuideExpanded');
+      if (guideState !== null) {
+        this.isExpanded = guideState === 'true';
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      // Continue with default value if localStorage fails
     }
   }
   
   toggleGuide(): void {
     this.isExpanded = !this.isExpanded;
     // Save the user preference
-    localStorage.setItem('rnnGuideExpanded', this.isExpanded.toString());
+    try {
+      localStorage.setItem('rnnGuideExpanded', this.isExpanded.toString());
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+      // Continue without saving if localStorage fails
+    }
   }
 }
